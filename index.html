@@ -332,8 +332,10 @@ async function doLogin(){
       $i('login-msg').textContent='Error: '+signInErr.message;$i('login-msg').style.color='var(--rd)';return;
     }
   }
-  // Successful login - reload to init
-  window.location.reload();
+  // Successful login - hide login, init the app
+  $i('login-msg').textContent='✓ Signed in. Loading...';$i('login-msg').style.color='var(--ac)';
+  await checkAuth();
+  await init();
 }
 
 async function signOut(){await sb.auth.signOut();window.location.reload();}
@@ -393,9 +395,7 @@ async function checkAuth(){
   return true;
 }
 
-sb.auth.onAuthStateChange(async(event)=>{
-  if(event==='SIGNED_IN'){await checkAuth();init();}
-});
+// Note: onAuthStateChange not needed since doLogin handles init directly
 function navTo(p){document.querySelectorAll('.page').forEach(x=>x.classList.remove('active'));document.querySelectorAll('.nav-link').forEach(x=>x.classList.remove('a'));$i('pg-'+p).classList.add('active');$i('nav-'+p).classList.add('a');}
 
 // HTM PARSER
