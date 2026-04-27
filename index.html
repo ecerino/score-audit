@@ -10,7 +10,10 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
-:root{--bg:#F5F5F3;--card:#FFFFFF;--nav:#2A2D31;--nav-tx:#FFFFFF;--tx:#1A1A1A;--ts:#6B6B6B;--tl:#ABABAB;--ac:#2B6B3F;--al:rgba(43,107,63,.08);--rd:#B33A3A;--rl:rgba(179,58,58,.06);--brd:#DDDAD5;--brl:#ECEAE6;--font:'Rubik',system-ui,sans-serif}
+/* LIGHT THEME (default) */
+:root{--bg:#F5F5F3;--card:#FFFFFF;--nav:#2A2D31;--nav-tx:#FFFFFF;--tx:#1A1A1A;--ts:#6B6B6B;--tl:#ABABAB;--ac:#2B6B3F;--al:rgba(43,107,63,.08);--rd:#B33A3A;--rl:rgba(179,58,58,.06);--brd:#DDDAD5;--brl:#ECEAE6;--row-hover:rgba(0,0,0,.02);--shadow:rgba(0,0,0,.06);--font:'Rubik',system-ui,sans-serif}
+/* DARK THEME */
+body.dark{--bg:#15171B;--card:#1F2227;--nav:#0F1114;--nav-tx:#FFFFFF;--tx:#E5E7EB;--ts:#9CA3AF;--tl:#6B7280;--ac:#4ADE80;--al:rgba(74,222,128,.12);--rd:#F87171;--rl:rgba(248,113,113,.12);--brd:#2F3338;--brl:#252830;--row-hover:rgba(255,255,255,.03);--shadow:rgba(0,0,0,.4)}
 *{margin:0;padding:0;box-sizing:border-box}
 body{font-family:var(--font);background:var(--bg);color:var(--tx);min-height:100vh;font-size:14px;font-weight:400}
 .nav{background:var(--nav);color:#fff;height:60px;box-shadow:0 1px 0 rgba(0,0,0,.1);position:sticky;top:0;z-index:100}
@@ -56,7 +59,7 @@ body{font-family:var(--font);background:var(--bg);color:var(--tx);min-height:100
 .cal-cell.today{border-color:var(--ac)}
 .cal-date{font-size:12px;font-weight:500;color:var(--ts);margin-bottom:4px;display:flex;align-items:center;justify-content:space-between}
 .cal-cell.today .cal-date span:first-child{color:var(--ac)}
-.cal-cell.closed{background:rgba(0,0,0,.04);opacity:.6}
+.cal-cell.closed{background:var(--row-hover);opacity:.6}
 .cal-cell.closed .cal-date span:first-child{color:var(--tl);text-decoration:line-through}
 .cal-courses{display:flex;flex-direction:column;gap:2px}
 .cal-chip{font-size:10px;font-weight:500;padding:3px 6px;border-radius:3px;cursor:pointer;transition:all .15s;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-align:center}
@@ -67,22 +70,49 @@ body{font-family:var(--font);background:var(--bg);color:var(--tx);min-height:100
 .close-btn{font-size:10px;color:var(--tl);cursor:pointer;font-weight:500;width:18px;height:18px;display:flex;align-items:center;justify-content:center;border-radius:3px}
 .close-btn:hover{background:var(--rl);color:var(--rd)}
 .cal-cell.closed .close-btn{color:var(--rd)}
+/* User menu */
+.user-menu{display:flex;align-items:center;gap:10px;padding:0 12px 0 18px;height:60px;cursor:pointer;border-left:1px solid rgba(255,255,255,.1);margin-left:8px;position:relative;color:rgba(255,255,255,.85)}
+.user-menu:hover{background:rgba(255,255,255,.06);color:#fff}
+.user-avatar{width:30px;height:30px;border-radius:50%;background:var(--ac);color:#fff;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:500;letter-spacing:.3px;flex-shrink:0}
+.user-name-block{display:flex;flex-direction:column;line-height:1.2}
+.user-name{font-size:13px;font-weight:500}
+.user-role{font-size:10px;font-weight:400;color:rgba(255,255,255,.55);text-transform:uppercase;letter-spacing:.5px}
+.user-dropdown{position:absolute;top:100%;right:0;background:var(--card);border:1px solid var(--brd);border-radius:8px;box-shadow:0 4px 16px rgba(0,0,0,.1);min-width:200px;display:none;z-index:200;overflow:hidden}
+.user-menu.open .user-dropdown{display:block}
+.user-dd-header{padding:10px 14px;font-size:12px;color:var(--ts);border-bottom:1px solid var(--brl);background:var(--bg)}
+.user-dd-item{padding:10px 14px;font-size:13px;color:var(--tx);cursor:pointer;font-weight:500}
+.user-dd-item:hover{background:var(--brl)}
+/* Member (view-only) - chips don't show hover state, can't be clicked */
+body.member-view .cal-chip,body.member-view .close-btn{cursor:default!important;pointer-events:none}
+body.member-view .cal-chip.missing:hover{background:var(--brl);color:var(--tl)}
+body.member-view .upload-area{cursor:default;pointer-events:none}
+body.member-view .upload-area:hover{border-color:var(--brd);background:transparent}
+body.member-view .close-btn{display:none}
+/* Round % display in calendar */
+.cal-pct{font-size:9px;font-weight:500;color:var(--tl);margin-left:4px}
+.cal-pct.has{color:var(--ac)}
+.cal-pct.miss{color:var(--rd)}
+.cal-day-total{font-size:10px;font-weight:500;color:var(--ts)}
+.cal-day-total.miss{color:var(--rd)}
+.cal-day-total.ok{color:var(--ac)}
+.cal-no-file{font-size:9px;font-weight:500;color:var(--tl);font-style:italic;text-align:center;padding:12px 0}
+.cal-no-file.passed{color:var(--rd);font-style:normal}
 .placeholder{padding:40px;text-align:center;color:var(--tl);font-size:14px;font-weight:400}
 /* Tables */
 .tw{border:1px solid var(--brd);border-radius:8px;background:var(--card);overflow:hidden;margin-bottom:16px}
 .tw-conn{border-top:none;border-top-left-radius:0;border-top-right-radius:0}
 table{width:100%;border-collapse:collapse;font-size:13px}
 th{background:var(--nav);color:#fff;padding:9px 14px;text-align:left;font-weight:500;font-size:11px;text-transform:uppercase;letter-spacing:.6px;white-space:nowrap}
-td{padding:6px 14px;border-bottom:1px solid var(--brl);white-space:nowrap;font-size:13px;height:36px;vertical-align:middle;font-weight:400}
-tr:hover td{background:rgba(0,0,0,.02)}tr:last-child td{border-bottom:none}
-.mt{color:var(--rd);font-weight:500}.nb{font-weight:500}.nt{color:var(--tl);font-style:italic}
+td{padding:4px 14px;border-bottom:1px solid var(--brl);white-space:nowrap;font-size:13px;height:30px;vertical-align:middle;font-weight:400}
+tr:hover td{background:var(--row-hover)}tr:last-child td{border-bottom:none}
+.mt{color:var(--rd);font-weight:400}.nb{font-weight:500}.nt{color:var(--tl);font-style:italic}
 .row-miss{background:var(--rl)}
 /* Tabs */
 .sub-tabs{display:flex;gap:0;width:100%}
 .st-tab{flex:1;text-align:center;padding:12px 18px;font-size:13px;font-weight:500;color:var(--ts);cursor:pointer;border:1px solid var(--brd);border-right:none;background:var(--card);transition:all .12s}
 .st-tab:last-child{border-right:1px solid var(--brd)}
 .st-tab:first-child{border-top-left-radius:8px}.st-tab:last-child{border-top-right-radius:8px}
-.st-tab:hover{color:var(--tx);background:rgba(0,0,0,.02)}
+.st-tab:hover{color:var(--tx);background:var(--row-hover)}
 .st-tab.a{color:#fff;background:var(--nav);border-color:var(--nav)}
 .st-tab.a+.st-tab{border-left-color:var(--nav)}
 .st-num{display:inline-block;background:rgba(0,0,0,.06);color:var(--ts);padding:2px 9px;border-radius:10px;font-size:11px;font-weight:500;margin-left:8px}
@@ -108,17 +138,61 @@ tr:hover td{background:rgba(0,0,0,.02)}tr:last-child td{border-bottom:none}
 .email-btn:hover{background:var(--al);border-color:var(--ac)}
 .au-warn{padding:10px 14px;border-radius:6px;font-size:13px;font-weight:400;margin-bottom:8px;display:flex;align-items:center;gap:8px}
 .au-warn.warn-miss{background:#FFF3E0;color:#E65100;border:1px solid #FFE0B2}
+body.dark .au-warn.warn-miss{background:rgba(248,113,113,.12);color:#FCA5A5;border-color:rgba(248,113,113,.3)}
 .au-warn.warn-ok{background:var(--al);color:var(--ac);border:1px solid rgba(43,107,63,.2)}
+/* Blocked row colors that respect theme */
+.tee-block-pure{background:#C8C6C2}
+.tee-block-event{background:#EDECEA}
+body.dark .tee-block-pure{background:#2A2E33}
+body.dark .tee-block-event{background:#222529}
+/* Form inputs */
+input[type="email"],input[type="password"],input[type="date"],input[type="text"],select{background:var(--card);color:var(--tx)}
+input::placeholder{color:var(--tl)}
 @media(max-width:768px){.nav-inner{padding:10px 16px;flex-wrap:wrap;height:auto;gap:8px}.nav-brand .nb-top{font-size:9px}.nav-brand .nb-bot{font-size:15px}.nav-links{height:auto;gap:0;flex-wrap:wrap}.nav-link{padding:0 12px;height:40px;font-size:12px}.container{padding:16px}.row-2{grid-template-columns:1fr}.cal-cell{min-height:60px;padding:4px}.cal-chip{font-size:8px;padding:2px 3px}}
 </style>
 </head>
 <body>
+<!-- LOGIN MODAL -->
+<div id="login-overlay" style="position:fixed;inset:0;background:var(--bg);z-index:1000;display:flex;align-items:center;justify-content:center;flex-direction:column;padding:20px">
+  <div style="max-width:380px;width:100%;background:var(--card);border:1px solid var(--brd);border-radius:10px;padding:32px;box-shadow:0 4px 20px rgba(0,0,0,.06)">
+    <div style="text-align:center;margin-bottom:24px">
+      <div style="font-size:11px;font-weight:500;letter-spacing:1.4px;text-transform:uppercase;color:var(--ts);margin-bottom:6px">Treesdale Golf & Country Club</div>
+      <div style="font-size:20px;font-weight:600;letter-spacing:-.2px">Score Posting Audit</div>
+    </div>
+    <div id="login-content">
+      <label style="display:block;font-size:12px;font-weight:500;color:var(--ts);margin-bottom:6px">Email</label>
+      <input type="email" id="login-email" placeholder="you@example.com" style="width:100%;padding:10px 12px;border:1px solid var(--brd);border-radius:6px;font:inherit;font-size:14px;margin-bottom:12px" autocomplete="email">
+      <label style="display:block;font-size:12px;font-weight:500;color:var(--ts);margin-bottom:6px">Password</label>
+      <input type="password" id="login-password" placeholder="Enter password" style="width:100%;padding:10px 12px;border:1px solid var(--brd);border-radius:6px;font:inherit;font-size:14px;margin-bottom:16px" autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()">
+      <button class="btn btn-primary" style="width:100%;justify-content:center;padding:10px" onclick="doLogin()">Sign In</button>
+      <div id="login-msg" style="font-size:13px;margin-top:14px;text-align:center;color:var(--ts)"></div>
+      <div id="login-hint" style="font-size:11px;margin-top:12px;text-align:center;color:var(--tl)">Access by invitation only. Contact the Pro Shop for an account.</div>
+    </div>
+  </div>
+</div>
+
+<div id="app-content" style="display:none">
+
 <nav class="nav"><div class="nav-inner">
 <div class="nav-brand"><div class="nb-top">Treesdale Golf & Country Club</div><div class="nb-bot">Score Posting Audit</div></div>
 <div class="nav-links">
   <a class="nav-link a" onclick="navTo('dashboard')" id="nav-dashboard">Dashboard</a>
   <a class="nav-link" onclick="navTo('teeview')" id="nav-teeview">Tee Sheet View</a>
   <a class="nav-link" onclick="navTo('audit')" id="nav-audit">Audit Results</a>
+  <div class="user-menu" id="user-menu" onclick="toggleUserMenu(event)">
+    <div class="user-avatar" id="user-avatar"></div>
+    <div class="user-name-block">
+      <div class="user-name" id="user-name"></div>
+      <div class="user-role" id="user-role"></div>
+    </div>
+    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="opacity:.5"><polyline points="6 9 12 15 18 9"/></svg>
+    <div class="user-dropdown" id="user-dropdown">
+      <div class="user-dd-header" id="user-dd-header"></div>
+      <div class="user-dd-item" onclick="toggleTheme();closeUserMenu();" id="theme-toggle-item"><span id="theme-toggle-label">Dark Mode</span></div>
+      <div class="user-dd-item" id="user-dd-admin" onclick="navTo('admin');closeUserMenu();" style="display:none">User Management</div>
+      <div class="user-dd-item" onclick="signOut()">Sign Out</div>
+    </div>
+  </div>
 </div>
 </div></nav>
 
@@ -166,10 +240,12 @@ tr:hover td{background:rgba(0,0,0,.02)}tr:last-child td{border-bottom:none}
 
 <div class="page" id="pg-audit"><div class="container">
   <div class="au-toolbar">
-    <div class="cal-nav" style="flex:1;justify-content:center">
-      <button class="cal-nav-btn" onclick="auWeekNav(-1)">← Prev Week</button>
-      <div class="cal-month" id="au-week-label" style="min-width:220px"></div>
-      <button class="cal-nav-btn" onclick="auWeekNav(1)">Next Week →</button>
+    <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+      <span class="section-title" style="margin:0">Date Range</span>
+      <input type="date" class="tv-select" id="au-start" onchange="auDateChange('start')">
+      <span style="font-size:13px;color:var(--ts)">to</span>
+      <input type="date" class="tv-select" id="au-end" onchange="auDateChange('end')">
+      <span style="font-size:11px;color:var(--tl);margin-left:4px">Max 7 days</span>
     </div>
   </div>
   <div id="au-warnings" style="margin-bottom:12px"></div>
@@ -177,6 +253,44 @@ tr:hover td{background:rgba(0,0,0,.02)}tr:last-child td{border-bottom:none}
   <div id="au-tabs"></div>
   <div id="au-stats"></div>
   <div class="tw" id="au-table"></div>
+</div></div>
+
+<!-- USER MANAGEMENT (admin only) -->
+<div class="page" id="pg-admin"><div class="container">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;flex-wrap:wrap;gap:12px">
+    <div class="section-title" style="margin:0">User Management</div>
+    <button class="btn btn-primary btn-sm" onclick="showAddUserForm()">+ Add User</button>
+  </div>
+  <div id="add-user-form" style="display:none" class="card">
+    <div class="card-title" style="margin-bottom:14px">Add New User</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px">
+      <div>
+        <label style="display:block;font-size:12px;font-weight:500;color:var(--ts);margin-bottom:6px">Full Name</label>
+        <input type="text" id="new-user-name" placeholder="John Smith" style="width:100%;padding:8px 10px;border:1px solid var(--brd);border-radius:6px;font:inherit;font-size:13px">
+      </div>
+      <div>
+        <label style="display:block;font-size:12px;font-weight:500;color:var(--ts);margin-bottom:6px">Email</label>
+        <input type="email" id="new-user-email" placeholder="email@example.com" style="width:100%;padding:8px 10px;border:1px solid var(--brd);border-radius:6px;font:inherit;font-size:13px">
+      </div>
+      <div>
+        <label style="display:block;font-size:12px;font-weight:500;color:var(--ts);margin-bottom:6px">Role</label>
+        <select id="new-user-role" style="width:100%;padding:8px 10px;border:1px solid var(--brd);border-radius:6px;font:inherit;font-size:13px;background:var(--card)">
+          <option value="member">Member</option>
+          <option value="admin">Admin</option>
+        </select>
+      </div>
+      <div>
+        <label style="display:block;font-size:12px;font-weight:500;color:var(--ts);margin-bottom:6px">Temporary Password</label>
+        <input type="text" id="new-user-password" placeholder="At least 6 characters" style="width:100%;padding:8px 10px;border:1px solid var(--brd);border-radius:6px;font:inherit;font-size:13px">
+      </div>
+    </div>
+    <div style="display:flex;gap:8px">
+      <button class="btn btn-primary btn-sm" onclick="addUser()">Create User</button>
+      <button class="btn btn-outline btn-sm" onclick="hideAddUserForm()">Cancel</button>
+    </div>
+    <div id="add-user-msg" style="font-size:12px;margin-top:10px"></div>
+  </div>
+  <div class="tw" id="users-table"></div>
 </div></div>
 
 <input type="file" id="course-input" accept=".htm,.html,.mhtml" style="display:none" onchange="handleChipUpload(this)">
@@ -187,6 +301,101 @@ const SUPA_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJ
 const sb=supabase.createClient(SUPA_URL,SUPA_KEY);
 const COURSES=['Grove / Lakes','Lakes / Orchard','Orchard / Grove'];
 const $i=id=>document.getElementById(id);
+
+let currentUser=null,currentRole='member',currentName='';
+
+// ===== AUTH =====
+async function doLogin(){
+  const email=$i('login-email').value.trim().toLowerCase();
+  const password=$i('login-password').value;
+  if(!email||!password){$i('login-msg').textContent='Please enter email and password';$i('login-msg').style.color='var(--rd)';return;}
+  $i('login-msg').textContent='Signing in...';$i('login-msg').style.color='var(--ts)';
+  // First check that the email is on the approved list
+  const{data:roleRow}=await sb.from('user_roles').select('email,role,full_name,active').eq('email',email).single();
+  if(!roleRow||!roleRow.active){$i('login-msg').textContent='Access denied. This email is not authorized.';$i('login-msg').style.color='var(--rd)';return;}
+  // Try to sign in
+  const{data:signInData,error:signInErr}=await sb.auth.signInWithPassword({email,password});
+  if(signInErr){
+    // If user doesn't exist in auth but is in user_roles, sign them up (first-time login)
+    if(signInErr.message.toLowerCase().includes('invalid')||signInErr.message.toLowerCase().includes('credentials')){
+      // Try sign up (sets password as the one they entered)
+      const{error:signUpErr}=await sb.auth.signUp({email,password});
+      if(signUpErr){
+        $i('login-msg').textContent='Sign-in failed: '+signInErr.message;$i('login-msg').style.color='var(--rd)';return;
+      }
+      // Sign up successful - try to sign in again
+      const{error:retryErr}=await sb.auth.signInWithPassword({email,password});
+      if(retryErr){
+        $i('login-msg').innerHTML='Account created. <strong>Please check your email</strong> to confirm, then sign in again.';$i('login-msg').style.color='var(--ac)';return;
+      }
+    } else {
+      $i('login-msg').textContent='Error: '+signInErr.message;$i('login-msg').style.color='var(--rd)';return;
+    }
+  }
+  // Successful login - reload to init
+  window.location.reload();
+}
+
+async function signOut(){await sb.auth.signOut();window.location.reload();}
+
+function getInitials(name){if(!name)return'?';const parts=name.trim().split(/\s+/);if(parts.length===1)return parts[0][0].toUpperCase();return(parts[0][0]+parts[parts.length-1][0]).toUpperCase();}
+
+function toggleUserMenu(e){e?.stopPropagation();$i('user-menu').classList.toggle('open');}
+function closeUserMenu(){$i('user-menu').classList.remove('open');}
+document.addEventListener('click',e=>{if(!e.target.closest('#user-menu'))closeUserMenu();});
+
+// Theme toggle
+function applyTheme(theme){
+  if(theme==='dark')document.body.classList.add('dark');
+  else document.body.classList.remove('dark');
+  const lbl=$i('theme-toggle-label');
+  if(lbl)lbl.textContent=theme==='dark'?'Light Mode':'Dark Mode';
+}
+function toggleTheme(){
+  const isDark=document.body.classList.contains('dark');
+  const newTheme=isDark?'light':'dark';
+  localStorage.setItem('theme',newTheme);
+  applyTheme(newTheme);
+}
+// Apply saved theme immediately
+applyTheme(localStorage.getItem('theme')||'light');
+
+async function checkAuth(){
+  const{data:{session}}=await sb.auth.getSession();
+  if(!session){
+    $i('login-overlay').style.display='flex';
+    $i('app-content').style.display='none';
+    return false;
+  }
+  currentUser=session.user;
+  // Look up role + name
+  const{data:roleRow}=await sb.from('user_roles').select('role,full_name,active').eq('email',currentUser.email).single();
+  if(!roleRow||!roleRow.active){
+    // Email not authorized — sign out and show message
+    await sb.auth.signOut();
+    $i('login-overlay').style.display='flex';
+    $i('app-content').style.display='none';
+    $i('login-msg').textContent='Access denied. This email is no longer authorized.';
+    $i('login-msg').style.color='var(--rd)';
+    return false;
+  }
+  currentRole=roleRow.role||'member';
+  currentName=roleRow.full_name||currentUser.email;
+  $i('login-overlay').style.display='none';
+  $i('app-content').style.display='block';
+  // Populate avatar/name/role
+  $i('user-avatar').textContent=getInitials(currentName);
+  $i('user-name').textContent=currentName;
+  $i('user-role').textContent=currentRole;
+  $i('user-dd-header').textContent=currentUser.email;
+  if(currentRole==='admin')$i('user-dd-admin').style.display='block';
+  if(currentRole==='member')document.body.classList.add('member-view');
+  return true;
+}
+
+sb.auth.onAuthStateChange(async(event)=>{
+  if(event==='SIGNED_IN'){await checkAuth();init();}
+});
 function navTo(p){document.querySelectorAll('.page').forEach(x=>x.classList.remove('active'));document.querySelectorAll('.nav-link').forEach(x=>x.classList.remove('a'));$i('pg-'+p).classList.add('active');$i('nav-'+p).classList.add('a');}
 
 // HTM PARSER
@@ -206,11 +415,49 @@ function parseHTM(txt){
 
 // ROSTER
 async function uploadRoster(input){
+  if(currentRole!=='admin'){alert('Members cannot upload files');input.value='';return;}
   const f=input.files[0];if(!f)return;const wb=XLSX.read(await f.arrayBuffer());const rows=XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]]);
   if(!rows.length||!rows[0]['Golfer Name']){alert('Invalid roster file');return;}
-  await sb.from('roster').delete().neq('id',0);
-  const batch=rows.filter(r=>r['Golfer Name']).map(r=>({ghin_number:r['GHIN Number']?Math.floor(Number(r['GHIN Number'])):null,local_number:r['Local Number']||null,golfer_name:(r['Golfer Name']||'').trim(),gender:r['Gender']||null,membership_code:r['Membership Code']||null,email:(r['Email Address']||'').trim()||null,hi:String(r['H.I.']||''),current_hi:String(r['Current H.I.']||r['H.I.']||''),updated_at:new Date().toISOString()}));
-  for(let i=0;i<batch.length;i+=500){const{error}=await sb.from('roster').insert(batch.slice(i,i+500));if(error){alert('Error');return;}}
+  const today=new Date().toISOString().split('T')[0];
+
+  // Get existing GHINs to track new vs existing and preserve first_seen
+  const{data:existing}=await sb.from('roster').select('ghin_number,first_seen_at,member_number');
+  const existingMap=new Map();
+  if(existing)for(const e of existing)existingMap.set(e.ghin_number,e);
+
+  // Build the rows to upsert
+  const batch=rows.filter(r=>r['Golfer Name']&&r['GHIN Number']).map(r=>{
+    const ghin=Math.floor(Number(r['GHIN Number']));
+    const ex=existingMap.get(ghin);
+    return{
+      ghin_number:ghin,
+      local_number:r['Local Number']||null,
+      golfer_name:(r['Golfer Name']||'').trim(),
+      gender:r['Gender']||null,
+      membership_code:r['Membership Code']||null,
+      email:(r['Email Address']||'').trim()||null,
+      hi:String(r['H.I.']||''),
+      current_hi:String(r['Current H.I.']||r['H.I.']||''),
+      first_seen_at:ex?.first_seen_at||today,
+      last_seen_at:today,
+      member_number:ex?.member_number||null,
+      updated_at:new Date().toISOString()
+    };
+  });
+
+  // Upsert in chunks
+  for(let i=0;i<batch.length;i+=500){
+    const{error}=await sb.from('roster').upsert(batch.slice(i,i+500),{onConflict:'ghin_number'});
+    if(error){console.error('roster upsert error:',error);alert('Error: '+error.message);return;}
+  }
+
+  const newCount=batch.filter(r=>!existingMap.has(r.ghin_number)).length;
+  if(newCount>0){
+    alert(`Roster updated. ${newCount} new member${newCount===1?'':'s'} added, ${batch.length-newCount} existing updated.`);
+  } else if(existingMap.size>0){
+    alert(`Roster refreshed. All ${batch.length} members already in database.`);
+  }
+
   loadRoster();input.value='';
 }
 async function loadRoster(){
@@ -223,19 +470,18 @@ async function loadRoster(){
 
 // SCORES
 async function uploadScores(input){
+  if(currentRole!=='admin'){alert('Members cannot upload files');input.value='';return;}
   const f=input.files[0];if(!f)return;const wb=XLSX.read(await f.arrayBuffer());const rows=XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]]);
   const dates=rows.filter(r=>r['Date Played']).map(r=>String(r['Date Played']));if(!dates.length){alert('No scores found in file');return;}
-  const pd=dates.map(d=>{const p=d.split('/');return new Date(2000+parseInt(p[2]||p[0]),parseInt(p[0])-1,parseInt(p[1]));}).filter(d=>!isNaN(d));
+  const pd=dates.map(d=>{const p=d.split('/');const yr=parseInt(p[2]||p[0]);const fullYr=yr<100?2000+yr:yr;return new Date(fullYr,parseInt(p[0])-1,parseInt(p[1]));}).filter(d=>!isNaN(d));
   const mn=new Date(Math.min(...pd)),mx=new Date(Math.max(...pd));
-  await sb.from('scores').delete().neq('id',0);await sb.from('scores_upload').delete().neq('id',0);
-  const{data:up,error:ue}=await sb.from('scores_upload').insert({date_range_start:mn.toISOString().split('T')[0],date_range_end:mx.toISOString().split('T')[0],score_count:dates.length}).select().single();
-  if(ue){console.error('scores_upload insert error:',ue);alert('Error saving upload metadata: '+ue.message);return;}
-  let cur=null;let curGhin=null;const sr=[];
+
+  // Build the rows we want to insert
+  let cur=null,curGhin=null;const sr=[];
   for(const r of rows){
     if(r['GHIN Number']){cur=(r['Golfer Name']||'').trim();curGhin=Math.floor(Number(r['GHIN Number']));}
     if(cur&&r['Date Played']){
       sr.push({
-        upload_id:up.id,
         ghin_number:curGhin,
         golfer_name:cur,
         date_played:String(r['Date Played']),
@@ -247,12 +493,64 @@ async function uploadScores(input){
       });
     }
   }
-  console.log('Inserting',sr.length,'scores...');
-  for(let i=0;i<sr.length;i+=500){
-    const{error}=await sb.from('scores').insert(sr.slice(i,i+500));
-    if(error){console.error('scores insert error at chunk',i,':',error,'sample row:',sr[i]);alert('Error saving scores: '+error.message);return;}
+
+  // Fetch existing scores to dedupe against
+  console.log('Fetching existing scores for dedup...');
+  const{data:existing}=await sb.from('scores').select('ghin_number,date_played,holes_played,ags');
+  const existingKeys=new Set();
+  if(existing)for(const e of existing){existingKeys.add(`${e.ghin_number}|${e.date_played}|${e.holes_played}|${e.ags}`);}
+
+  // Filter to new scores only
+  const newRows=sr.filter(r=>!existingKeys.has(`${r.ghin_number}|${r.date_played}|${r.holes_played}|${r.ags}`));
+  console.log(`Total in file: ${sr.length}, already in DB: ${sr.length-newRows.length}, new to insert: ${newRows.length}`);
+
+  // Update or create scores_upload metadata to reflect total combined range
+  const{data:existingUploads}=await sb.from('scores_upload').select('*').order('uploaded_at',{ascending:false}).limit(1);
+  let totalRange={start:mn,end:mx,count:sr.length};
+  if(existingUploads?.length){
+    // Merge ranges: take the wider window
+    const oldStart=new Date(existingUploads[0].date_range_start+'T12:00:00');
+    const oldEnd=new Date(existingUploads[0].date_range_end+'T12:00:00');
+    if(oldStart<mn)totalRange.start=oldStart;
+    if(oldEnd>mx)totalRange.end=oldEnd;
+    // Get total count of all scores after insert
+    const{count:newTotal}=await sb.from('scores').select('*',{count:'exact',head:true});
+    totalRange.count=(newTotal||0)+newRows.length;
+    // Update existing record
+    await sb.from('scores_upload').update({
+      date_range_start:totalRange.start.toISOString().split('T')[0],
+      date_range_end:totalRange.end.toISOString().split('T')[0],
+      score_count:totalRange.count,
+      uploaded_at:new Date().toISOString()
+    }).eq('id',existingUploads[0].id);
+  } else {
+    const{error:ue}=await sb.from('scores_upload').insert({
+      date_range_start:mn.toISOString().split('T')[0],
+      date_range_end:mx.toISOString().split('T')[0],
+      score_count:sr.length
+    });
+    if(ue){console.error('scores_upload insert error:',ue);alert('Error: '+ue.message);return;}
   }
-  console.log('Scores inserted successfully');
+
+  // Insert new scores in chunks
+  const{data:upRow}=await sb.from('scores_upload').select('id').order('uploaded_at',{ascending:false}).limit(1).single();
+  const uploadId=upRow?.id;
+  if(newRows.length){
+    const rowsWithUpload=newRows.map(r=>({...r,upload_id:uploadId}));
+    for(let i=0;i<rowsWithUpload.length;i+=500){
+      const{error}=await sb.from('scores').insert(rowsWithUpload.slice(i,i+500));
+      if(error){console.error('scores insert error:',error);alert('Error: '+error.message);return;}
+    }
+    console.log(`Inserted ${newRows.length} new scores`);
+  }
+
+  // Show feedback
+  if(newRows.length===0){
+    alert(`No new scores to add — all ${sr.length} scores in this file are already in the database.`);
+  } else if(newRows.length<sr.length){
+    alert(`Added ${newRows.length} new scores. Skipped ${sr.length-newRows.length} duplicates already in the database.`);
+  }
+
   loadScores();input.value='';
 }
 async function loadScores(){
@@ -274,10 +572,82 @@ async function loadCalendar(){
   const{data:days}=await sb.from('tee_sheet_days').select('*').gte('play_date',startStr).lte('play_date',endStr);
   calDayMap={};
   if(days?.length){
-    for(const d of days)calDayMap[d.play_date]={closed:d.is_closed,id:d.id,courses:new Set()};
+    for(const d of days)calDayMap[d.play_date]={closed:d.is_closed,id:d.id,courses:new Set(),coursePcts:{},dayPct:null};
     const ids=days.map(d=>d.id);
-    const{data:ents}=await sb.from('tee_sheet_entries').select('day_id,course').in('day_id',ids);
-    if(ents)for(const e of ents){const day=days.find(d=>d.id===e.day_id);if(day)calDayMap[day.play_date].courses.add(e.course);}
+    const{data:ents}=await sb.from('tee_sheet_entries').select('*').in('day_id',ids);
+    if(ents){
+      // Group entries by date+course
+      const byDayCourse={}; // playDate -> course -> [entries]
+      for(const e of ents){
+        const day=days.find(d=>d.id===e.day_id);if(!day)continue;
+        const pd=day.play_date;
+        calDayMap[pd].courses.add(e.course);
+        if(!byDayCourse[pd])byDayCourse[pd]={};
+        if(!byDayCourse[pd][e.course])byDayCourse[pd][e.course]=[];
+        byDayCourse[pd][e.course].push({...e,_date:pd});
+      }
+      // Need roster + scores for status calc
+      const{data:roster}=await sb.from('roster').select('*');
+      const{data:scores}=await sb.from('scores').select('golfer_name,date_played');
+      const rLookup={};
+      if(roster)for(const r of roster){const nm=(r.golfer_name||'').toLowerCase();const parts=nm.split(' ');if(parts.length<2)continue;const lk=nlk(parts[parts.length-1]);if(!rLookup[lk])rLookup[lk]=[];rLookup[lk].push({nm,info:{ghin:r.ghin_number,name:r.golfer_name,hi:r.current_hi,email:r.email}});}
+      const sLookup={};if(scores)for(const s of scores){const nm=(s.golfer_name||'').toLowerCase();if(!sLookup[nm])sLookup[nm]=[];sLookup[nm].push(s.date_played);}
+      // Compute pct per day+course
+      for(const pd of Object.keys(byDayCourse)){
+        let dayPostable=0,dayPosted=0;
+        for(const c of Object.keys(byDayCourse[pd])){
+          const dayEntries=Object.values(byDayCourse[pd]).flat(); // all entries for that day across courses
+          // Match entries to roster
+          for(const e of dayEntries){
+            e.solo=false;e.ghin='';e.status='';e.rosterName='';
+            if(e.entry_type==='blocked'||e.entry_type==='employee'){e.status=e.entry_type;continue;}
+            const rm=mN(e.player_first,e.player_last,rLookup);
+            if(!rm){e.status='no_roster';continue;}
+            e.ghin=rm.info.ghin;e.rosterName=rm.info.name;e.status='__pending__';
+          }
+          // Solo detection within this day across all courses
+          const counts={};
+          for(const e of dayEntries){if(e.entry_type==='blocked')continue;const k=e._date+'|'+e.course+'|'+e.tee_time;counts[k]=(counts[k]||0)+1;}
+          for(const e of dayEntries){if(e.entry_type==='blocked')continue;const k=e._date+'|'+e.course+'|'+e.tee_time;if(counts[k]===1)e.solo=true;}
+          // Group by member, compute posted/missing
+          const memberRounds={};
+          for(const e of dayEntries){if(e.status!=='__pending__')continue;const key=String(e.ghin);if(!memberRounds[key])memberRounds[key]={first:e.player_first,last:e.player_last,rounds:[]};memberRounds[key].rounds.push(e);}
+          for(const key of Object.keys(memberRounds)){
+            const m=memberRounds[key];
+            const lastKey=nlk(m.last);
+            const postedByDate={};
+            const cleanFirst=firstName(m.first||'').toLowerCase().replace(/['\u2019]/g,'');
+            const vs=vr(cleanFirst);
+            for(const nm of Object.keys(sLookup)){
+              const cleaned=stripHonor(nm);const parts=cleaned.split(/\s+/);if(parts.length<2)continue;
+              const cl=nlk(parts[parts.length-1]);if(cl!==lastKey)continue;
+              const cf=parts[0];
+              if(vs.has(cf)||(cleanFirst.length>=3&&cf.length>=3&&cleanFirst.substring(0,3)===cf.substring(0,3))){
+                for(const d of sLookup[nm]){const nd=nD(d);postedByDate[nd]=(postedByDate[nd]||0)+1;}
+                break;
+              }
+            }
+            const roundsByDate={};
+            for(const r of m.rounds){const nd=nD(r._date);if(!roundsByDate[nd])roundsByDate[nd]=[];roundsByDate[nd].push(r);}
+            for(const[nd,rounds] of Object.entries(roundsByDate)){
+              const postable=rounds.filter(r=>!r.solo);const solos=rounds.filter(r=>r.solo);
+              const pc=postedByDate[nd]||0;
+              for(let i=0;i<postable.length;i++)postable[i].status=i<pc?'posted':'missing';
+              for(const r of solos)r.status='solo';
+            }
+          }
+        }
+        // Now compute per-course pcts
+        for(const c of Object.keys(byDayCourse[pd])){
+          const ce=byDayCourse[pd][c];
+          const postable=ce.filter(e=>(e.status==='posted'||e.status==='missing')&&!e.solo);
+          const posted=postable.filter(e=>e.status==='posted').length;
+          calDayMap[pd].coursePcts[c]=postable.length?Math.round(posted/postable.length*100):null;
+          dayPostable+=postable.length;dayPosted+=posted;
+        }
+        calDayMap[pd].dayPct=dayPostable?Math.round(dayPosted/dayPostable*100):null;
+      }
+    }
   }
   const today=new Date(),todayStr=`${today.getFullYear()}-${pad0(today.getMonth()+1)}-${pad0(today.getDate())}`;
   let h='';
@@ -286,15 +656,42 @@ async function loadCalendar(){
   for(let d=1;d<=last.getDate();d++){
     const ds=`${calYear}-${pad0(calMonth+1)}-${pad0(d)}`;const info=calDayMap[ds];
     const cls=['cal-cell'];if(ds===todayStr)cls.push('today');if(info?.closed)cls.push('closed');
+    const isPast=ds<todayStr;
+    const hasUpload=info&&info.courses?.size>0;
+
     let chips='';
-    if(info?.closed){chips='<div class="cal-chip closed-chip">Course Closed</div>';}
-    else{for(const c of COURSES){const short=c.split(' / ').map(w=>w[0]).join('/');const has=info?.courses?.has(c);chips+=`<div class="cal-chip ${has?'uploaded':'missing'}" onclick="event.stopPropagation();chipClick('${ds}','${c}')" title="${has?c+' ✓':'Upload '+c}">${short}</div>`;}}
-    h+=`<div class="${cls.join(' ')}"><div class="cal-date"><span>${d}</span><span class="close-btn" onclick="event.stopPropagation();toggleClosed('${ds}')" title="${info?.closed?'Reopen':'Mark Closed'}">${info?.closed?'✕':'—'}</span></div><div class="cal-courses">${chips}</div></div>`;
+    if(info?.closed){
+      chips='<div class="cal-chip closed-chip">Course Closed</div>';
+    } else if(hasUpload){
+      // Show course chips with percentages
+      for(const c of COURSES){
+        const short=c.split(' / ').map(w=>w[0]).join('/');
+        const has=info?.courses?.has(c);
+        const pct=info?.coursePcts?.[c];
+        const pctText=has&&pct!==null&&pct!==undefined?` ${pct}%`:'';
+        chips+=`<div class="cal-chip ${has?'uploaded':'missing'}" onclick="event.stopPropagation();chipClick('${ds}','${c}')" title="${has?c+' · '+(pct!==null&&pct!==undefined?pct+'% posted':'no postable rounds'):'Upload '+c}">${short}${pctText}</div>`;
+      }
+    } else {
+      // No tee sheets uploaded
+      if(isPast){
+        chips='<div class="cal-no-file passed">NO FILE</div>';
+      } else {
+        chips='<div class="cal-no-file">N/A</div>';
+      }
+    }
+
+    // Date row with optional day-total %
+    const dayPct=info?.dayPct;
+    const dayPctHtml=hasUpload&&dayPct!==null&&dayPct!==undefined&&!info?.closed?`<span class="cal-day-total ${dayPct>=80?'ok':'miss'}">${dayPct}%</span>`:'';
+    const closeBtn=`<span class="close-btn" onclick="event.stopPropagation();toggleClosed('${ds}')" title="${info?.closed?'Reopen':'Mark Closed'}">${info?.closed?'✕':'—'}</span>`;
+
+    h+=`<div class="${cls.join(' ')}"><div class="cal-date"><span>${d}</span><span style="display:flex;align-items:center;gap:4px">${dayPctHtml}${closeBtn}</span></div><div class="cal-courses">${chips}</div></div>`;
   }
   $i('cal-grid').innerHTML=h;
 }
 function calNav(dir){calMonth+=dir;if(calMonth>11){calMonth=0;calYear++;}if(calMonth<0){calMonth=11;calYear--;}loadCalendar();}
 async function toggleClosed(ds){
+  if(currentRole!=='admin')return;
   const info=calDayMap[ds];
   const newClosed=info?.closed?false:true;
   const{data:ex}=await sb.from('tee_sheet_days').select('id').eq('play_date',ds);
@@ -310,6 +707,7 @@ async function toggleClosed(ds){
 
 // COURSE CHIP CLICK
 function chipClick(dateStr,course){
+  if(currentRole!=='admin')return;
   const info=calDayMap[dateStr];
   if(info?.courses?.has(course)){if(!confirm(`${course} is already uploaded.\n\nReplace with a new file?`))return;}
   pendingChip={date:dateStr,course};
@@ -328,7 +726,39 @@ async function handleChipUpload(input){
   await sb.from('tee_sheet_entries').delete().eq('day_id',day.id).eq('course',course);
   const rows=parsed.entries.map(e=>({day_id:day.id,course,tee_time:e.time,entry_type:e.type,player_name:e.name,player_first:e.first,player_last:e.last,member_code:e.code,holes:e.holes||null,reason:e.reason||null,is_solo:e.solo||false}));
   for(let i=0;i<rows.length;i+=500){const{error}=await sb.from('tee_sheet_entries').insert(rows.slice(i,i+500));if(error){alert('Error: '+error.message);input.value='';return;}}
+
+  // Capture member numbers: match each member entry to roster, save their code as member_number
+  await captureMemberNumbers(parsed.entries);
+
   input.value='';loadCalendar();
+}
+
+// Match tee sheet entries to roster and populate member_number for any unset ones
+async function captureMemberNumbers(entries){
+  const{data:roster}=await sb.from('roster').select('ghin_number,golfer_name,member_number');
+  if(!roster?.length)return;
+  const rLookup={};
+  for(const r of roster){
+    const nm=(r.golfer_name||'').toLowerCase();const parts=nm.split(' ');if(parts.length<2)continue;
+    const lk=nlk(parts[parts.length-1]);
+    if(!rLookup[lk])rLookup[lk]=[];
+    rLookup[lk].push({nm,info:{ghin:r.ghin_number,member_number:r.member_number}});
+  }
+  // For each member entry with a code, match to roster and update if member_number not set
+  const updates=new Map(); // ghin -> code
+  for(const e of entries){
+    if(e.type!=='member'||!e.code||!e.first||!e.last)continue;
+    const rm=mN(e.first,e.last,rLookup);
+    if(!rm)continue;
+    if(!rm.info.member_number&&!updates.has(rm.info.ghin)){
+      updates.set(rm.info.ghin,e.code);
+    }
+  }
+  if(updates.size===0)return;
+  console.log(`Capturing ${updates.size} new member numbers`);
+  for(const[ghin,code] of updates){
+    await sb.from('roster').update({member_number:code}).eq('ghin_number',ghin);
+  }
 }
 
 
@@ -343,9 +773,9 @@ async function tvInit(){
   if(!validDates.length){$i('tv-date').innerHTML='<option>No tee sheets uploaded</option>';$i('tv-tabs').innerHTML='';$i('tv-stats').innerHTML='';$i('tv-table').innerHTML='';return;}
   $i('tv-date').innerHTML=validDates.map(d=>{const dt=new Date(d+'T12:00:00');return`<option value="${d}">${dt.toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'})}</option>`;}).join('');
   // Build roster by last name, with .nm and .info structure to use mN()
-  const{data:roster}=await sb.from('roster').select('ghin_number,golfer_name,current_hi,email');
+  const{data:roster}=await sb.from('roster').select('ghin_number,golfer_name,current_hi,email,first_seen_at,member_number');
   tvRoster={};
-  if(roster)for(const r of roster){const nm=(r.golfer_name||'').toLowerCase();const parts=nm.split(' ');if(parts.length<2)continue;const lk=nlk(parts[parts.length-1]);if(!tvRoster[lk])tvRoster[lk]=[];tvRoster[lk].push({nm,info:{ghin:r.ghin_number,name:r.golfer_name,hi:r.current_hi,email:r.email}});}
+  if(roster)for(const r of roster){const nm=(r.golfer_name||'').toLowerCase();const parts=nm.split(' ');if(parts.length<2)continue;const lk=nlk(parts[parts.length-1]);if(!tvRoster[lk])tvRoster[lk]=[];tvRoster[lk].push({nm,info:{ghin:r.ghin_number,name:r.golfer_name,hi:r.current_hi,email:r.email,first_seen_at:r.first_seen_at,member_number:r.member_number}});}
   // Scores by name → array of dates
   const{data:scores}=await sb.from('scores').select('golfer_name,date_played');
   tvScoresByName={};
@@ -389,6 +819,10 @@ function matchAndStatus(entries){
     const rm=mN(e.player_first,e.player_last,tvRoster);
     if(!rm){e.status='no_roster';continue;}
     e.rosterName=rm.info.name;e.ghin=rm.info.ghin;e.hi=rm.info.hi;e.email=rm.info.email;
+    // Check if member was active as of the play date
+    if(rm.info.first_seen_at&&e._date<rm.info.first_seen_at){
+      e.status='pre_active';continue;
+    }
     e.status='__pending__';
   }
 }
@@ -466,9 +900,8 @@ function tvShowCourse(course,entries){
     const hasPlayers=g.players.length>0;
     const isPureBlock=g.blocked&&!hasPlayers;
     const isEvent=g.blocked&&hasPlayers;
-    const bg=isPureBlock?'#C8C6C2':(isEvent?'#EDECEA':'');
-    const rowStyle=bg?` style="background:${bg}"`:'';
-    h+=`<tr${rowStyle}>`;
+    const rowCls=isPureBlock?' class="tee-block-pure"':(isEvent?' class="tee-block-event"':'');
+    h+=`<tr${rowCls}>`;
     if(isEvent){
       h+=`<td style="font-weight:600;line-height:1.2">${esc(t)}<div style="font-size:10px;color:var(--ts);font-weight:500;margin-top:2px">${esc(g.reason)}</div></td>`;
     } else {
@@ -483,9 +916,9 @@ function tvShowCourse(course,entries){
       const p=g.players[i];
       if(!p){h+='<td></td>';continue;}
       let dot,cls;
-      if(p.entry_type==='employee'||p.status==='no_roster'||p.solo){dot='dd';cls='color:var(--tl)';}
-      else if(p.status==='missing'){dot='dr';cls='font-weight:700;color:var(--rd)';}
-      else if(p.status==='posted'){dot='dg';cls='';}
+      if(p.entry_type==='employee'||p.status==='no_roster'||p.status==='pre_active'||p.solo){dot='dd';cls='color:var(--tl)';}
+      else if(p.status==='missing'){dot='dr';cls='color:var(--rd)';}
+      else if(p.status==='posted'){dot='dg';cls='color:var(--ac)';}
       else{dot='dd';cls='color:var(--tl)';}
       const dn=p.rosterName||p.player_name;
       h+=`<td style="overflow:hidden;text-overflow:ellipsis"><span class="dot ${dot}"></span><span style="${cls}">${esc(dn)}</span></td>`;
@@ -504,35 +937,51 @@ function fmtDate(d){return d.getFullYear()+'-'+pad0(d.getMonth()+1)+'-'+pad0(d.g
 function fmtLabel(d){return d.toLocaleDateString('en-US',{month:'short',day:'numeric'});}
 
 function auInitWeek(){
-  // Default to previous completed week (last Sunday minus 7)
+  // Default to previous completed week (last Sunday through Saturday)
   const today=new Date();
   const thisSun=getWeekStart(today);
-  auWeekStart=addDays(thisSun,-7);
+  const lastSun=addDays(thisSun,-7);
+  const lastSat=addDays(lastSun,6);
+  $i('au-start').value=fmtDate(lastSun);
+  $i('au-end').value=fmtDate(lastSat);
   auLoadWeek();
 }
 
-function auWeekNav(dir){
-  auWeekStart=addDays(auWeekStart,dir*7);
+function auDateChange(which){
+  const start=new Date($i('au-start').value+'T12:00:00');
+  const end=new Date($i('au-end').value+'T12:00:00');
+  if(isNaN(start)||isNaN(end))return;
+  const diff=Math.round((end-start)/(1000*60*60*24));
+  if(diff<0){
+    if(which==='start')$i('au-end').value=$i('au-start').value;
+    else $i('au-start').value=$i('au-end').value;
+  } else if(diff>6){
+    if(which==='start'){
+      $i('au-end').value=fmtDate(addDays(start,6));
+    } else {
+      $i('au-start').value=fmtDate(addDays(end,-6));
+    }
+  }
   auLoadWeek();
 }
 
 async function auLoadWeek(){
-  const sun=auWeekStart;
-  const sat=addDays(sun,6);
-  const sunStr=fmtDate(sun);const satStr=fmtDate(sat);
-  $i('au-week-label').textContent=fmtLabel(sun)+' — '+fmtLabel(sat)+', '+sun.getFullYear();
+  const startStr=$i('au-start').value;
+  const endStr=$i('au-end').value;
+  if(!startStr||!endStr)return;
+  const startD=new Date(startStr+'T12:00:00');
+  const endD=new Date(endStr+'T12:00:00');
+  if(isNaN(startD)||isNaN(endD))return;
 
-  // Check what tee sheets exist for this week
+  // Build list of dates in range
   const weekDates=[];
-  for(let i=0;i<7;i++)weekDates.push(fmtDate(addDays(sun,i)));
+  const days=Math.round((endD-startD)/(1000*60*60*24))+1;
+  for(let i=0;i<days;i++)weekDates.push(fmtDate(addDays(startD,i)));
 
-  const{data:days}=await sb.from('tee_sheet_days').select('play_date,is_closed').in('play_date',weekDates);
+  const{data:dayMapRows}=await sb.from('tee_sheet_days').select('play_date,is_closed,id').in('play_date',weekDates);
   const dayMap={};
-  if(days)for(const d of days)dayMap[d.play_date]=d;
-
-  // Check which dates have entries
-  const{data:dayRecs}=await sb.from('tee_sheet_days').select('id,play_date').in('play_date',weekDates);
-  const dayIds=(dayRecs||[]).map(d=>d.id);
+  if(dayMapRows)for(const d of dayMapRows)dayMap[d.play_date]=d;
+  const dayIds=(dayMapRows||[]).map(d=>d.id);
   let entryDayIds=new Set();
   if(dayIds.length){
     const{data:ents}=await sb.from('tee_sheet_entries').select('day_id').in('day_id',dayIds);
@@ -544,7 +993,7 @@ async function auLoadWeek(){
   const missingDays=[];
   for(const d of weekDates){
     const info=dayMap[d];
-    const dayRec=(dayRecs||[]).find(r=>r.play_date===d);
+    const dayRec=(dayMapRows||[]).find(r=>r.play_date===d);
     const hasEntries=dayRec&&entryDayIds.has(dayRec.id);
     const isClosed=info?.is_closed;
     if(!isClosed&&!hasEntries){
@@ -555,32 +1004,32 @@ async function auLoadWeek(){
     warnings+=`<div class="au-warn warn-miss">⚠ Missing tee sheets: ${missingDays.join(', ')}</div>`;
   }
 
-  // Check scores coverage
   const{data:scUp}=await sb.from('scores_upload').select('*').order('uploaded_at',{ascending:false}).limit(1);
   if(!scUp?.length){
     warnings+=`<div class="au-warn warn-miss">⚠ No Scores Posted Report uploaded</div>`;
   } else {
-    const scStart=new Date(scUp[0].date_range_start+'T12:00:00');
-    const scEnd=new Date(scUp[0].date_range_end+'T12:00:00');
-    if(sun<scStart||sat>scEnd){
-      warnings+=`<div class="au-warn warn-miss">⚠ Scores Posted Report (${fmtLabel(scStart)} – ${fmtLabel(scEnd)}) does not fully cover this week</div>`;
+    // Compare as YYYY-MM-DD strings to avoid timezone issues
+    const scStartStr=scUp[0].date_range_start;
+    const scEndStr=scUp[0].date_range_end;
+    const scStart=new Date(scStartStr+'T12:00:00');
+    const scEnd=new Date(scEndStr+'T12:00:00');
+    if(startStr<scStartStr||endStr>scEndStr){
+      warnings+=`<div class="au-warn warn-miss">⚠ Scores Posted Report (${fmtLabel(scStart)} – ${fmtLabel(scEnd)}) does not fully cover the selected dates</div>`;
     }
   }
   $i('au-warnings').innerHTML=warnings;
 
-  // Now run the audit for this week's dates that have data
   const activeDayIds=dayIds.filter(id=>entryDayIds.has(id));
   if(!activeDayIds.length){
-    $i('au-summary').innerHTML='<div style="padding:24px;text-align:center;color:var(--tl)">No tee sheet data for this week.</div>';
-    $i('au-tabs').innerHTML='';$i('au-stats').innerHTML='';$i('au-table').innerHTML='';
+    $i('au-summary').innerHTML='';
+    $i('au-tabs').innerHTML='';$i('au-stats').innerHTML='';$i('au-table').innerHTML='<div class="placeholder">No tee sheet data for selected dates.</div>';
     return;
   }
 
-  // Fetch entries for this week
   const{data:entries}=await sb.from('tee_sheet_entries').select('*,tee_sheet_days!inner(play_date,is_closed)').in('day_id',activeDayIds).eq('tee_sheet_days.is_closed',false);
   if(!entries?.length){
-    $i('au-summary').innerHTML='<div style="padding:24px;text-align:center;color:var(--tl)">No entries for this week.</div>';
-    $i('au-tabs').innerHTML='';$i('au-stats').innerHTML='';$i('au-table').innerHTML='';
+    $i('au-summary').innerHTML='';
+    $i('au-tabs').innerHTML='';$i('au-stats').innerHTML='';$i('au-table').innerHTML='<div class="placeholder">No entries for selected dates.</div>';
     return;
   }
 
@@ -590,7 +1039,7 @@ async function auLoadWeek(){
 
   // Build roster keyed by last name with .nm/.info structure
   const rLookup={};
-  for(const r of roster){const nm=(r.golfer_name||'').toLowerCase();const parts=nm.split(' ');if(parts.length<2)continue;const lk=nlk(parts[parts.length-1]);if(!rLookup[lk])rLookup[lk]=[];rLookup[lk].push({nm,info:{ghin:r.ghin_number,name:r.golfer_name,hi:r.current_hi,email:r.email}});}
+  for(const r of roster){const nm=(r.golfer_name||'').toLowerCase();const parts=nm.split(' ');if(parts.length<2)continue;const lk=nlk(parts[parts.length-1]);if(!rLookup[lk])rLookup[lk]=[];rLookup[lk].push({nm,info:{ghin:r.ghin_number,name:r.golfer_name,hi:r.current_hi,email:r.email,first_seen_at:r.first_seen_at,member_number:r.member_number}});}
   // Scores grouped by golfer_name
   const sLookup={};if(scores)for(const s of scores){const nm=(s.golfer_name||'').toLowerCase();if(!sLookup[nm])sLookup[nm]=[];sLookup[nm].push(s.date_played);}
 
@@ -601,6 +1050,10 @@ async function auLoadWeek(){
     const rm=mN(e.player_first,e.player_last,rLookup);
     if(!rm){e.status='no_roster';continue;}
     e.rosterName=rm.info.name;e.ghin=rm.info.ghin;e.hi=rm.info.hi;e.email=rm.info.email;
+    // Check if member was active as of the play date
+    if(rm.info.first_seen_at&&e._date<rm.info.first_seen_at){
+      e.status='pre_active';continue;
+    }
     e.status='__pending__';
   }
 
@@ -656,7 +1109,7 @@ async function auLoadWeek(){
 
   // Filter to members who actually have postable (non-solo) rounds
   const res=Object.values(memberMap).filter(m=>m.played.length>0).map(m=>({...m,ok:m.missing.length===0}));
-  const nonPost=entries.filter(e=>e.status==='no_roster'||e.entry_type==='employee'||e.solo);
+  const nonPost=entries.filter(e=>e.status==='no_roster'||e.status==='pre_active'||e.entry_type==='employee'||e.solo);
   const postable=res.reduce((s,m)=>s+m.played.length,0);
   const posted=res.reduce((s,m)=>s+m.posted.length,0);
   const missing=res.reduce((s,m)=>s+m.missing.length,0);
@@ -687,7 +1140,7 @@ function auTab(tab,el){
     $i('au-stats').innerHTML=`<div class="stat-row"><div class="sl"><div class="istat"><span class="iv">${np.length}</span><span class="il">Non-Postable</span></div></div></div>`;
     let h='<table><thead><tr><th>Name</th><th>Course</th><th>Date</th><th>Time</th><th>Reason</th></tr></thead><tbody>';
     for(const e of np){const d=e._date;const dl=d?nD(d):'';
-      const reason=e.entry_type==='employee'?'Employee':e.solo?'Solo Round':'No Active GHIN';
+      const reason=e.entry_type==='employee'?'Employee':e.solo?'Solo Round':e.status==='pre_active'?'Not Yet Active':'No Active GHIN';
       const name=e.rosterName||e.player_name||'';
       h+=`<tr><td>${esc(name)}</td><td>${esc(e.course||'')}</td><td>${dl}</td><td>${esc(e.tee_time||'')}</td><td><span style="background:var(--rl);color:var(--rd);padding:2px 8px;border-radius:4px;font-size:11px;font-weight:600">${reason}</span></td></tr>`;}
     h+='</tbody></table>';$i('au-table').innerHTML=h;$i('au-table').className='tw tw-conn';
@@ -731,7 +1184,61 @@ function nD(d){if(!d)return'';if(d.includes('-')){const p=d.split('-');return pa
 
 // Nav handler to load tee sheet data when switching tabs
 const _origNavTo=navTo;
-navTo=function(p){_origNavTo(p);if(p==='teeview')tvInit().catch(e=>console.error(e));if(p==='audit'){if(!auWeekStart)auInitWeek();else auLoadWeek();}};
+navTo=function(p){_origNavTo(p);if(p==='teeview')tvInit().catch(e=>console.error(e));if(p==='audit'){if(!$i('au-start').value)auInitWeek();else auLoadWeek();}if(p==='admin'&&currentRole==='admin')loadUsers();};
+
+// ===== USER MANAGEMENT =====
+async function loadUsers(){
+  const{data:users}=await sb.from('user_roles').select('*').order('full_name',{ascending:true});
+  let h='<table><thead><tr><th>Name</th><th>Email</th><th>Role</th><th>Status</th><th>Actions</th></tr></thead><tbody>';
+  for(const u of users||[]){
+    const isMe=u.email===currentUser.email;
+    h+=`<tr><td><span class="nb">${esc(u.full_name||'')}</span>${isMe?' <span style="font-size:11px;color:var(--tl)">(you)</span>':''}</td><td>${esc(u.email)}</td><td><span style="background:${u.role==='admin'?'var(--al)':'var(--brl)'};color:${u.role==='admin'?'var(--ac)':'var(--ts)'};padding:2px 8px;border-radius:4px;font-size:11px;font-weight:500;text-transform:uppercase">${u.role}</span></td><td>${u.active?'<span style="color:var(--ac);font-size:12px">● Active</span>':'<span style="color:var(--tl);font-size:12px">○ Disabled</span>'}</td><td>`;
+    if(!isMe){
+      h+=`<button class="btn btn-outline btn-sm" onclick="toggleRole('${esc(u.email)}','${u.role}')">${u.role==='admin'?'Make Member':'Make Admin'}</button> `;
+      h+=`<button class="btn btn-outline btn-sm" onclick="toggleActive('${esc(u.email)}',${u.active})">${u.active?'Disable':'Enable'}</button>`;
+    } else {
+      h+='<span style="color:var(--tl);font-size:12px">—</span>';
+    }
+    h+='</td></tr>';
+  }
+  h+='</tbody></table>';
+  $i('users-table').innerHTML=h;
+  $i('users-table').className='tw';
+}
+function showAddUserForm(){$i('add-user-form').style.display='block';$i('new-user-name').focus();}
+function hideAddUserForm(){$i('add-user-form').style.display='none';$i('new-user-name').value='';$i('new-user-email').value='';$i('new-user-password').value='';$i('add-user-msg').textContent='';}
+async function addUser(){
+  const name=$i('new-user-name').value.trim();
+  const email=$i('new-user-email').value.trim().toLowerCase();
+  const role=$i('new-user-role').value;
+  const password=$i('new-user-password').value;
+  const msg=$i('add-user-msg');
+  if(!name||!email||!password){msg.textContent='Please fill all fields';msg.style.color='var(--rd)';return;}
+  if(password.length<6){msg.textContent='Password must be at least 6 characters';msg.style.color='var(--rd)';return;}
+  msg.textContent='Creating user...';msg.style.color='var(--ts)';
+  // Add to user_roles first
+  const{error:roleErr}=await sb.from('user_roles').upsert({email,role,full_name:name,active:true},{onConflict:'email'});
+  if(roleErr){msg.textContent='Error: '+roleErr.message;msg.style.color='var(--rd)';return;}
+  // Create the auth user
+  const{error:authErr}=await sb.auth.signUp({email,password});
+  if(authErr&&!authErr.message.toLowerCase().includes('already')){
+    msg.textContent='Auth error: '+authErr.message;msg.style.color='var(--rd)';return;
+  }
+  msg.innerHTML='✓ User created. They can now sign in with the password you set.';msg.style.color='var(--ac)';
+  hideAddUserForm();
+  loadUsers();
+}
+async function toggleRole(email,currentRoleVal){
+  const newRole=currentRoleVal==='admin'?'member':'admin';
+  if(!confirm(`Change ${email} to ${newRole}?`))return;
+  await sb.from('user_roles').update({role:newRole}).eq('email',email);
+  loadUsers();
+}
+async function toggleActive(email,isActive){
+  if(!confirm((isActive?'Disable':'Enable')+' '+email+'?'))return;
+  await sb.from('user_roles').update({active:!isActive}).eq('email',email);
+  loadUsers();
+}
 
 // INIT
 async function init(){
@@ -759,7 +1266,12 @@ function renderEmptyCalendar(){
   }
   $i('cal-grid').innerHTML=h;
 }
-init();
+// Run auth check first; if logged in, init the app
+(async()=>{
+  const ok=await checkAuth();
+  if(ok)init();
+})();
 </script>
+</div><!-- /app-content -->
 </body>
 </html>
