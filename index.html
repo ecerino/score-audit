@@ -1,0 +1,765 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Score Posting Audit — Treesdale Golf & Country Club</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#F5F5F3;--card:#FFFFFF;--nav:#2A2D31;--nav-tx:#FFFFFF;--tx:#1A1A1A;--ts:#6B6B6B;--tl:#ABABAB;--ac:#2B6B3F;--al:rgba(43,107,63,.08);--rd:#B33A3A;--rl:rgba(179,58,58,.06);--brd:#DDDAD5;--brl:#ECEAE6;--font:'Rubik',system-ui,sans-serif}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:var(--font);background:var(--bg);color:var(--tx);min-height:100vh;font-size:14px;font-weight:400}
+.nav{background:var(--nav);color:#fff;height:60px;box-shadow:0 1px 0 rgba(0,0,0,.1);position:sticky;top:0;z-index:100}
+.nav-inner{max-width:1200px;margin:0 auto;padding:0 32px;display:flex;align-items:center;justify-content:space-between;height:60px}
+.nav-brand{display:flex;flex-direction:column;justify-content:center;line-height:1.1}
+.nav-brand .nb-top{font-size:10px;font-weight:500;letter-spacing:1.2px;text-transform:uppercase;color:rgba(255,255,255,.6);margin-bottom:3px}
+.nav-brand .nb-bot{font-size:16px;font-weight:600;letter-spacing:-.2px;color:#fff}
+.nav-links{display:flex;gap:2px;height:60px}
+.nav-link{padding:0 16px;height:60px;display:flex;align-items:center;font-size:13px;font-weight:400;color:rgba(255,255,255,.7);cursor:pointer;border-bottom:3px solid transparent;transition:all .12s;white-space:nowrap;text-decoration:none}
+.nav-link:hover{color:#fff;background:rgba(255,255,255,.06)}
+.nav-link.a{color:#fff;background:rgba(255,255,255,.1);border-bottom-color:var(--ac);font-weight:500}
+.container{max-width:1200px;margin:0 auto;padding:24px}
+.page{display:none}.page.active{display:block}
+.card{background:var(--card);border:1px solid var(--brd);border-radius:8px;padding:20px;margin-bottom:16px}
+.card-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+.card-title{font-size:15px;font-weight:500;letter-spacing:-.1px}
+.card-subtitle{font-size:12px;color:var(--ts);margin-top:2px;font-weight:400}
+.card-badge{font-size:10px;font-weight:500;padding:3px 8px;border-radius:10px;text-transform:uppercase;letter-spacing:.5px}
+.badge-ok{background:var(--al);color:var(--ac)}.badge-empty{background:var(--brl);color:var(--tl)}
+.upload-area{border:2px dashed var(--brd);border-radius:6px;padding:20px;text-align:center;cursor:pointer;transition:all .2s}
+.upload-area:hover{border-color:var(--ac);background:var(--al)}
+.upload-icon{width:28px;height:28px;margin:0 auto 6px;color:var(--tl)}
+.upload-label{font-size:13px;font-weight:500;color:var(--ts)}
+.upload-hint{font-size:11px;color:var(--tl);margin-top:3px;font-weight:400}
+.file-status{display:flex;align-items:center;gap:12px;padding:12px 0}
+.fs-icon{width:32px;height:32px;border-radius:6px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.fs-icon.ok{background:var(--al);color:var(--ac)}
+.fs-info{flex:1}.fs-title{font-size:13px;font-weight:500}.fs-date{font-size:11px;color:var(--tl);margin-top:2px;font-weight:400}
+.row{display:grid;gap:16px}.row-2{grid-template-columns:1fr 1fr}
+.section-title{font-size:11px;font-weight:500;text-transform:uppercase;letter-spacing:.8px;color:var(--tl);margin-bottom:12px}
+.btn{display:inline-flex;align-items:center;gap:6px;padding:7px 14px;border-radius:6px;font:inherit;font-size:13px;font-weight:500;cursor:pointer;transition:all .15s;border:none}
+.btn-primary{background:var(--ac);color:#fff}.btn-primary:hover{opacity:.9}
+.btn-outline{background:transparent;border:1px solid var(--brd);color:var(--tx)}.btn-outline:hover{background:var(--brl)}
+.btn-sm{padding:5px 10px;font-size:12px}
+.cal-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+.cal-nav-btn{background:var(--card);border:1px solid var(--brd);border-radius:6px;padding:6px 12px;font:inherit;font-size:12px;font-weight:500;cursor:pointer;color:var(--tx)}
+.cal-nav-btn:hover{background:var(--brl)}
+.cal-month{font-size:16px;font-weight:500;text-align:center;letter-spacing:-.1px}
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:2px}
+.cal-day-header{font-size:10px;font-weight:500;text-transform:uppercase;letter-spacing:.8px;color:var(--tl);text-align:center;padding:6px 0}
+.cal-cell{background:var(--card);border:1px solid var(--brl);border-radius:6px;min-height:84px;padding:6px;position:relative}
+.cal-cell.empty{background:transparent;border-color:transparent;min-height:0}
+.cal-cell.today{border-color:var(--ac)}
+.cal-date{font-size:12px;font-weight:500;color:var(--ts);margin-bottom:4px;display:flex;align-items:center;justify-content:space-between}
+.cal-cell.today .cal-date span:first-child{color:var(--ac)}
+.cal-cell.closed{background:rgba(0,0,0,.04);opacity:.6}
+.cal-cell.closed .cal-date span:first-child{color:var(--tl);text-decoration:line-through}
+.cal-courses{display:flex;flex-direction:column;gap:2px}
+.cal-chip{font-size:10px;font-weight:500;padding:3px 6px;border-radius:3px;cursor:pointer;transition:all .15s;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-align:center}
+.cal-chip.uploaded{background:var(--al);color:var(--ac)}
+.cal-chip.missing{background:var(--brl);color:var(--tl)}
+.cal-chip.missing:hover{background:#e0ddd8;color:var(--ts)}
+.cal-chip.closed-chip{background:transparent;color:var(--tl);cursor:default;font-size:10px;text-align:center;font-style:italic;font-weight:400}
+.close-btn{font-size:10px;color:var(--tl);cursor:pointer;font-weight:500;width:18px;height:18px;display:flex;align-items:center;justify-content:center;border-radius:3px}
+.close-btn:hover{background:var(--rl);color:var(--rd)}
+.cal-cell.closed .close-btn{color:var(--rd)}
+.placeholder{padding:40px;text-align:center;color:var(--tl);font-size:14px;font-weight:400}
+/* Tables */
+.tw{border:1px solid var(--brd);border-radius:8px;background:var(--card);overflow:hidden;margin-bottom:16px}
+.tw-conn{border-top:none;border-top-left-radius:0;border-top-right-radius:0}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{background:var(--nav);color:#fff;padding:9px 14px;text-align:left;font-weight:500;font-size:11px;text-transform:uppercase;letter-spacing:.6px;white-space:nowrap}
+td{padding:6px 14px;border-bottom:1px solid var(--brl);white-space:nowrap;font-size:13px;height:36px;vertical-align:middle;font-weight:400}
+tr:hover td{background:rgba(0,0,0,.02)}tr:last-child td{border-bottom:none}
+.mt{color:var(--rd);font-weight:500}.nb{font-weight:500}.nt{color:var(--tl);font-style:italic}
+.row-miss{background:var(--rl)}
+/* Tabs */
+.sub-tabs{display:flex;gap:0;width:100%}
+.st-tab{flex:1;text-align:center;padding:12px 18px;font-size:13px;font-weight:500;color:var(--ts);cursor:pointer;border:1px solid var(--brd);border-right:none;background:var(--card);transition:all .12s}
+.st-tab:last-child{border-right:1px solid var(--brd)}
+.st-tab:first-child{border-top-left-radius:8px}.st-tab:last-child{border-top-right-radius:8px}
+.st-tab:hover{color:var(--tx);background:rgba(0,0,0,.02)}
+.st-tab.a{color:#fff;background:var(--nav);border-color:var(--nav)}
+.st-tab.a+.st-tab{border-left-color:var(--nav)}
+.st-num{display:inline-block;background:rgba(0,0,0,.06);color:var(--ts);padding:2px 9px;border-radius:10px;font-size:11px;font-weight:500;margin-left:8px}
+.st-tab.a .st-num{background:rgba(255,255,255,.18);color:#fff}
+.st-miss{color:var(--rd);font-weight:500;margin-left:6px;font-size:12px}
+.st-tab.a .st-miss{color:#FFB4B0}
+/* Stat rows */
+.stat-row{display:flex;justify-content:space-between;align-items:center;padding:8px 14px;background:var(--card);border-left:1px solid var(--brd);border-right:1px solid var(--brd)}
+.stat-row .sl,.stat-row .sr{display:flex;gap:0;align-items:center}
+.istat{display:flex;align-items:baseline;gap:5px;padding:0 12px;border-left:1px solid var(--brl);white-space:nowrap}
+.istat:first-child{border-left:none;padding-left:0}
+.istat .iv{font-size:14px;font-weight:600;letter-spacing:-.2px}
+.istat .iv.sg{color:var(--ac)}.istat .iv.sr{color:var(--rd)}
+.istat .il{font-size:10px;font-weight:500;text-transform:uppercase;letter-spacing:.5px;color:var(--ts)}
+/* Dots */
+.dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:6px}
+.dg{background:var(--ac)}.dr{background:var(--rd)}.dd{background:var(--tl)}
+/* Toolbar */
+.tv-toolbar,.au-toolbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;flex-wrap:wrap;gap:12px}
+.tv-select{padding:6px 10px;border:1px solid var(--brd);border-radius:6px;font:inherit;font-size:13px;background:var(--card);font-weight:400}
+/* Email btn */
+.email-btn{display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px;border-radius:4px;color:var(--ac);background:transparent;border:1px solid var(--brd);margin-right:8px;vertical-align:middle;cursor:pointer;padding:0;font:inherit;flex-shrink:0}
+.email-btn:hover{background:var(--al);border-color:var(--ac)}
+.au-warn{padding:10px 14px;border-radius:6px;font-size:13px;font-weight:400;margin-bottom:8px;display:flex;align-items:center;gap:8px}
+.au-warn.warn-miss{background:#FFF3E0;color:#E65100;border:1px solid #FFE0B2}
+.au-warn.warn-ok{background:var(--al);color:var(--ac);border:1px solid rgba(43,107,63,.2)}
+@media(max-width:768px){.nav-inner{padding:10px 16px;flex-wrap:wrap;height:auto;gap:8px}.nav-brand .nb-top{font-size:9px}.nav-brand .nb-bot{font-size:15px}.nav-links{height:auto;gap:0;flex-wrap:wrap}.nav-link{padding:0 12px;height:40px;font-size:12px}.container{padding:16px}.row-2{grid-template-columns:1fr}.cal-cell{min-height:60px;padding:4px}.cal-chip{font-size:8px;padding:2px 3px}}
+</style>
+</head>
+<body>
+<nav class="nav"><div class="nav-inner">
+<div class="nav-brand"><div class="nb-top">Treesdale Golf & Country Club</div><div class="nb-bot">Score Posting Audit</div></div>
+<div class="nav-links">
+  <a class="nav-link a" onclick="navTo('dashboard')" id="nav-dashboard">Dashboard</a>
+  <a class="nav-link" onclick="navTo('teeview')" id="nav-teeview">Tee Sheet View</a>
+  <a class="nav-link" onclick="navTo('audit')" id="nav-audit">Audit Results</a>
+</div>
+</div></nav>
+
+<div class="page active" id="pg-dashboard"><div class="container">
+<div class="section-title">File Management</div>
+<div class="row row-2" style="margin-bottom:24px">
+  <div class="card">
+    <div class="card-header"><div><div class="card-title">GHIN Active Roster</div><div class="card-subtitle">Single file — updates replace previous version</div></div><span class="card-badge badge-empty" id="roster-badge">No File</span></div>
+    <div id="roster-status"><div class="upload-area" onclick="$i('roster-input').click()"><svg class="upload-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg><div class="upload-label">Upload Roster Report (.xlsx)</div><div class="upload-hint">Export from GHIN Admin filtered to Active members</div></div></div>
+    <input type="file" id="roster-input" accept=".xlsx,.xls" style="display:none" onchange="uploadRoster(this)">
+  </div>
+  <div class="card">
+    <div class="card-header"><div><div class="card-title">Scores Posted Report</div><div class="card-subtitle">Upload fresh from GHIN before running audit</div></div><span class="card-badge badge-empty" id="scores-badge">No File</span></div>
+    <div id="scores-status"><div class="upload-area" onclick="$i('scores-input').click()"><svg class="upload-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg><div class="upload-label">Upload Scores Posted Report (.xlsx)</div><div class="upload-hint">Export from GHIN Admin → Scores Posted Report</div></div></div>
+    <input type="file" id="scores-input" accept=".xlsx,.xls" style="display:none" onchange="uploadScores(this)">
+  </div>
+</div>
+<div class="section-title">Tee Sheet Calendar</div>
+<div class="card">
+  <div class="cal-header">
+    <button class="cal-nav-btn" onclick="calNav(-1)">← Prev</button>
+    <div class="cal-month" id="cal-month-label"></div>
+    <button class="cal-nav-btn" onclick="calNav(1)">Next →</button>
+  </div>
+  <div class="cal-grid" id="cal-grid"></div>
+</div>
+</div></div>
+
+<div class="page" id="pg-teeview"><div class="container">
+  <div class="tv-toolbar">
+    <div style="display:flex;align-items:center;gap:10px">
+      <span class="section-title" style="margin:0">Select Date</span>
+      <select class="tv-select" id="tv-date" onchange="tvLoadDate(this.value)"></select>
+    </div>
+    <div style="display:flex;gap:14px;align-items:center;font-size:12px">
+      <span><span class="dot dg"></span> Posted</span>
+      <span><span class="dot dr"></span> Missing</span>
+      <span><span class="dot dd"></span> Non postable</span>
+    </div>
+  </div>
+  <div id="tv-tabs"></div>
+  <div id="tv-stats"></div>
+  <div class="tw" id="tv-table"></div>
+</div></div>
+
+<div class="page" id="pg-audit"><div class="container">
+  <div class="au-toolbar">
+    <div class="cal-nav" style="flex:1;justify-content:center">
+      <button class="cal-nav-btn" onclick="auWeekNav(-1)">← Prev Week</button>
+      <div class="cal-month" id="au-week-label" style="min-width:220px"></div>
+      <button class="cal-nav-btn" onclick="auWeekNav(1)">Next Week →</button>
+    </div>
+  </div>
+  <div id="au-warnings" style="margin-bottom:12px"></div>
+  <div id="au-summary" style="margin-bottom:16px"></div>
+  <div id="au-tabs"></div>
+  <div id="au-stats"></div>
+  <div class="tw" id="au-table"></div>
+</div></div>
+
+<input type="file" id="course-input" accept=".htm,.html,.mhtml" style="display:none" onchange="handleChipUpload(this)">
+
+<script>
+const SUPA_URL='https://tovurtavuhvorxdumzcb.supabase.co';
+const SUPA_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRvdnVydGF2dWh2b3J4ZHVtemNiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYwNzEzNzAsImV4cCI6MjA5MTY0NzM3MH0.fOc9GqK50n2UpFKnM8OvGXnu401bRYWGVKTVcUcsrho';
+const sb=supabase.createClient(SUPA_URL,SUPA_KEY);
+const COURSES=['Grove / Lakes','Lakes / Orchard','Orchard / Grove'];
+const $i=id=>document.getElementById(id);
+function navTo(p){document.querySelectorAll('.page').forEach(x=>x.classList.remove('active'));document.querySelectorAll('.nav-link').forEach(x=>x.classList.remove('a'));$i('pg-'+p).classList.add('active');$i('nav-'+p).classList.add('a');}
+
+// HTM PARSER
+function parseHTM(txt){
+  const bM=txt.match(/boundary="([^"]+)"/);let html=txt;
+  if(bM){for(const p of txt.split(bM[1])){if(/^Content-Type:\s*text\/html/m.test(p)){const i=p.indexOf('\r\n\r\n');if(i>0){let h=p.substring(i+4);h=h.replace(/=\r?\n/g,'');html=h.replace(/=([0-9A-Fa-f]{2})/g,(_,x)=>String.fromCharCode(parseInt(x,16)));}break;}}}
+  const tM=html.match(/<title>(.*?)<\/title>/);const tp=tM?tM[1].split(' - '):[];
+  const course=tp[1]?tp[1].trim():'';const dateStr=tp[2]?tp[2].trim():'';
+  const entries=[];
+  for(const block of html.split(/(?=<tr [^>]*data-id=)/)){
+    const tm=block.match(/>(\d{2}:\d{2}\s*[AP]M)/);if(!tm)continue;const time=tm[1].trim();
+    if(block.includes('cc-col-blocked')){const rm=block.match(/Blocked:\s*([^<]+)/);let r=rm?rm[0].trim():'Blocked';if(r.startsWith('Blocked: '))r=r.substring(9);entries.push({time,type:'blocked',name:'',code:'',reason:r,first:'',last:'',holes:'',solo:false});continue;}
+    for(const pl of(block.match(/cc-detail[^>]*>([^<]+)<\/a>/g)||[])){const nm=pl.match(/>([^<]+)</);if(!nm)continue;const pm=nm[1].trim().match(/(.+?),\s*(.+?)\s*\(([^)]+)\)\s*-\s*(.+)/);if(pm)entries.push({time,type:pm[4].trim().toLowerCase().includes('employee')?'employee':'member',name:pm[2].trim()+' '+pm[1].trim(),code:pm[3].trim(),first:pm[2].trim(),last:pm[1].trim(),holes:18,solo:false,reason:''});}
+  }
+  return{course,date:dateStr,entries};
+}
+
+// ROSTER
+async function uploadRoster(input){
+  const f=input.files[0];if(!f)return;const wb=XLSX.read(await f.arrayBuffer());const rows=XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]]);
+  if(!rows.length||!rows[0]['Golfer Name']){alert('Invalid roster file');return;}
+  await sb.from('roster').delete().neq('id',0);
+  const batch=rows.filter(r=>r['Golfer Name']).map(r=>({ghin_number:r['GHIN Number']?Math.floor(Number(r['GHIN Number'])):null,local_number:r['Local Number']||null,golfer_name:(r['Golfer Name']||'').trim(),gender:r['Gender']||null,membership_code:r['Membership Code']||null,email:(r['Email Address']||'').trim()||null,hi:String(r['H.I.']||''),current_hi:String(r['Current H.I.']||r['H.I.']||''),updated_at:new Date().toISOString()}));
+  for(let i=0;i<batch.length;i+=500){const{error}=await sb.from('roster').insert(batch.slice(i,i+500));if(error){alert('Error');return;}}
+  loadRoster();input.value='';
+}
+async function loadRoster(){
+  const{data}=await sb.from('roster').select('updated_at').order('updated_at',{ascending:false}).limit(1);
+  const{count}=await sb.from('roster').select('*',{count:'exact',head:true});
+  const el=$i('roster-status'),badge=$i('roster-badge');
+  if(count>0){const d=data[0]?.updated_at?new Date(data[0].updated_at).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}):'—';el.innerHTML=`<div class="file-status"><div class="fs-icon ok"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg></div><div class="fs-info"><div class="fs-title">${count} Active Members</div><div class="fs-date">Last updated: ${d}</div></div><button class="btn btn-outline btn-sm" onclick="$i('roster-input').click()">Update</button></div>`;badge.textContent='Active';badge.className='card-badge badge-ok';}
+  else{el.innerHTML=`<div class="upload-area" onclick="$i('roster-input').click()"><svg class="upload-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg><div class="upload-label">Upload Roster Report (.xlsx)</div><div class="upload-hint">Export from GHIN Admin filtered to Active members</div></div>`;badge.textContent='No File';badge.className='card-badge badge-empty';}
+}
+
+// SCORES
+async function uploadScores(input){
+  const f=input.files[0];if(!f)return;const wb=XLSX.read(await f.arrayBuffer());const rows=XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]]);
+  const dates=rows.filter(r=>r['Date Played']).map(r=>String(r['Date Played']));if(!dates.length){alert('No scores found in file');return;}
+  const pd=dates.map(d=>{const p=d.split('/');return new Date(2000+parseInt(p[2]||p[0]),parseInt(p[0])-1,parseInt(p[1]));}).filter(d=>!isNaN(d));
+  const mn=new Date(Math.min(...pd)),mx=new Date(Math.max(...pd));
+  await sb.from('scores').delete().neq('id',0);await sb.from('scores_upload').delete().neq('id',0);
+  const{data:up,error:ue}=await sb.from('scores_upload').insert({date_range_start:mn.toISOString().split('T')[0],date_range_end:mx.toISOString().split('T')[0],score_count:dates.length}).select().single();
+  if(ue){console.error('scores_upload insert error:',ue);alert('Error saving upload metadata: '+ue.message);return;}
+  let cur=null;let curGhin=null;const sr=[];
+  for(const r of rows){
+    if(r['GHIN Number']){cur=(r['Golfer Name']||'').trim();curGhin=Math.floor(Number(r['GHIN Number']));}
+    if(cur&&r['Date Played']){
+      sr.push({
+        upload_id:up.id,
+        ghin_number:curGhin,
+        golfer_name:cur,
+        date_played:String(r['Date Played']),
+        score_type:r['Score Type']?String(r['Score Type']):null,
+        ags:r['AGS']!=null?Number(r['AGS']):null,
+        holes_played:r['Holes Played']!=null?Math.floor(Number(r['Holes Played'])):null,
+        course_played:r['Course Played']?String(r['Course Played']):null,
+        differential:r['Differential']!=null?Number(r['Differential']):null
+      });
+    }
+  }
+  console.log('Inserting',sr.length,'scores...');
+  for(let i=0;i<sr.length;i+=500){
+    const{error}=await sb.from('scores').insert(sr.slice(i,i+500));
+    if(error){console.error('scores insert error at chunk',i,':',error,'sample row:',sr[i]);alert('Error saving scores: '+error.message);return;}
+  }
+  console.log('Scores inserted successfully');
+  loadScores();input.value='';
+}
+async function loadScores(){
+  const{data}=await sb.from('scores_upload').select('*').order('uploaded_at',{ascending:false}).limit(1);
+  const el=$i('scores-status'),badge=$i('scores-badge');
+  if(data?.length){const u=data[0],d=new Date(u.uploaded_at).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}),s=new Date(u.date_range_start+'T12:00:00').toLocaleDateString('en-US',{month:'short',day:'numeric'}),e=new Date(u.date_range_end+'T12:00:00').toLocaleDateString('en-US',{month:'short',day:'numeric'});el.innerHTML=`<div class="file-status"><div class="fs-icon ok"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg></div><div class="fs-info"><div class="fs-title">${u.score_count} Scores · ${s} – ${e}</div><div class="fs-date">Last updated: ${d}</div></div><button class="btn btn-outline btn-sm" onclick="$i('scores-input').click()">Update</button></div>`;badge.textContent='Active';badge.className='card-badge badge-ok';}
+  else{el.innerHTML=`<div class="upload-area" onclick="$i('scores-input').click()"><svg class="upload-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg><div class="upload-label">Upload Scores Posted Report (.xlsx)</div><div class="upload-hint">Export from GHIN Admin → Scores Posted Report</div></div>`;badge.textContent='No File';badge.className='card-badge badge-empty';}
+}
+
+// CALENDAR
+let calYear=2026,calMonth=3,calDayMap={};
+let pendingChip={date:null,course:null};
+const pad0=n=>String(n).padStart(2,'0');
+
+async function loadCalendar(){
+  const first=new Date(calYear,calMonth,1),last=new Date(calYear,calMonth+1,0);
+  $i('cal-month-label').textContent=first.toLocaleDateString('en-US',{month:'long',year:'numeric'});
+  const startStr=`${calYear}-${pad0(calMonth+1)}-01`,endStr=`${calYear}-${pad0(calMonth+1)}-${pad0(last.getDate())}`;
+  const{data:days}=await sb.from('tee_sheet_days').select('*').gte('play_date',startStr).lte('play_date',endStr);
+  calDayMap={};
+  if(days?.length){
+    for(const d of days)calDayMap[d.play_date]={closed:d.is_closed,id:d.id,courses:new Set()};
+    const ids=days.map(d=>d.id);
+    const{data:ents}=await sb.from('tee_sheet_entries').select('day_id,course').in('day_id',ids);
+    if(ents)for(const e of ents){const day=days.find(d=>d.id===e.day_id);if(day)calDayMap[day.play_date].courses.add(e.course);}
+  }
+  const today=new Date(),todayStr=`${today.getFullYear()}-${pad0(today.getMonth()+1)}-${pad0(today.getDate())}`;
+  let h='';
+  for(const d of['Sun','Mon','Tue','Wed','Thu','Fri','Sat'])h+=`<div class="cal-day-header">${d}</div>`;
+  for(let i=0;i<first.getDay();i++)h+='<div class="cal-cell empty"></div>';
+  for(let d=1;d<=last.getDate();d++){
+    const ds=`${calYear}-${pad0(calMonth+1)}-${pad0(d)}`;const info=calDayMap[ds];
+    const cls=['cal-cell'];if(ds===todayStr)cls.push('today');if(info?.closed)cls.push('closed');
+    let chips='';
+    if(info?.closed){chips='<div class="cal-chip closed-chip">Course Closed</div>';}
+    else{for(const c of COURSES){const short=c.split(' / ').map(w=>w[0]).join('/');const has=info?.courses?.has(c);chips+=`<div class="cal-chip ${has?'uploaded':'missing'}" onclick="event.stopPropagation();chipClick('${ds}','${c}')" title="${has?c+' ✓':'Upload '+c}">${short}</div>`;}}
+    h+=`<div class="${cls.join(' ')}"><div class="cal-date"><span>${d}</span><span class="close-btn" onclick="event.stopPropagation();toggleClosed('${ds}')" title="${info?.closed?'Reopen':'Mark Closed'}">${info?.closed?'✕':'—'}</span></div><div class="cal-courses">${chips}</div></div>`;
+  }
+  $i('cal-grid').innerHTML=h;
+}
+function calNav(dir){calMonth+=dir;if(calMonth>11){calMonth=0;calYear++;}if(calMonth<0){calMonth=11;calYear--;}loadCalendar();}
+async function toggleClosed(ds){
+  const info=calDayMap[ds];
+  const newClosed=info?.closed?false:true;
+  const{data:ex}=await sb.from('tee_sheet_days').select('id').eq('play_date',ds);
+  if(ex&&ex.length>0){
+    const{error}=await sb.from('tee_sheet_days').update({is_closed:newClosed}).eq('play_date',ds);
+    if(error)console.error('toggleClosed update error:',error);
+  } else {
+    const{error}=await sb.from('tee_sheet_days').insert({play_date:ds,is_closed:newClosed});
+    if(error)console.error('toggleClosed insert error:',error);
+  }
+  await loadCalendar();
+}
+
+// COURSE CHIP CLICK
+function chipClick(dateStr,course){
+  const info=calDayMap[dateStr];
+  if(info?.courses?.has(course)){if(!confirm(`${course} is already uploaded.\n\nReplace with a new file?`))return;}
+  pendingChip={date:dateStr,course};
+  $i('course-input').click();
+}
+async function handleChipUpload(input){
+  const f=input.files[0];if(!f){input.value='';return;}
+  const{date,course}=pendingChip;if(!date||!course){input.value='';return;}
+  const parsed=parseHTM(await f.text());
+  if(!parsed.entries.length){alert('Could not parse tee sheet.');input.value='';return;}
+  if(parsed.course!==course){alert(`Wrong course!\n\nExpected: ${course}\nFile contains: ${parsed.course}`);input.value='';return;}
+  const dp=parsed.date.split('/');const fileDate=`${dp[2]}-${dp[0].padStart(2,'0')}-${dp[1].padStart(2,'0')}`;
+  if(fileDate!==date){const lbl=new Date(date+'T12:00:00').toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'});alert(`Wrong date!\n\nExpected: ${lbl}\nFile contains: ${parsed.date}`);input.value='';return;}
+  const{data:day}=await sb.from('tee_sheet_days').upsert({play_date:date,is_closed:false},{onConflict:'play_date'}).select().single();
+  if(!day){alert('Error saving');input.value='';return;}
+  await sb.from('tee_sheet_entries').delete().eq('day_id',day.id).eq('course',course);
+  const rows=parsed.entries.map(e=>({day_id:day.id,course,tee_time:e.time,entry_type:e.type,player_name:e.name,player_first:e.first,player_last:e.last,member_code:e.code,holes:e.holes||null,reason:e.reason||null,is_solo:e.solo||false}));
+  for(let i=0;i<rows.length;i+=500){const{error}=await sb.from('tee_sheet_entries').insert(rows.slice(i,i+500));if(error){alert('Error: '+error.message);input.value='';return;}}
+  input.value='';loadCalendar();
+}
+
+
+// ===== TEE SHEET VIEW =====
+let tvRoster={},tvScoresByName={};
+
+async function tvInit(){
+  const{data:entDays}=await sb.from('tee_sheet_entries').select('day_id');
+  const dayIds=new Set((entDays||[]).map(e=>e.day_id));
+  const{data:allDays}=await sb.from('tee_sheet_days').select('id,play_date').eq('is_closed',false);
+  const validDates=(allDays||[]).filter(d=>dayIds.has(d.id)).map(d=>d.play_date).sort();
+  if(!validDates.length){$i('tv-date').innerHTML='<option>No tee sheets uploaded</option>';$i('tv-tabs').innerHTML='';$i('tv-stats').innerHTML='';$i('tv-table').innerHTML='';return;}
+  $i('tv-date').innerHTML=validDates.map(d=>{const dt=new Date(d+'T12:00:00');return`<option value="${d}">${dt.toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'})}</option>`;}).join('');
+  // Build roster by last name, with .nm and .info structure to use mN()
+  const{data:roster}=await sb.from('roster').select('ghin_number,golfer_name,current_hi,email');
+  tvRoster={};
+  if(roster)for(const r of roster){const nm=(r.golfer_name||'').toLowerCase();const parts=nm.split(' ');if(parts.length<2)continue;const lk=nlk(parts[parts.length-1]);if(!tvRoster[lk])tvRoster[lk]=[];tvRoster[lk].push({nm,info:{ghin:r.ghin_number,name:r.golfer_name,hi:r.current_hi,email:r.email}});}
+  // Scores by name → array of dates
+  const{data:scores}=await sb.from('scores').select('golfer_name,date_played');
+  tvScoresByName={};
+  if(scores)for(const s of scores){const nm=(s.golfer_name||'').toLowerCase();if(!tvScoresByName[nm])tvScoresByName[nm]=[];tvScoresByName[nm].push(s.date_played);}
+  tvLoadDate(validDates[0]);
+}
+
+async function tvLoadDate(dateStr){
+  if(!dateStr)return;
+  const{data:day}=await sb.from('tee_sheet_days').select('id').eq('play_date',dateStr).single();
+  if(!day)return;
+  const{data:entries}=await sb.from('tee_sheet_entries').select('*').eq('day_id',day.id).order('tee_time',{ascending:true});
+  if(!entries)return;
+  // Tag each entry with the date for downstream functions
+  for(const e of entries)e._date=dateStr;
+  matchAndStatus(entries);
+  detectSolos(entries);
+  applyPostCounts(entries);
+  // Sort courses
+  const courseOrder=['Grove / Lakes','Lakes / Orchard','Orchard / Grove'];
+  const courses=[...new Set(entries.map(e=>e.course))].sort((a,b)=>(courseOrder.indexOf(a)===-1?99:courseOrder.indexOf(a))-(courseOrder.indexOf(b)===-1?99:courseOrder.indexOf(b)));
+  // Build tabs
+  $i('tv-tabs').innerHTML='<div class="sub-tabs">'+courses.map((c,i)=>{
+    const ce=entries.filter(e=>e.course===c&&e.entry_type!=='blocked');
+    const postable=ce.filter(e=>(e.status==='posted'||e.status==='missing')&&!e.solo);
+    const posted=postable.filter(e=>e.status==='posted').length;const miss=postable.length-posted;
+    return`<div class="st-tab${i===0?' a':''}" onclick="tvPickCourse('${c}',this)">${c}<span class="st-num">${posted}/${postable.length}</span>${miss?'<span class="st-miss">· '+miss+' missing</span>':''}</div>`;
+  }).join('')+'</div>';
+  window._tvEntries=entries;tvShowCourse(courses[0],entries);
+}
+
+function tvPickCourse(c,el){document.querySelectorAll('#tv-tabs .st-tab').forEach(t=>t.classList.remove('a'));el.classList.add('a');tvShowCourse(c,window._tvEntries);}
+
+function allSlots(){const s=[];for(let h=7;h<=19;h++)for(let m=0;m<60;m+=10){if(h===19&&m>0)break;const h12=h>12?h-12:h===0?12:h;s.push(String(h12).padStart(2,'0')+':'+String(m).padStart(2,'0')+' '+(h>=12?'PM':'AM'))}return s}
+
+// Step 1: match entries against roster, set initial status to '__pending__' for matched members
+function matchAndStatus(entries){
+  for(const e of entries){
+    e.solo=false;e.ghin='';e.hi='';e.email='';e.status='';e.rosterName='';
+    if(e.entry_type==='blocked'||e.entry_type==='employee'){e.status=e.entry_type;continue;}
+    const rm=mN(e.player_first,e.player_last,tvRoster);
+    if(!rm){e.status='no_roster';continue;}
+    e.rosterName=rm.info.name;e.ghin=rm.info.ghin;e.hi=rm.info.hi;e.email=rm.info.email;
+    e.status='__pending__';
+  }
+}
+
+// Step 2: mark solo rounds (only player at that date+course+time slot)
+function detectSolos(entries){
+  const counts={};
+  for(const e of entries){if(e.entry_type==='blocked')continue;const k=e._date+'|'+e.course+'|'+e.tee_time;counts[k]=(counts[k]||0)+1;}
+  for(const e of entries){if(e.entry_type==='blocked')continue;const k=e._date+'|'+e.course+'|'+e.tee_time;if(counts[k]===1)e.solo=true;}
+}
+
+// Step 3: for matched roster members, compare # rounds played vs # scores posted per date
+function applyPostCounts(entries){
+  const memberRounds={};
+  for(const e of entries){
+    if(e.status!=='__pending__')continue;
+    const key=String(e.ghin);
+    if(!memberRounds[key])memberRounds[key]={first:e.player_first,last:e.player_last,rounds:[]};
+    memberRounds[key].rounds.push(e);
+  }
+  for(const key of Object.keys(memberRounds)){
+    const m=memberRounds[key];
+    // Find this member's posted scores using mN-like logic
+    const lastKey=nlk(m.last);
+    const postedByDate={};
+    const cleanFirst=firstName(m.first||'').toLowerCase().replace(/['\u2019]/g,'');
+    const vs=vr(cleanFirst);
+    for(const nm of Object.keys(tvScoresByName)){
+      const cleaned=stripHonor(nm);
+      const parts=cleaned.split(/\s+/);if(parts.length<2)continue;
+      const cl=nlk(parts[parts.length-1]);
+      if(cl!==lastKey)continue;
+      const cf=parts[0];
+      if(vs.has(cf)||(cleanFirst.length>=3&&cf.length>=3&&cleanFirst.substring(0,3)===cf.substring(0,3))){
+        for(const d of tvScoresByName[nm]){const nd=nD(d);postedByDate[nd]=(postedByDate[nd]||0)+1;}
+        break;
+      }
+    }
+    // Group rounds by date
+    const roundsByDate={};
+    for(const r of m.rounds){const nd=nD(r._date);if(!roundsByDate[nd])roundsByDate[nd]=[];roundsByDate[nd].push(r);}
+    for(const[nd,rounds] of Object.entries(roundsByDate)){
+      const postable=rounds.filter(r=>!r.solo);
+      const solos=rounds.filter(r=>r.solo);
+      const postedCount=postedByDate[nd]||0;
+      for(let i=0;i<postable.length;i++){postable[i].status=i<postedCount?'posted':'missing';}
+      for(const r of solos)r.status='solo';
+    }
+  }
+}
+
+function tvShowCourse(course,entries){
+  const ce=entries.filter(e=>e.course===course);
+  const slots=allSlots();
+  const grid={};
+  for(const t of slots)grid[t]={players:[],blocked:false,reason:''};
+  for(const e of ce){
+    const t=e.tee_time;if(!grid[t])continue;
+    if(e.entry_type==='blocked'){grid[t].blocked=true;grid[t].reason=e.reason;continue;}
+    grid[t].players.push(e);
+  }
+  // Stats: postable excludes solos
+  const pe=ce.filter(e=>e.entry_type==='member'||e.entry_type==='employee');
+  const members=ce.filter(e=>e.entry_type==='member');
+  const postable=ce.filter(e=>(e.status==='posted'||e.status==='missing')&&!e.solo);
+  const posted=postable.filter(e=>e.status==='posted').length;
+  const miss=postable.length-posted;
+  const pureBlk=slots.filter(t=>grid[t].blocked&&grid[t].players.length===0).length;
+  const av=(slots.length-pureBlk)*4;
+  const pct=postable.length?(posted/postable.length*100).toFixed(0):'—';
+  $i('tv-stats').innerHTML=`<div class="stat-row"><div class="sl"><div class="istat"><span class="iv">${pe.length}</span><span class="il">Booked</span></div><div class="istat"><span class="iv">${av}</span><span class="il">Available</span></div><div class="istat"><span class="iv">${members.length}</span><span class="il">Members</span></div></div><div class="sr"><div class="istat"><span class="iv">${postable.length}</span><span class="il">Postable</span></div><div class="istat"><span class="iv sg">${posted}</span><span class="il">Posted</span></div><div class="istat"><span class="iv sr">${miss}</span><span class="il">Missing</span></div><div class="istat"><span class="iv">${postable.length?pct+'%':'—'}</span><span class="il">Round %</span></div></div></div>`;
+  let h='<table style="table-layout:fixed"><colgroup><col style="width:80px"><col style="width:24px"><col style="width:25%"><col style="width:25%"><col style="width:25%"><col style="width:25%"></colgroup><thead><tr><th>Time</th><th></th><th>Player 1</th><th>Player 2</th><th>Player 3</th><th>Player 4</th></tr></thead><tbody>';
+  for(const t of slots){
+    const g=grid[t];
+    const hasPlayers=g.players.length>0;
+    const isPureBlock=g.blocked&&!hasPlayers;
+    const isEvent=g.blocked&&hasPlayers;
+    const bg=isPureBlock?'#C8C6C2':(isEvent?'#EDECEA':'');
+    const rowStyle=bg?` style="background:${bg}"`:'';
+    h+=`<tr${rowStyle}>`;
+    if(isEvent){
+      h+=`<td style="font-weight:600;line-height:1.2">${esc(t)}<div style="font-size:10px;color:var(--ts);font-weight:500;margin-top:2px">${esc(g.reason)}</div></td>`;
+    } else {
+      h+=`<td style="font-weight:600">${esc(t)}</td>`;
+    }
+    if(isPureBlock){
+      h+=`<td></td><td colspan="4" style="text-align:center;font-size:13px;color:var(--ts);font-weight:500">Blocked: ${esc(g.reason)}</td></tr>`;
+      continue;
+    }
+    h+=`<td></td>`; // spacer column
+    for(let i=0;i<4;i++){
+      const p=g.players[i];
+      if(!p){h+='<td></td>';continue;}
+      let dot,cls;
+      if(p.entry_type==='employee'||p.status==='no_roster'||p.solo){dot='dd';cls='color:var(--tl)';}
+      else if(p.status==='missing'){dot='dr';cls='font-weight:700;color:var(--rd)';}
+      else if(p.status==='posted'){dot='dg';cls='';}
+      else{dot='dd';cls='color:var(--tl)';}
+      const dn=p.rosterName||p.player_name;
+      h+=`<td style="overflow:hidden;text-overflow:ellipsis"><span class="dot ${dot}"></span><span style="${cls}">${esc(dn)}</span></td>`;
+    }
+    h+='</tr>';
+  }
+  h+='</tbody></table>';$i('tv-table').innerHTML=h;$i('tv-table').className='tw tw-conn';
+}
+
+// ===== AUDIT (WEEK-BASED) =====
+let auWeekStart=null; // Date object for Sunday of current audit week
+
+function getWeekStart(d){const dt=new Date(d);dt.setDate(dt.getDate()-dt.getDay());dt.setHours(0,0,0,0);return dt;}
+function addDays(d,n){const dt=new Date(d);dt.setDate(dt.getDate()+n);return dt;}
+function fmtDate(d){return d.getFullYear()+'-'+pad0(d.getMonth()+1)+'-'+pad0(d.getDate());}
+function fmtLabel(d){return d.toLocaleDateString('en-US',{month:'short',day:'numeric'});}
+
+function auInitWeek(){
+  // Default to previous completed week (last Sunday minus 7)
+  const today=new Date();
+  const thisSun=getWeekStart(today);
+  auWeekStart=addDays(thisSun,-7);
+  auLoadWeek();
+}
+
+function auWeekNav(dir){
+  auWeekStart=addDays(auWeekStart,dir*7);
+  auLoadWeek();
+}
+
+async function auLoadWeek(){
+  const sun=auWeekStart;
+  const sat=addDays(sun,6);
+  const sunStr=fmtDate(sun);const satStr=fmtDate(sat);
+  $i('au-week-label').textContent=fmtLabel(sun)+' — '+fmtLabel(sat)+', '+sun.getFullYear();
+
+  // Check what tee sheets exist for this week
+  const weekDates=[];
+  for(let i=0;i<7;i++)weekDates.push(fmtDate(addDays(sun,i)));
+
+  const{data:days}=await sb.from('tee_sheet_days').select('play_date,is_closed').in('play_date',weekDates);
+  const dayMap={};
+  if(days)for(const d of days)dayMap[d.play_date]=d;
+
+  // Check which dates have entries
+  const{data:dayRecs}=await sb.from('tee_sheet_days').select('id,play_date').in('play_date',weekDates);
+  const dayIds=(dayRecs||[]).map(d=>d.id);
+  let entryDayIds=new Set();
+  if(dayIds.length){
+    const{data:ents}=await sb.from('tee_sheet_entries').select('day_id').in('day_id',dayIds);
+    if(ents)entryDayIds=new Set(ents.map(e=>e.day_id));
+  }
+
+  // Build warnings
+  let warnings='';
+  const missingDays=[];
+  for(const d of weekDates){
+    const info=dayMap[d];
+    const dayRec=(dayRecs||[]).find(r=>r.play_date===d);
+    const hasEntries=dayRec&&entryDayIds.has(dayRec.id);
+    const isClosed=info?.is_closed;
+    if(!isClosed&&!hasEntries){
+      missingDays.push(new Date(d+'T12:00:00').toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'}));
+    }
+  }
+  if(missingDays.length){
+    warnings+=`<div class="au-warn warn-miss">⚠ Missing tee sheets: ${missingDays.join(', ')}</div>`;
+  }
+
+  // Check scores coverage
+  const{data:scUp}=await sb.from('scores_upload').select('*').order('uploaded_at',{ascending:false}).limit(1);
+  if(!scUp?.length){
+    warnings+=`<div class="au-warn warn-miss">⚠ No Scores Posted Report uploaded</div>`;
+  } else {
+    const scStart=new Date(scUp[0].date_range_start+'T12:00:00');
+    const scEnd=new Date(scUp[0].date_range_end+'T12:00:00');
+    if(sun<scStart||sat>scEnd){
+      warnings+=`<div class="au-warn warn-miss">⚠ Scores Posted Report (${fmtLabel(scStart)} – ${fmtLabel(scEnd)}) does not fully cover this week</div>`;
+    }
+  }
+  $i('au-warnings').innerHTML=warnings;
+
+  // Now run the audit for this week's dates that have data
+  const activeDayIds=dayIds.filter(id=>entryDayIds.has(id));
+  if(!activeDayIds.length){
+    $i('au-summary').innerHTML='<div style="padding:24px;text-align:center;color:var(--tl)">No tee sheet data for this week.</div>';
+    $i('au-tabs').innerHTML='';$i('au-stats').innerHTML='';$i('au-table').innerHTML='';
+    return;
+  }
+
+  // Fetch entries for this week
+  const{data:entries}=await sb.from('tee_sheet_entries').select('*,tee_sheet_days!inner(play_date,is_closed)').in('day_id',activeDayIds).eq('tee_sheet_days.is_closed',false);
+  if(!entries?.length){
+    $i('au-summary').innerHTML='<div style="padding:24px;text-align:center;color:var(--tl)">No entries for this week.</div>';
+    $i('au-tabs').innerHTML='';$i('au-stats').innerHTML='';$i('au-table').innerHTML='';
+    return;
+  }
+
+  const{data:roster}=await sb.from('roster').select('*');
+  if(!roster?.length){$i('au-summary').textContent='No roster. Upload roster first.';return;}
+  const{data:scores}=await sb.from('scores').select('golfer_name,date_played');
+
+  // Build roster keyed by last name with .nm/.info structure
+  const rLookup={};
+  for(const r of roster){const nm=(r.golfer_name||'').toLowerCase();const parts=nm.split(' ');if(parts.length<2)continue;const lk=nlk(parts[parts.length-1]);if(!rLookup[lk])rLookup[lk]=[];rLookup[lk].push({nm,info:{ghin:r.ghin_number,name:r.golfer_name,hi:r.current_hi,email:r.email}});}
+  // Scores grouped by golfer_name
+  const sLookup={};if(scores)for(const s of scores){const nm=(s.golfer_name||'').toLowerCase();if(!sLookup[nm])sLookup[nm]=[];sLookup[nm].push(s.date_played);}
+
+  // Step 1: match each entry to roster, mark as __pending__
+  for(const e of entries){
+    e._date=e.tee_sheet_days.play_date;e.solo=false;e.ghin='';e.hi='';e.email='';e.status='';e.rosterName='';
+    if(e.entry_type==='blocked'||e.entry_type==='employee'){e.status=e.entry_type;continue;}
+    const rm=mN(e.player_first,e.player_last,rLookup);
+    if(!rm){e.status='no_roster';continue;}
+    e.rosterName=rm.info.name;e.ghin=rm.info.ghin;e.hi=rm.info.hi;e.email=rm.info.email;
+    e.status='__pending__';
+  }
+
+  // Step 2: detect solos (only player at date+course+time slot)
+  const slotCounts={};
+  for(const e of entries){if(e.entry_type==='blocked')continue;const k=e._date+'|'+e.course+'|'+e.tee_time;slotCounts[k]=(slotCounts[k]||0)+1;}
+  for(const e of entries){if(e.entry_type==='blocked')continue;const k=e._date+'|'+e.course+'|'+e.tee_time;if(slotCounts[k]===1)e.solo=true;}
+
+  // Step 3: aggregate by member, compare played vs posted per date
+  const memberMap={};
+  for(const e of entries){
+    if(e.status!=='__pending__')continue;
+    const key=String(e.ghin);
+    if(!memberMap[key])memberMap[key]={name:e.rosterName,ghin:e.ghin,hi:e.hi,email:e.email,first:e.player_first,last:e.player_last,played:[],posted:[],missing:[],solos:[]};
+    memberMap[key].played.push(e._date);
+  }
+
+  for(const key of Object.keys(memberMap)){
+    const m=memberMap[key];
+    // Find this member's posted scores
+    const lastKey=nlk(m.last);
+    const postedByDate={};
+    const cleanFirst=firstName(m.first||'').toLowerCase().replace(/['\u2019]/g,'');
+    const vs=vr(cleanFirst);
+    for(const nm of Object.keys(sLookup)){
+      const cleaned=stripHonor(nm);
+      const parts=cleaned.split(/\s+/);if(parts.length<2)continue;
+      const cl=nlk(parts[parts.length-1]);if(cl!==lastKey)continue;
+      const cf=parts[0];
+      if(vs.has(cf)||(cleanFirst.length>=3&&cf.length>=3&&cleanFirst.substring(0,3)===cf.substring(0,3))){
+        for(const d of sLookup[nm]){const nd=nD(d);postedByDate[nd]=(postedByDate[nd]||0)+1;}
+        break;
+      }
+    }
+    // Get this member's rounds (only the ones in __pending__)
+    const myRounds=entries.filter(e=>e.status==='__pending__'&&String(e.ghin)===key);
+    // Group by date, separate solos
+    const roundsByDate={};
+    for(const r of myRounds){const nd=nD(r._date);if(!roundsByDate[nd])roundsByDate[nd]=[];roundsByDate[nd].push(r);}
+    m.played=[];m.posted=[];m.missing=[];m.solos=[];
+    for(const[nd,rounds] of Object.entries(roundsByDate)){
+      const postable=rounds.filter(r=>!r.solo);
+      const solos=rounds.filter(r=>r.solo);
+      const pc=postedByDate[nd]||0;
+      for(let i=0;i<postable.length;i++){
+        m.played.push(nd);
+        if(i<pc){m.posted.push(nd);postable[i].status='posted';}
+        else{m.missing.push(nd);postable[i].status='missing';}
+      }
+      for(const r of solos){m.solos.push(nd);r.status='solo';}
+    }
+  }
+
+  // Filter to members who actually have postable (non-solo) rounds
+  const res=Object.values(memberMap).filter(m=>m.played.length>0).map(m=>({...m,ok:m.missing.length===0}));
+  const nonPost=entries.filter(e=>e.status==='no_roster'||e.entry_type==='employee'||e.solo);
+  const postable=res.reduce((s,m)=>s+m.played.length,0);
+  const posted=res.reduce((s,m)=>s+m.posted.length,0);
+  const missing=res.reduce((s,m)=>s+m.missing.length,0);
+  const roundPct=postable?(posted/postable*100).toFixed(1):'0.0';
+
+  $i('au-summary').innerHTML=`<div style="text-align:center;font-size:13px;color:var(--ts)"><strong>${postable} postable</strong> · <span style="color:var(--ac)">${posted} posted</span> · <span style="color:var(--rd)">${missing} missing</span> · ${roundPct}% compliance</div>`;
+
+  $i('au-tabs').innerHTML='<div class="sub-tabs"><div class="st-tab a" onclick="auTab(\'post\',this)">Postable Rounds<span class="st-num">'+posted+'/'+postable+'</span>'+(missing?' <span class="st-miss">· '+missing+' missing</span>':'')+'</div><div class="st-tab" onclick="auTab(\'nonpost\',this)">Non-Postable Rounds<span class="st-num">'+nonPost.length+'</span></div></div>';
+  window._auRes=res;window._auNP=nonPost;auTab('post',null);
+}
+function auTab(tab,el){
+  if(el){document.querySelectorAll('#au-tabs .st-tab').forEach(t=>t.classList.remove('a'));el.classList.add('a');}
+  if(tab==='post'){
+    const res=window._auRes||[];const sorted=[...res].sort((a,b)=>a.ok===b.ok?a.name.localeCompare(b.name):a.ok?1:-1);
+    const postable=res.reduce((s,m)=>s+m.played.length,0),posted=res.reduce((s,m)=>s+m.posted.length,0),missing=res.reduce((s,m)=>s+m.missing.length,0);
+    const pct=postable?(posted/postable*100).toFixed(1):'0.0';
+    $i('au-stats').innerHTML=`<div class="stat-row"><div class="sl"><div class="istat"><span class="iv">${postable}</span><span class="il">Postable</span></div><div class="istat"><span class="iv">${res.length}</span><span class="il">Members</span></div></div><div class="sr"><div class="istat"><span class="iv sg">${posted}</span><span class="il">Posted</span></div><div class="istat"><span class="iv sr">${missing}</span><span class="il">Missing</span></div><div class="istat"><span class="iv">${pct}%</span><span class="il">Round %</span></div></div></div>`;
+    window._auSorted=sorted;
+    let h='<table><thead><tr><th>Name</th><th>GHIN</th><th>H.I.</th><th>Rounds Played</th><th>Rounds Posted</th><th>Missing Dates</th></tr></thead><tbody>';
+    for(const r of sorted){
+      const missText=r.missing.length?r.missing.join(', '):'—';
+      const emailBtn=(!r.ok&&r.email)?`<button class="email-btn" title="Send reminder" onclick="event.preventDefault();window.open(buildMailto(window._auSorted[${sorted.indexOf(r)}]),'_self')"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M22 4l-10 8L2 4"/></svg></button>`:'';
+      h+=`<tr${r.ok?'':' class="row-miss"'}><td>${emailBtn}<span class="nb">${esc(r.name)}</span></td><td>${r.ghin}</td><td>${esc(r.hi)}</td><td>${r.played.length}</td><td>${r.posted.length}</td><td>${r.ok?'—':'<span class="mt">'+esc(missText)+'</span>'}</td></tr>`;
+    }
+    h+='</tbody></table>';$i('au-table').innerHTML=h;$i('au-table').className='tw tw-conn';
+  } else {
+    const np=window._auNP||[];
+    $i('au-stats').innerHTML=`<div class="stat-row"><div class="sl"><div class="istat"><span class="iv">${np.length}</span><span class="il">Non-Postable</span></div></div></div>`;
+    let h='<table><thead><tr><th>Name</th><th>Course</th><th>Date</th><th>Time</th><th>Reason</th></tr></thead><tbody>';
+    for(const e of np){const d=e._date;const dl=d?nD(d):'';
+      const reason=e.entry_type==='employee'?'Employee':e.solo?'Solo Round':'No Active GHIN';
+      const name=e.rosterName||e.player_name||'';
+      h+=`<tr><td>${esc(name)}</td><td>${esc(e.course||'')}</td><td>${dl}</td><td>${esc(e.tee_time||'')}</td><td><span style="background:var(--rl);color:var(--rd);padding:2px 8px;border-radius:4px;font-size:11px;font-weight:600">${reason}</span></td></tr>`;}
+    h+='</tbody></table>';$i('au-table').innerHTML=h;$i('au-table').className='tw tw-conn';
+  }
+}
+function buildMailto(r){
+  const subject='Score Posting Reminder — Treesdale Golf & Country Club';
+  const dates=r.missing.join(', ');
+  const body='Hi '+r.name+',\n\nOur records show that you played at Treesdale on '+dates+' but have not yet posted '+(r.missing.length===1?'a score':'scores')+' for '+(r.missing.length===1?'that round':'those rounds')+'.\n\nPlease log in to the GHIN app or ghin.com and post your '+(r.missing.length===1?'score':'scores')+' at your earliest convenience.\n\nThank you,\nTreesdale Golf Shop';
+  return'mailto:'+r.email+'?subject='+encodeURIComponent(subject)+'&body='+encodeURIComponent(body);
+}
+function esc(s){const d=document.createElement('div');d.textContent=String(s||'');return d.innerHTML}
+
+// Nickname dictionary for matching
+const NK={bob:'robert',robert:'bob',tom:'thomas',thomas:'tom',mike:'michael',michael:'mike',ed:'edwin',edwin:'ed',edward:'ed',tony:'anthony',anthony:'tony',bill:'william',william:'bill',jim:'james',james:'jim',jeff:'jeffrey',jeffrey:'jeff',joe:'joseph',joseph:'joe',greg:'gregory',gregory:'greg',tim:'timothy',timothy:'tim',pat:'patrick',patrick:'pat',dan:'daniel',daniel:'dan',don:'donald',donald:'don',matt:'matthew',matthew:'matt',chris:'christopher',christopher:'chris',steve:'stephen',stephen:'steve',steven:'steve',rob:'robert',nick:'nicholas',nicholas:'nick',jerry:'gerald',gerald:'jerry',chuck:'charles',charles:'chuck',doug:'douglas',douglas:'doug',brad:'bradley',bradley:'brad',dave:'david',david:'dave',drew:'andrew',andrew:'drew',lenny:'leonard',leonard:'lenny',ron:'ronald',ronald:'ron',ray:'raymond',raymond:'ray',sue:'susan',susan:'sue',suzy:'susan',ned:'edward',skip:'james',chip:'charles',dick:'richard',richard:'dick',rick:'richard',marge:'margaret',vicki:'vickie',vickie:'vicki',bobby:'robert',liz:'elizabeth',beth:'elizabeth',barb:'barbara',barbara:'barb',toni:'antonia',antonia:'toni',pete:'peter',peter:'pete',kate:'katherine',katherine:'kate',kathy:'katherine',katie:'katherine',josh:'joshua',joshua:'josh',ben:'benjamin',benjamin:'ben',zack:'zachary',zachary:'zack',zach:'zachary',alex:'alexander',alexander:'alex',sam:'samuel',samuel:'sam',sammy:'samuel',max:'maxwell',maxwell:'max',cassie:'cassandra',cassandra:'cassie',kim:'kimberly',kimberly:'kim',kenny:'kenneth',kenneth:'kenny',ken:'kenneth',larry:'lawrence',lawrence:'larry',randy:'randall',randall:'randy',fred:'frederick',frederick:'fred',jen:'jennifer',jennifer:'jen',jenny:'jennifer',abby:'abigail',abigail:'abby',meg:'megan',megan:'meg',becky:'rebecca',rebecca:'becky',rusty:'russell',russell:'rusty',russ:'russell',vicky:'victoria',victoria:'vicky',hal:'harold',harold:'hal',hank:'henry',henry:'hank',gus:'augustus',augustus:'gus',artie:'arthur',arthur:'artie',art:'arthur',herb:'herbert',herbert:'herb',phil:'philip',philip:'phil',phillip:'phil',stan:'stanley',stanley:'stan',mort:'morton',morton:'mort',sal:'salvatore',salvatore:'sal',vince:'vincent',vincent:'vince',gerry:'gerard',gerard:'gerry',marty:'martin',martin:'marty',allie:'alison',alison:'allie',patty:'patricia',patricia:'patty',pam:'pamela',pamela:'pam',cathy:'catherine',catherine:'cathy',terry:'terrence',terrence:'terry',lou:'louis',louis:'lou',lawrence:'larry'};
+// Strip honorifics (Mr., Mrs., Dr., Mr) from a name string
+function stripHonor(s){return (s||'').replace(/^(mr\.?\s+|mrs\.?\s+|ms\.?\s+|dr\.?\s+|miss\s+)/i,'').trim();}
+// Get the "core" first name (drops honorifics, middle names/initials)
+function firstName(s){const cleaned=stripHonor(s||'');const parts=cleaned.split(/\s+/);return parts[0]||'';}
+function vr(f){const s=new Set([f]);if(NK[f])s.add(NK[f]);for(const[k,v]of Object.entries(NK))if(v===f)s.add(k);return s}
+function nlk(s){return (s||'').replace(/['\u2019]/g,'').toLowerCase()}
+function mN(first,last,byL){
+  if(!first||!last)return null;
+  const lo=nlk(last);
+  // Strip middle initials/names from tee-sheet first name
+  const cleanFirst=firstName(first).toLowerCase().replace(/['\u2019]/g,'');
+  const vs=vr(cleanFirst);
+  const cs=byL[lo];if(!cs)return null;
+  for(const c of cs){
+    // c.nm is the lowercased full name from roster — strip honorifics and split
+    const cleanRoster=stripHonor(c.nm);
+    const p=cleanRoster.replace(/['\u2019]/g,'').split(/\s+/);
+    if(p.length<2)continue;
+    const cf=p[0]; // first name from roster (no honorific)
+    if(vs.has(cf))return c;
+    if(cleanFirst.length>=3&&cf.length>=3&&cleanFirst.substring(0,3)===cf.substring(0,3))return c;
+  }
+  return null;
+}
+function nD(d){if(!d)return'';if(d.includes('-')){const p=d.split('-');return parseInt(p[1])+'/'+parseInt(p[2])+'/'+p[0].slice(-2);}const p=String(d).split('/');if(p.length!==3)return String(d);const yr=p[2].length===4?p[2].slice(-2):p[2];return parseInt(p[0])+'/'+parseInt(p[1])+'/'+yr}
+
+// Nav handler to load tee sheet data when switching tabs
+const _origNavTo=navTo;
+navTo=function(p){_origNavTo(p);if(p==='teeview')tvInit().catch(e=>console.error(e));if(p==='audit'){if(!auWeekStart)auInitWeek();else auLoadWeek();}};
+
+// INIT
+async function init(){
+  try{
+    await loadRoster();
+    await loadScores();
+    await loadCalendar();
+  }catch(err){
+    console.error('Init error:',err);
+    // Still render an empty calendar if supabase fails
+    renderEmptyCalendar();
+  }
+}
+function renderEmptyCalendar(){
+  const first=new Date(calYear,calMonth,1),last=new Date(calYear,calMonth+1,0);
+  $i('cal-month-label').textContent=first.toLocaleDateString('en-US',{month:'long',year:'numeric'});
+  let h='';
+  for(const d of['Sun','Mon','Tue','Wed','Thu','Fri','Sat'])h+=`<div class="cal-day-header">${d}</div>`;
+  for(let i=0;i<first.getDay();i++)h+='<div class="cal-cell empty"></div>';
+  for(let d=1;d<=last.getDate();d++){
+    const ds=`${calYear}-${pad0(calMonth+1)}-${pad0(d)}`;
+    let chips='';
+    for(const c of COURSES){const short=c.split(' / ').map(w=>w[0]).join('/');chips+=`<div class="cal-chip missing" onclick="event.stopPropagation();chipClick('${ds}','${c}')" title="Upload ${c}">${short}</div>`;}
+    h+=`<div class="cal-cell"><div class="cal-date"><span>${d}</span><span class="close-btn" onclick="event.stopPropagation();toggleClosed('${ds}')" title="Mark Closed">—</span></div><div class="cal-courses">${chips}</div></div>`;
+  }
+  $i('cal-grid').innerHTML=h;
+}
+init();
+</script>
+</body>
+</html>
