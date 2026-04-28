@@ -1380,16 +1380,33 @@ function fmtDayDate(s){const dt=typeof s==='string'?new Date(s+(s.includes('T')?
 function fmtDateOnly(s){const dt=typeof s==='string'?new Date(s+(s.includes('T')?'':'T12:00:00')):s;return `${pad0(dt.getMonth()+1)}/${pad0(dt.getDate())}/${dt.getFullYear()}`;}
 
 async function loadCalendar(){
+  console.log('[calendar] loadCalendar starting',{calYear,calMonth});
   const first=new Date(calYear,calMonth,1),last=new Date(calYear,calMonth+1,0);
   $i('cal-month-label').textContent=first.toLocaleDateString('en-US',{month:'long',year:'numeric'});
   const startStr=`${calYear}-${pad0(calMonth+1)}-01`,endStr=`${calYear}-${pad0(calMonth+1)}-${pad0(last.getDate())}`;
-  const{data:days}=await sb.from('tee_sheet_days').select('*').gte('play_date',startStr).lte('play_date',endStr);
+  console.log('[calendar] querying days',{startStr,endStr});
+  const{data:days,error:daysErr}=await sb.from('tee_sheet_days').select('*').gte('play_date',startStr).lte('play_date',endStr);
+  if(daysErr){console.error('[calendar] days query failed:',daysErr);}
+  console.log('[calendar] days returned',days?.length,days);
   calDayMap={};
   if(days?.length){
     for(const d of days)calDayMap[d.play_date]={closed:d.is_closed,id:d.id,courses:new Set(),coursePcts:{},dayPct:null};
     const ids=days.map(d=>d.id);
-    const{data:ents}=await sb.from('tee_sheet_entries').select('*').in('day_id',ids);
-    if(ents){
+    console.log('[calendar] querying entries for day_ids',ids);
+    // Paginate through all entries — single query is capped at 1000 rows
+    const ents=[];
+    let pgFrom=0;const pgSize=1000;
+    while(true){
+      const{data:page,error:pgErr}=await sb.from('tee_sheet_entries').select('*').in('day_id',ids).range(pgFrom,pgFrom+pgSize-1);
+      if(pgErr){console.error('[calendar] entries page query failed:',pgErr);break;}
+      if(!page||!page.length)break;
+      ents.push(...page);
+      if(page.length<pgSize)break;
+      pgFrom+=pgSize;
+      if(pgFrom>50000)break;
+    }
+    console.log('[calendar] entries returned',ents.length);
+    if(ents.length){
       // Group entries by date+course
       const byDayCourse={}; // playDate -> course -> [entries]
       for(const e of ents){
@@ -1473,6 +1490,7 @@ async function loadCalendar(){
     }
   }
   const today=new Date(),todayStr=`${today.getFullYear()}-${pad0(today.getMonth()+1)}-${pad0(today.getDate())}`;
+  console.log('[calendar] calDayMap has',Object.keys(calDayMap).length,'days. Sample:',Object.entries(calDayMap).slice(0,3).map(([d,v])=>({date:d,courses:[...v.courses]})));
   let h='';
   for(const d of ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'])h+=`<div class="cal-day-header">${d}</div>`;
   // Mon-first: getDay() returns 0=Sun..6=Sat; convert to 0=Mon..6=Sun via (getDay()+6)%7
