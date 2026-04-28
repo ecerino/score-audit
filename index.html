@@ -515,6 +515,10 @@ input::placeholder{color:var(--tl)}
       <span class="section-title" style="margin:0;display:inline-flex;align-items:center;gap:6px"><span class="dot dg"></span> Posted</span>
       <span class="section-title" style="margin:0;display:inline-flex;align-items:center;gap:6px"><span class="dot dr"></span> Missing</span>
       <span class="section-title" style="margin:0;display:inline-flex;align-items:center;gap:6px"><span class="dot dd"></span> Non-Postable</span>
+      <button class="btn btn-outline btn-sm" id="tv-export-btn" onclick="tvExport()" data-tip="Export this day's tee sheet to Excel" style="margin-left:10px">
+        <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        Export
+      </button>
     </div>
   </div>
   <div id="tv-tabs"></div>
@@ -2168,9 +2172,13 @@ function auRender(){
     $i('au-stats').innerHTML=`<div class="stat-row"><div class="sl"><div class="istat"><span class="iv">${postable}</span><span class="il">Postable</span></div><div class="istat"><span class="iv">${res.length}</span><span class="il">Members</span></div></div><div class="sr"><div class="istat"><span class="iv sg">${posted}</span><span class="il">Posted</span></div><div class="istat"><span class="iv sr">${missing}</span><span class="il">Missing</span></div><div class="istat"><span class="iv">${pct}%</span><span class="il">Round %</span></div></div></div>`;
     auMembTab(activeMembTab,null);
   } else {
-    // Rounds view — show sub-tabs for Postable / Non-Postable
-    const activeRoundTab=window._auRoundTab||'post';
-    $i('au-tabs').innerHTML='<div class="sub-tabs"><div class="st-tab '+(activeRoundTab==='post'?'a':'')+'" onclick="auRoundTab(\'post\',this)">Postable Rounds<span class="st-num">'+posted+'/'+postable+'</span>'+(missing?' <span class="st-miss">· '+missing+' missing</span>':'')+'</div><div class="st-tab '+(activeRoundTab==='nonpost'?'a':'')+'" onclick="auRoundTab(\'nonpost\',this)">Non-Postable Rounds<span class="st-num">'+np.length+'</span></div></div>';
+    // Rounds view — three tabs: Missing, Posted, Non-Postable
+    const activeRoundTab=window._auRoundTab||'miss';
+    const tabs=[];
+    tabs.push('<div class="st-tab '+(activeRoundTab==='miss'?'a':'')+'" onclick="auRoundTab(\'miss\',this)">Missing<span class="st-num">'+missing+'</span></div>');
+    tabs.push('<div class="st-tab '+(activeRoundTab==='post'?'a':'')+'" onclick="auRoundTab(\'post\',this)">Posted<span class="st-num">'+posted+'</span></div>');
+    tabs.push('<div class="st-tab '+(activeRoundTab==='nonpost'?'a':'')+'" onclick="auRoundTab(\'nonpost\',this)">Non-Postable<span class="st-num">'+np.length+'</span></div>');
+    $i('au-tabs').innerHTML='<div class="sub-tabs">'+tabs.join('')+'</div>';
     auRoundTab(activeRoundTab,null);
   }
 }
@@ -2184,21 +2192,29 @@ function auRoundTab(tab,el){
   const posted=res.reduce((s,m)=>s+m.posted.length,0);
   const missing=res.reduce((s,m)=>s+m.missing.length,0);
   const pct=postable?(posted/postable*100).toFixed(1):'0.0';
+  const isAdmin=currentRole==='admin';
+  const memberHeader=isAdmin?'<th>Member #</th>':'';
+  const allRounds=window._auFilteredRounds||window._auRounds||[];
 
-  if(tab==='post'){
-    $i('au-stats').innerHTML=`<div class="stat-row"><div class="sl"><div class="istat"><span class="iv">${postable}</span><span class="il">Postable</span></div></div><div class="sr"><div class="istat"><span class="iv sg">${posted}</span><span class="il">Posted</span></div><div class="istat"><span class="iv sr">${missing}</span><span class="il">Missing</span></div><div class="istat"><span class="iv">${pct}%</span><span class="il">Round %</span></div></div></div>`;
-    const rounds=window._auFilteredRounds||window._auRounds||[];
-    const isAdmin=currentRole==='admin';
-    const memberHeader=isAdmin?'<th>Member #</th>':'';
+  if(tab==='miss'){
+    $i('au-stats').innerHTML=`<div class="stat-row"><div class="sl"><div class="istat"><span class="iv sr">${missing}</span><span class="il">Missing</span></div><div class="istat"><span class="iv">${postable}</span><span class="il">Postable</span></div></div><div class="sr"><div class="istat"><span class="iv">${pct}%</span><span class="il">Round %</span></div></div></div>`;
+    const rounds=allRounds.filter(r=>!r.posted);
+    let h='<table><thead><tr><th>Date Played</th><th>Member</th>'+memberHeader+'<th>GHIN</th><th>Course</th><th>Time</th><th>Status</th></tr></thead><tbody>';
+    for(const r of rounds){
+      const memberCell=isAdmin?`<td>${esc(r.member_number||'')}</td>`:'';
+      h+=`<tr class="row-miss"><td>${esc(r.date)}</td><td><span class="mt"><span class="nb">${esc(r.name)}</span></span></td>${memberCell}<td>${r.ghin}</td><td class="ct" data-tip="${esc(r.course)}">${esc(r.course)}</td><td>${esc(r.time)}</td><td><span class="status-badge miss">Missing</span></td></tr>`;
+    }
+    if(!rounds.length)h+='<tr><td colspan="'+(isAdmin?7:6)+'" style="text-align:center;color:var(--tl);padding:24px">No missing rounds for this period.</td></tr>';
+    h+='</tbody></table>';$i('au-table').innerHTML=h;$i('au-table').className='tw tw-conn';
+  } else if(tab==='post'){
+    $i('au-stats').innerHTML=`<div class="stat-row"><div class="sl"><div class="istat"><span class="iv sg">${posted}</span><span class="il">Posted</span></div><div class="istat"><span class="iv">${postable}</span><span class="il">Postable</span></div></div><div class="sr"><div class="istat"><span class="iv">${pct}%</span><span class="il">Round %</span></div></div></div>`;
+    const rounds=allRounds.filter(r=>r.posted);
     let h='<table><thead><tr><th>Date Played</th><th>Member</th>'+memberHeader+'<th>GHIN</th><th>Course</th><th>Time</th><th>Status</th><th>Date Posted</th></tr></thead><tbody>';
     for(const r of rounds){
-      const cls=r.posted?'':' class="row-miss"';
-      const statusBadge=r.posted
-        ?'<span class="status-badge ok">Posted</span>'
-        :'<span class="status-badge miss">Missing</span>';
       const memberCell=isAdmin?`<td>${esc(r.member_number||'')}</td>`:'';
-      h+=`<tr${cls}><td>${esc(r.date)}</td><td><span class="${r.posted?'':'mt'}"><span class="nb">${esc(r.name)}</span></span></td>${memberCell}<td>${r.ghin}</td><td class="ct" data-tip="${esc(r.course)}">${esc(r.course)}</td><td>${esc(r.time)}</td><td>${statusBadge}</td><td style="color:var(--tl);font-size:12px">${esc(r.posted_date||'')}</td></tr>`;
+      h+=`<tr><td>${esc(r.date)}</td><td><span class="nb">${esc(r.name)}</span></td>${memberCell}<td>${r.ghin}</td><td class="ct" data-tip="${esc(r.course)}">${esc(r.course)}</td><td>${esc(r.time)}</td><td><span class="status-badge ok">Posted</span></td><td style="color:var(--ts);font-size:12px">${esc(r.posted_date||'')}</td></tr>`;
     }
+    if(!rounds.length)h+='<tr><td colspan="'+(isAdmin?8:7)+'" style="text-align:center;color:var(--tl);padding:24px">No posted rounds for this period.</td></tr>';
     h+='</tbody></table>';$i('au-table').innerHTML=h;$i('au-table').className='tw tw-conn';
   } else {
     $i('au-stats').innerHTML=`<div class="stat-row"><div class="sl"><div class="istat"><span class="iv">${np.length}</span><span class="il">Non-Postable</span></div></div></div>`;
@@ -2207,6 +2223,7 @@ function auRoundTab(tab,el){
       const reason=e.entry_type==='employee'?'Employee':e.solo?'Solo Round':e.status==='pre_active'?'Not Yet Active':e.status==='inactive'?'Inactive Member':'No Active GHIN';
       const name=e.rosterName||e.player_name||'';
       h+=`<tr><td>${esc(name)}</td><td class="ct" data-tip="${esc(e.course||'')}">${esc(e.course||'')}</td><td>${dl}</td><td>${esc(e.tee_time||'')}</td><td><span class="status-badge miss">${reason}</span></td></tr>`;}
+    if(!np.length)h+='<tr><td colspan="5" style="text-align:center;color:var(--tl);padding:24px">No non-postable rounds for this period.</td></tr>';
     h+='</tbody></table>';$i('au-table').innerHTML=h;$i('au-table').className='tw tw-conn';
   }
 }
@@ -2250,6 +2267,144 @@ function auMembTab(tab,el){
     h+='<tr><td colspan="'+colspan+'" style="text-align:center;color:var(--tl);padding:24px">'+(tab==='comp'?'No fully compliant members in this range.':'All members are compliant — no missing posts.')+'</td></tr>';
   }
   h+='</tbody></table>';$i('au-table').innerHTML=h;$i('au-table').className='tw tw-conn';
+}
+
+// ===== TEE SHEET EXPORT TO XLSX =====
+function tvExport(){
+  const entries=window._tvEntries;
+  const date=$i('tv-date')?.value||'';
+  if(!entries||!entries.length){alert('No tee sheet data to export. Select a date with uploaded tee sheets first.');return;}
+  if(typeof XLSX==='undefined'){alert('Excel library not loaded yet — try again in a moment.');return;}
+
+  const gender=$i('tv-gender')?.value||'all';
+  const wb=XLSX.utils.book_new();
+  const fmtDateLabel=(iso)=>{
+    if(!iso||!/^\d{4}-\d{2}-\d{2}$/.test(iso))return iso||'';
+    const dt=new Date(parseInt(iso.slice(0,4)),parseInt(iso.slice(5,7))-1,parseInt(iso.slice(8,10)));
+    return dt.toLocaleDateString('en-US',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
+  };
+  const reasonOf=(e)=>{
+    if(e.entry_type==='employee')return'Employee';
+    if(e.solo)return'Solo Round';
+    if(e.status==='no_roster')return'Not in roster';
+    if(e.status==='pre_active')return'Not yet active';
+    if(e.status==='inactive')return'Inactive member';
+    if(e.entry_type==='blocked')return'Blocked time';
+    return'';
+  };
+  const courseOrder=['Grove / Lakes','Lakes / Orchard','Orchard / Grove'];
+  const courseSort=(a,b)=>(courseOrder.indexOf(a)===-1?99:courseOrder.indexOf(a))-(courseOrder.indexOf(b)===-1?99:courseOrder.indexOf(b));
+  const courses=[...new Set(entries.map(e=>e.course))].sort(courseSort);
+  const genderMatch=(e)=>gender==='all'||(e.gender||'').toUpperCase()===gender;
+
+  // ---- Sheet 1: Summary ----
+  const sumRows=[
+    ['Treesdale G&CC — Tee Sheet'],
+    [],
+    ['Date',fmtDateLabel(date)],
+    ['Gender Filter',gender==='M'?'Male':gender==='F'?'Female':'All'],
+    ['Generated',new Date().toLocaleString()],
+    [],
+    ['Course','Postable','Posted','Missing','Posting %','Non-Postable','Blocked']
+  ];
+  let totPostable=0,totPosted=0,totMissing=0,totNonPost=0,totBlocked=0;
+  for(const c of courses){
+    const ce=entries.filter(e=>e.course===c);
+    const blocked=ce.filter(e=>e.entry_type==='blocked').length;
+    const playable=ce.filter(e=>e.entry_type!=='blocked');
+    const postable=playable.filter(e=>(e.status==='posted'||e.status==='missing')&&!e.solo&&genderMatch(e));
+    const posted=postable.filter(e=>e.status==='posted').length;
+    const missing=postable.length-posted;
+    const nonPost=playable.filter(e=>!postable.includes(e)&&genderMatch(e)).length;
+    const pct=postable.length?Math.round(posted/postable.length*100)+'%':'—';
+    sumRows.push([c,postable.length,posted,missing,pct,nonPost,blocked]);
+    totPostable+=postable.length;totPosted+=posted;totMissing+=missing;totNonPost+=nonPost;totBlocked+=blocked;
+  }
+  sumRows.push(['TOTAL',totPostable,totPosted,totMissing,totPostable?Math.round(totPosted/totPostable*100)+'%':'—',totNonPost,totBlocked]);
+  const sumWs=XLSX.utils.aoa_to_sheet(sumRows);
+  sumWs['!cols']=[{wch:22},{wch:12},{wch:10},{wch:10},{wch:11},{wch:14},{wch:10}];
+  XLSX.utils.book_append_sheet(wb,sumWs,'Summary');
+
+  // ---- Sheet 2: All Tee Times ----
+  const allRows=[['Course','Tee Time','Player','GHIN','Member #','Gender','H.I.','Type','Status','Reason','Email']];
+  const sortedAll=[...entries].sort((a,b)=>{
+    const cd=courseSort(a.course,b.course);if(cd)return cd;
+    return(a.tee_time||'').localeCompare(b.tee_time||'');
+  });
+  for(const e of sortedAll){
+    if(!genderMatch(e)&&e.entry_type!=='blocked')continue;
+    let status='';
+    if(e.entry_type==='blocked')status='Blocked';
+    else if(e.entry_type==='employee')status='Employee';
+    else if(e.solo)status='Solo';
+    else if(e.status==='posted')status='Posted';
+    else if(e.status==='missing')status='Missing';
+    else if(e.status==='no_roster')status='Not in roster';
+    else if(e.status==='pre_active')status='Not yet active';
+    else if(e.status==='inactive')status='Inactive';
+    else status=e.status||'';
+    const playerName=e.rosterName||((e.player_first||'')+' '+(e.player_last||'')).trim()||e.player_name||'';
+    allRows.push([
+      e.course||'',
+      e.tee_time||'',
+      playerName,
+      e.ghin||'',
+      e.member_number||'',
+      e.gender||'',
+      e.hi||'',
+      e.entry_type||'member',
+      status,
+      reasonOf(e),
+      e.email||''
+    ]);
+  }
+  const allWs=XLSX.utils.aoa_to_sheet(allRows);
+  allWs['!cols']=[{wch:18},{wch:10},{wch:26},{wch:11},{wch:11},{wch:8},{wch:7},{wch:10},{wch:14},{wch:18},{wch:30}];
+  XLSX.utils.book_append_sheet(wb,allWs,'All Tee Times');
+
+  // ---- Sheet 3: Posted ----
+  const postedRows=[['Course','Tee Time','Player','GHIN','Member #','H.I.','Email']];
+  for(const e of sortedAll){
+    if(!(e.status==='posted'&&!e.solo&&genderMatch(e)))continue;
+    const playerName=e.rosterName||((e.player_first||'')+' '+(e.player_last||'')).trim()||e.player_name||'';
+    postedRows.push([e.course||'',e.tee_time||'',playerName,e.ghin||'',e.member_number||'',e.hi||'',e.email||'']);
+  }
+  if(postedRows.length>1){
+    const postedWs=XLSX.utils.aoa_to_sheet(postedRows);
+    postedWs['!cols']=[{wch:18},{wch:10},{wch:26},{wch:11},{wch:11},{wch:7},{wch:30}];
+    XLSX.utils.book_append_sheet(wb,postedWs,'Posted');
+  }
+
+  // ---- Sheet 4: Missing (most actionable) ----
+  const missRows=[['Course','Tee Time','Player','GHIN','Member #','H.I.','Email']];
+  for(const e of sortedAll){
+    if(!(e.status==='missing'&&!e.solo&&genderMatch(e)))continue;
+    const playerName=e.rosterName||((e.player_first||'')+' '+(e.player_last||'')).trim()||e.player_name||'';
+    missRows.push([e.course||'',e.tee_time||'',playerName,e.ghin||'',e.member_number||'',e.hi||'',e.email||'']);
+  }
+  if(missRows.length>1){
+    const missWs=XLSX.utils.aoa_to_sheet(missRows);
+    missWs['!cols']=[{wch:18},{wch:10},{wch:26},{wch:11},{wch:11},{wch:7},{wch:30}];
+    XLSX.utils.book_append_sheet(wb,missWs,'Missing');
+  }
+
+  // ---- Sheet 5: Non-Postable ----
+  const npRows=[['Course','Tee Time','Player','Reason']];
+  for(const e of sortedAll){
+    const isNP=e.entry_type==='employee'||e.solo||e.status==='no_roster'||e.status==='pre_active'||e.status==='inactive';
+    if(!isNP)continue;
+    if(!genderMatch(e)&&e.entry_type!=='employee')continue;
+    const playerName=e.rosterName||((e.player_first||'')+' '+(e.player_last||'')).trim()||e.player_name||'';
+    npRows.push([e.course||'',e.tee_time||'',playerName,reasonOf(e)]);
+  }
+  if(npRows.length>1){
+    const npWs=XLSX.utils.aoa_to_sheet(npRows);
+    npWs['!cols']=[{wch:18},{wch:10},{wch:26},{wch:18}];
+    XLSX.utils.book_append_sheet(wb,npWs,'Non-Postable');
+  }
+
+  const fname=`Treesdale_TeeSheet_${date}.xlsx`;
+  XLSX.writeFile(wb,fname);
 }
 
 // ===== AUDIT EXPORT TO XLSX =====
@@ -2328,10 +2483,37 @@ function auExport(){
   cWs['!cols']=[{wch:26},{wch:11},{wch:30},{wch:12},{wch:10},{wch:8},{wch:14},{wch:14}];
   XLSX.utils.book_append_sheet(wb,cWs,'Compliant');
 
-  // ---- Sheet 4: All Postable Rounds (round-level detail) ----
-  const allRoundsRows=[['Date','Member','GHIN','Email','Course','Tee Time','Status','Date Posted']];
+  // ---- Sheet 4: Missing Rounds (action items) ----
+  const missingRows=[['Date Played','Member','GHIN','Email','Member #','Course','Tee Time']];
+  // ---- Sheet 5: Posted Rounds ----
+  const postedRows=[['Date Played','Member','GHIN','Email','Member #','Course','Tee Time','Date Posted']];
   for(const m of res){
-    // Combined unique dates: played includes both posted + missing
+    const dates=Array.from(new Set([...(m.played||[])])).sort();
+    for(const d of dates){
+      const isPosted=(m.posted||[]).includes(d);
+      const course=(m.dateCourses&&m.dateCourses[d])||'';
+      const tt=(m.dateTimes&&m.dateTimes[d])||'';
+      if(isPosted){
+        postedRows.push([d||'',m.name||'',m.ghin||'',m.email||'',m.member_number||'',course,tt,(m.postedDates&&m.postedDates[d])||'']);
+      } else {
+        missingRows.push([d||'',m.name||'',m.ghin||'',m.email||'',m.member_number||'',course,tt]);
+      }
+    }
+  }
+  if(missingRows.length>1){
+    const mWs=XLSX.utils.aoa_to_sheet(missingRows);
+    mWs['!cols']=[{wch:11},{wch:26},{wch:11},{wch:30},{wch:11},{wch:18},{wch:10}];
+    XLSX.utils.book_append_sheet(wb,mWs,'Missing');
+  }
+  if(postedRows.length>1){
+    const pWs=XLSX.utils.aoa_to_sheet(postedRows);
+    pWs['!cols']=[{wch:11},{wch:26},{wch:11},{wch:30},{wch:11},{wch:18},{wch:10},{wch:11}];
+    XLSX.utils.book_append_sheet(wb,pWs,'Posted');
+  }
+
+  // ---- Sheet 6: All Rounds (combined detail) ----
+  const allRoundsRows=[['Date','Member','GHIN','Email','Member #','Course','Tee Time','Status','Date Posted']];
+  for(const m of res){
     const dates=Array.from(new Set([...(m.played||[])])).sort();
     for(const d of dates){
       const isPosted=(m.posted||[]).includes(d);
@@ -2340,6 +2522,7 @@ function auExport(){
         m.name||'',
         m.ghin||'',
         m.email||'',
+        m.member_number||'',
         (m.dateCourses&&m.dateCourses[d])||'',
         (m.dateTimes&&m.dateTimes[d])||'',
         isPosted?'Posted':'Missing',
@@ -2349,7 +2532,7 @@ function auExport(){
   }
   if(allRoundsRows.length>1){
     const arWs=XLSX.utils.aoa_to_sheet(allRoundsRows);
-    arWs['!cols']=[{wch:11},{wch:26},{wch:11},{wch:30},{wch:18},{wch:10},{wch:10},{wch:11}];
+    arWs['!cols']=[{wch:11},{wch:26},{wch:11},{wch:30},{wch:11},{wch:18},{wch:10},{wch:10},{wch:11}];
     XLSX.utils.book_append_sheet(wb,arWs,'All Rounds');
   }
 
