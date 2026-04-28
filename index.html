@@ -3,36 +3,59 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Score Posting Audit — Treesdale Golf & Country Club</title>
+<meta name="description" content="Score posting audit tool for Treesdale Golf &amp; Country Club">
+<meta name="theme-color" content="#2A2D31">
+<meta name="robots" content="noindex,nofollow">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='18' fill='%232B6B3F'/%3E%3Ctext x='50' y='68' font-family='system-ui,sans-serif' font-size='62' font-weight='700' text-anchor='middle' fill='white'%3ET%3C/text%3E%3C/svg%3E">
+<title>Score Posting Audit Tool — Treesdale Golf & Country Club</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
 /* LIGHT THEME (default) */
-:root{--bg:#F5F5F3;--card:#FFFFFF;--nav:#2A2D31;--nav-tx:#FFFFFF;--tx:#1A1A1A;--ts:#6B6B6B;--tl:#ABABAB;--ac:#2B6B3F;--al:rgba(43,107,63,.08);--rd:#B33A3A;--rl:rgba(179,58,58,.06);--brd:#DDDAD5;--brl:#ECEAE6;--row-hover:rgba(0,0,0,.02);--shadow:rgba(0,0,0,.06);--font:'Rubik',system-ui,sans-serif}
-/* DARK THEME */
-body.dark{--bg:#15171B;--card:#1F2227;--nav:#0F1114;--nav-tx:#FFFFFF;--tx:#E5E7EB;--ts:#9CA3AF;--tl:#6B7280;--ac:#4ADE80;--al:rgba(74,222,128,.12);--rd:#F87171;--rl:rgba(248,113,113,.12);--brd:#2F3338;--brl:#252830;--row-hover:rgba(255,255,255,.03);--shadow:rgba(0,0,0,.4)}
+:root{--bg:#F5F5F3;--page:#F5F5F3;--card:#FFFFFF;--card-2:#FAFAF8;--nav:#2A2D31;--nav-hover:#3A3E44;--nav-active:#4A4F57;--nav-tx:#FFFFFF;--tx:#1A1A1A;--ts:#5B6168;--tl:#8A8F96;--ac:#2B6B3F;--ac-hover:#225434;--ac-tint:rgba(43,107,63,.08);--al:rgba(43,107,63,.08);--rd:#B33A3A;--rl:rgba(179,58,58,.06);--am:#C28B2F;--brd:#DDDAD5;--brl:#ECEAE6;--row-alt:#FAFAF6;--row-hover:rgba(0,0,0,.025);--shadow:0 1px 2px rgba(0,0,0,.04),0 0 0 1px rgba(0,0,0,.04);--shadow-md:0 4px 12px rgba(0,0,0,.08);--font:'Geist',-apple-system,'Segoe UI',system-ui,sans-serif}
+/* DARK THEME — sophisticated slate */
+body.dark{--bg:#0B0E13;--page:#0B0E13;--card:#13171D;--card-2:#181C24;--nav:#06080C;--nav-hover:#191E26;--nav-active:#262C36;--nav-tx:#FFFFFF;--tx:#F0F2F5;--ts:#B5BCC6;--tl:#8A93A0;--ac:#3D8554;--ac-hover:#4A9763;--ac-tint:rgba(61,133,84,.16);--al:rgba(61,133,84,.16);--rd:#D9605C;--rl:rgba(217,96,92,.14);--am:#D69247;--brd:#2A3038;--brl:#252A33;--row-alt:#181C24;--row-hover:rgba(255,255,255,.025);--shadow:0 1px 2px rgba(0,0,0,.3),0 0 0 1px rgba(255,255,255,.04);--shadow-md:0 4px 16px rgba(0,0,0,.5),0 0 0 1px rgba(255,255,255,.05)}
 *{margin:0;padding:0;box-sizing:border-box}
-body{font-family:var(--font);background:var(--bg);color:var(--tx);min-height:100vh;font-size:14px;font-weight:400}
+html{scrollbar-gutter:stable}
+body{font-family:var(--font);background:var(--bg);color:var(--tx);min-height:100vh;font-size:13px;font-weight:400;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;overflow-x:hidden;font-feature-settings:'ss01','cv01','cv11';letter-spacing:-.01em}
+/* Tabular nums in tables for column alignment */
+table{font-feature-settings:'tnum'1}
 .nav{background:var(--nav);color:#fff;height:60px;box-shadow:0 1px 0 rgba(0,0,0,.1);position:sticky;top:0;z-index:100}
 .nav-inner{max-width:1200px;margin:0 auto;padding:0 32px;display:flex;align-items:center;justify-content:space-between;height:60px}
 .nav-brand{display:flex;flex-direction:column;justify-content:center;line-height:1.1}
-.nav-brand .nb-top{font-size:10px;font-weight:500;letter-spacing:1.2px;text-transform:uppercase;color:rgba(255,255,255,.6);margin-bottom:3px}
-.nav-brand .nb-bot{font-size:16px;font-weight:600;letter-spacing:-.2px;color:#fff}
+.nav-brand .nb-top{font-size:9.5px;font-weight:700;letter-spacing:1.4px;text-transform:uppercase;color:rgba(255,255,255,.6);margin-bottom:3px}
+.nav-brand .nb-bot{font-size:15px;font-weight:700;letter-spacing:-.4px;color:#fff}
 .nav-links{display:flex;gap:2px;height:60px}
-.nav-link{padding:0 16px;height:60px;display:flex;align-items:center;font-size:13px;font-weight:400;color:rgba(255,255,255,.7);cursor:pointer;border-bottom:3px solid transparent;transition:all .12s;white-space:nowrap;text-decoration:none}
-.nav-link:hover{color:#fff;background:rgba(255,255,255,.06)}
-.nav-link.a{color:#fff;background:rgba(255,255,255,.1);border-bottom-color:var(--ac);font-weight:500}
-.container{max-width:1200px;margin:0 auto;padding:24px}
+.nav-link{padding:0 14px;height:60px;display:flex;align-items:center;font-size:13px;font-weight:500;color:rgba(255,255,255,.65);cursor:pointer;border-bottom:2px solid transparent;transition:all .12s;white-space:nowrap;text-decoration:none;letter-spacing:-.15px}
+.nav-link:hover{color:#fff;background:rgba(255,255,255,.05)}
+.nav-link.a{color:#fff;background:rgba(255,255,255,.08);border-bottom-color:var(--ac);font-weight:700}
+.container{max-width:1280px;margin:0 auto;padding:24px 32px}
+@media(max-width:900px){.container{padding:18px 20px}}
 .page{display:none}.page.active{display:block}
-.card{background:var(--card);border:1px solid var(--brd);border-radius:8px;padding:20px;margin-bottom:16px}
-.card-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
-.card-title{font-size:15px;font-weight:500;letter-spacing:-.1px}
-.card-subtitle{font-size:12px;color:var(--ts);margin-top:2px;font-weight:400}
-.card-badge{font-size:10px;font-weight:500;padding:3px 8px;border-radius:10px;text-transform:uppercase;letter-spacing:.5px}
+/* Cards — surface containers with consistent padding */
+.card{background:var(--card);border:1px solid var(--brd);border-radius:10px;margin-bottom:14px;overflow:hidden}
+.card-pad{padding:18px}
+.card-header{display:flex;align-items:center;justify-content:space-between;padding:14px 18px;border-bottom:1px solid var(--brl);gap:12px;min-height:56px}
+.card-body{padding:18px}
+.card-toolbar{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 18px;border-bottom:1px solid var(--brl);flex-wrap:wrap}
+.card-toolbar .toolbar-group{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.card-title{font-size:15px;font-weight:700;letter-spacing:-.3px;color:var(--tx)}
+.card-subtitle{font-size:12px;color:var(--ts);margin-top:2px;font-weight:500;letter-spacing:-.1px}
+.section-title{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.95px;color:var(--ts);margin-bottom:12px}
+.card-badge{font-size:10px;font-weight:700;padding:3px 9px;border-radius:10px;text-transform:uppercase;letter-spacing:.85px}
 .badge-ok{background:var(--al);color:var(--ac)}.badge-empty{background:var(--brl);color:var(--tl)}
+.badge-warn{background:rgba(194,139,47,.14);color:var(--am)}
+body.dark .badge-warn{background:rgba(214,146,71,.18);color:var(--am)}
+/* Info panels — clean inset boxes for "How it works" sections */
+.info-panel{font-size:12px;color:var(--ts);line-height:1.55;padding:12px 14px;border:1px solid var(--brl);border-radius:8px;background:var(--card-2);margin-top:0}
+.info-panel-title{display:flex;align-items:center;gap:6px;font-weight:700;color:var(--tx);margin-bottom:6px;font-size:12.5px;letter-spacing:-.1px}
+.info-panel-green .info-panel-title{color:var(--ac)}
+.info-panel-green .info-panel-title svg{stroke:var(--ac)}
+.info-panel-amber .info-panel-title{color:var(--am)}
+.info-panel-amber .info-panel-title svg{stroke:var(--am)}
 .upload-area{border:2px dashed var(--brd);border-radius:6px;padding:20px;text-align:center;cursor:pointer;transition:all .2s}
 .upload-area:hover{border-color:var(--ac);background:var(--al)}
 .upload-icon{width:28px;height:28px;margin:0 auto 6px;color:var(--tl)}
@@ -41,42 +64,53 @@ body{font-family:var(--font);background:var(--bg);color:var(--tx);min-height:100
 .file-status{display:flex;align-items:center;gap:12px;padding:12px 0}
 .fs-icon{width:32px;height:32px;border-radius:6px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
 .fs-icon.ok{background:var(--al);color:var(--ac)}
-.fs-info{flex:1}.fs-title{font-size:13px;font-weight:500}.fs-date{font-size:11px;color:var(--tl);margin-top:2px;font-weight:400}
+.fs-info{flex:1}.fs-title{font-size:13px;font-weight:600;letter-spacing:-.1px}.fs-date{font-size:11.5px;color:var(--ts);margin-top:2px;font-weight:500;letter-spacing:-.05px}
 .row{display:grid;gap:16px}.row-2{grid-template-columns:1fr 1fr}
-.section-title{font-size:11px;font-weight:500;text-transform:uppercase;letter-spacing:.8px;color:var(--tl);margin-bottom:12px}
-.btn{display:inline-flex;align-items:center;gap:6px;padding:7px 14px;border-radius:6px;font:inherit;font-size:13px;font-weight:500;cursor:pointer;transition:all .15s;border:none}
-.btn-primary{background:var(--ac);color:#fff}.btn-primary:hover{opacity:.9}
+.row-2>.card{display:flex;flex-direction:column;margin-bottom:0}
+.row-2>.card>.card-body{flex:1;display:flex;flex-direction:column;gap:10px}
+.btn{display:inline-flex;align-items:center;gap:6px;height:32px;padding:0 14px;border-radius:6px;font:inherit;font-size:12.5px;font-weight:600;cursor:pointer;transition:all .15s;border:none;letter-spacing:-.15px;box-sizing:border-box;line-height:1}
+.btn-primary{background:var(--ac);color:#fff;box-shadow:0 1px 2px var(--shadow-md)}.btn-primary:hover{background:var(--ac-hover)}
 .btn-outline{background:transparent;border:1px solid var(--brd);color:var(--tx)}.btn-outline:hover{background:var(--brl)}
 .btn-sm{padding:5px 10px;font-size:12px}
 .cal-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
-.cal-nav-btn{background:var(--card);border:1px solid var(--brd);border-radius:6px;padding:6px 12px;font:inherit;font-size:12px;font-weight:500;cursor:pointer;color:var(--tx)}
+.cal-nav-btn{background:var(--card);border:1px solid var(--brd);border-radius:6px;padding:6px 12px;font:inherit;font-size:12.5px;font-weight:600;cursor:pointer;color:var(--tx);letter-spacing:-.1px}
 .cal-nav-btn:hover{background:var(--brl)}
-.cal-month{font-size:16px;font-weight:500;text-align:center;letter-spacing:-.1px}
-.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:2px}
+.cal-month{font-size:16px;font-weight:700;text-align:center;letter-spacing:-.4px;color:var(--tx)}
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px}
 .cal-day-header{font-size:10px;font-weight:500;text-transform:uppercase;letter-spacing:.8px;color:var(--tl);text-align:center;padding:6px 0}
-.cal-cell{background:var(--card);border:1px solid var(--brl);border-radius:6px;min-height:84px;padding:6px;position:relative}
+.cal-cell{background:var(--card);border:1px solid var(--brl);border-radius:8px;min-height:108px;padding:7px;position:relative;transition:border-color .15s;display:flex;flex-direction:column}
 .cal-cell.empty{background:transparent;border-color:transparent;min-height:0}
 .cal-cell.today{border-color:var(--ac)}
-.cal-date{font-size:12px;font-weight:500;color:var(--ts);margin-bottom:4px;display:flex;align-items:center;justify-content:space-between}
+.cal-date{font-size:13px;font-weight:600;color:var(--tx);margin-bottom:5px;display:flex;align-items:center;justify-content:space-between;gap:4px}
 .cal-cell.today .cal-date span:first-child{color:var(--ac)}
 .cal-cell.closed{background:var(--row-hover);opacity:.6}
 .cal-cell.closed .cal-date span:first-child{color:var(--tl);text-decoration:line-through}
-.cal-courses{display:flex;flex-direction:column;gap:2px}
-.cal-chip{font-size:10px;font-weight:500;padding:3px 6px;border-radius:3px;cursor:pointer;transition:all .15s;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-align:center}
+.cal-courses{display:flex;flex-direction:column;gap:2px;flex:1}
+.cal-footer{display:flex;align-items:center;gap:6px;margin-top:6px;min-height:22px}
+.cal-footer .cal-view-link{flex:1}
+.cal-footer .close-btn{margin-left:auto;flex-shrink:0}
+.cal-chip{font-size:9px;font-weight:500;padding:3px 6px;border-radius:3px;cursor:pointer;transition:all .15s;white-space:nowrap;display:flex;align-items:center;justify-content:space-between;gap:4px;letter-spacing:.1px}
+.cal-chip-name{flex-shrink:0;overflow:hidden;text-overflow:ellipsis}
+.cal-chip-pct{font-size:10px;font-weight:500}
+.cal-chip-pct.pct-ok{color:var(--ac)}
+.cal-chip-pct.pct-miss{color:var(--rd)}
+.cal-chip-nofile{font-size:9px;font-weight:400;color:var(--tl);font-style:italic}
 .cal-chip.uploaded{background:var(--al);color:var(--ac)}
-.cal-chip.missing{background:var(--brl);color:var(--tl)}
-.cal-chip.missing:hover{background:#e0ddd8;color:var(--ts)}
-.cal-chip.closed-chip{background:transparent;color:var(--tl);cursor:default;font-size:10px;text-align:center;font-style:italic;font-weight:400}
-.close-btn{font-size:10px;color:var(--tl);cursor:pointer;font-weight:500;width:18px;height:18px;display:flex;align-items:center;justify-content:center;border-radius:3px}
+.cal-chip.missing{background:var(--brl);color:var(--ts)}
+.cal-chip.missing:hover{background:#e0ddd8;color:var(--tx)}
+.cal-chip.closed-chip{background:transparent;color:var(--tl);cursor:default;font-size:10px;text-align:center;font-style:italic;font-weight:400;display:block}
+.close-btn{font-size:11px;color:var(--tl);cursor:pointer;font-weight:600;width:22px;height:22px;display:flex;align-items:center;justify-content:center;border-radius:4px;transition:all .12s}
 .close-btn:hover{background:var(--rl);color:var(--rd)}
 .cal-cell.closed .close-btn{color:var(--rd)}
 /* User menu */
 .user-menu{display:flex;align-items:center;gap:10px;padding:0 12px 0 18px;height:60px;cursor:pointer;border-left:1px solid rgba(255,255,255,.1);margin-left:8px;position:relative;color:rgba(255,255,255,.85)}
 .user-menu:hover{background:rgba(255,255,255,.06);color:#fff}
 .user-avatar{width:30px;height:30px;border-radius:50%;background:var(--ac);color:#fff;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:500;letter-spacing:.3px;flex-shrink:0}
+.theme-toggle-btn{padding:0 14px;height:60px;display:flex;align-items:center;justify-content:center;background:transparent;border:none;color:rgba(255,255,255,.7);cursor:pointer;border-bottom:3px solid transparent;transition:all .12s}
+.theme-toggle-btn:hover{background:rgba(255,255,255,.06);color:#fff}
 .user-name-block{display:flex;flex-direction:column;line-height:1.2}
 .user-name{font-size:13px;font-weight:500}
-.user-role{font-size:10px;font-weight:400;color:rgba(255,255,255,.55);text-transform:uppercase;letter-spacing:.5px}
+.user-role{font-size:9.5px;font-weight:700;color:rgba(255,255,255,.6);text-transform:uppercase;letter-spacing:.95px}
 .user-dropdown{position:absolute;top:100%;right:0;background:var(--card);border:1px solid var(--brd);border-radius:8px;box-shadow:0 4px 16px rgba(0,0,0,.1);min-width:200px;display:none;z-index:200;overflow:hidden}
 .user-menu.open .user-dropdown{display:block}
 .user-dd-header{padding:10px 14px;font-size:12px;color:var(--ts);border-bottom:1px solid var(--brl);background:var(--bg)}
@@ -92,59 +126,216 @@ body.member-view .close-btn{display:none}
 .cal-pct{font-size:9px;font-weight:500;color:var(--tl);margin-left:4px}
 .cal-pct.has{color:var(--ac)}
 .cal-pct.miss{color:var(--rd)}
-.cal-day-total{font-size:10px;font-weight:500;color:var(--ts)}
+.cal-day-total{font-size:9.5px;font-weight:700;color:var(--ts);text-transform:uppercase;letter-spacing:.85px;font-feature-settings:'tnum'1;white-space:nowrap}
 .cal-day-total.miss{color:var(--rd)}
 .cal-day-total.ok{color:var(--ac)}
+.cal-view-link{display:inline-block;font-size:10px;font-weight:600;color:#fff;background:var(--ac);border:1px solid var(--ac);cursor:pointer;text-align:center;padding:4px 8px;border-radius:4px;letter-spacing:.2px;transition:opacity .12s}
+.cal-view-link:hover{opacity:.85;background:var(--ac)}
+body.member-view .cal-view-link{cursor:pointer;pointer-events:auto}
 .cal-no-file{font-size:9px;font-weight:500;color:var(--tl);font-style:italic;text-align:center;padding:12px 0}
 .cal-no-file.passed{color:var(--rd);font-style:normal}
 .placeholder{padding:40px;text-align:center;color:var(--tl);font-size:14px;font-weight:400}
+/* Dashboard tiles */
+.dash-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:24px;flex-wrap:wrap;gap:12px;width:100%}
+.dash-greeting{font-size:24px;font-weight:700;letter-spacing:-.7px;color:var(--tx);line-height:1.1}
+.dash-yesterday{font-size:13px;font-weight:500;color:var(--ts);text-align:right;letter-spacing:-.1px}
+.dash-yesterday strong{color:var(--ac);font-weight:700;font-size:13px;letter-spacing:-.1px}
+.dash-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:24px}
+@media(max-width:1100px){.dash-grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:600px){.dash-grid{grid-template-columns:1fr}}
+.dash-tile{background:var(--card);border:1px solid var(--brd);border-radius:10px;padding:18px;transition:border-color .15s;display:flex;flex-direction:column;align-items:flex-start;gap:0;min-height:240px}
+.dash-tile:hover{border-color:var(--ac)}
+.dash-icon{width:36px;height:36px;border-radius:8px;display:flex;align-items:center;justify-content:center;margin-bottom:12px;flex-shrink:0}
+.dash-tile-title{font-size:17px;font-weight:700;letter-spacing:-.4px;color:var(--tx);margin-bottom:2px}
+.dash-tile-sub{font-size:12.5px;color:var(--ts);font-weight:500;line-height:1.4;letter-spacing:-.1px;margin-bottom:10px}
+.dash-tile-list{margin:0 0 14px;padding:0 0 0 16px;font-size:12.5px;color:var(--ts);font-weight:400;line-height:1.55;list-style:disc;letter-spacing:-.1px}
+.dash-tile-list li{margin-bottom:3px}
+.dash-btn{margin-top:auto;align-self:stretch;justify-content:center;background:var(--ac);color:#fff;border:none;padding:0 14px;font-size:12.5px;font-weight:600;letter-spacing:-.1px;border-radius:7px;height:36px;cursor:pointer;transition:background .15s}
+.dash-btn:hover{background:var(--ac-hover);color:#fff}
 /* Tables */
-.tw{border:1px solid var(--brd);border-radius:8px;background:var(--card);overflow:hidden;margin-bottom:16px}
-.tw-conn{border-top:none;border-top-left-radius:0;border-top-right-radius:0}
-table{width:100%;border-collapse:collapse;font-size:13px}
-th{background:var(--nav);color:#fff;padding:9px 14px;text-align:left;font-weight:500;font-size:11px;text-transform:uppercase;letter-spacing:.6px;white-space:nowrap}
-td{padding:4px 14px;border-bottom:1px solid var(--brl);white-space:nowrap;font-size:13px;height:30px;vertical-align:middle;font-weight:400}
-tr:hover td{background:var(--row-hover)}tr:last-child td{border-bottom:none}
-.mt{color:var(--rd);font-weight:400}.nb{font-weight:500}.nt{color:var(--tl);font-style:italic}
+/* Tables — sit inside cards, clean and modern */
+.tw{width:100%;background:var(--card);border-radius:10px;overflow-x:auto;margin-bottom:14px;box-shadow:var(--shadow)}
+/* When tw follows a card-toolbar or sub-tabs (.tw-conn), no top radius */
+.tw.tw-conn{border-radius:0 0 10px 10px;margin-top:0;box-shadow:none;border:1px solid var(--brd);border-top:1px solid var(--brd)}
+table{width:100%;border-collapse:separate;border-spacing:0;font-size:12px;font-feature-settings:'tnum'1,'cv01'1}
+/* Header — flat row of caps labels */
+thead tr{background:var(--card-2)}
+thead th{position:sticky;top:0;z-index:1}
+tbody tr{background:var(--card);transition:background .1s}
+tbody tr:nth-child(even){background:var(--row-alt)}
+tbody tr:hover,tbody tr:nth-child(even):hover{background:var(--row-hover)}
+tbody tr.row-miss{background:var(--card)}
+tbody tr.row-miss:nth-child(even){background:var(--row-alt)}
+tbody tr.row-miss:hover{background:var(--rl)}
+/* Tee sheet blocked/event rows — darker grey/event tint, override zebra */
+/* Tee sheet blocked rows — solid darker blocks (override zebra) */
+/* Tee sheet blocked time rows — distinctly darker than zebra so they read as "closed" */
+tbody tr.tee-block-pure td,tbody tr.tee-block-pure:nth-child(even) td,tbody tr.tee-block-pure:hover td{background:#BBB7B0!important;color:#5B6168;font-style:italic}
+tbody tr.tee-block-event td,tbody tr.tee-block-event:nth-child(even) td,tbody tr.tee-block-event:hover td{background:#E2DFD8!important}
+body.dark tbody tr.tee-block-pure td,body.dark tbody tr.tee-block-pure:nth-child(even) td,body.dark tbody tr.tee-block-pure:hover td{background:#23262B!important;color:#8A93A0}
+body.dark tbody tr.tee-block-event td,body.dark tbody tr.tee-block-event:nth-child(even) td,body.dark tbody tr.tee-block-event:hover td{background:#1B1E22!important}
+th{background:var(--nav);color:rgba(255,255,255,.95);padding:9px 12px;text-align:left;font-weight:700;font-size:9.5px;text-transform:uppercase;letter-spacing:.95px;white-space:nowrap;cursor:pointer;user-select:none;position:relative}
+th:hover{background:var(--nav-hover);color:#fff}
+th .sort-arrow{display:inline-block;margin-left:6px;opacity:.65;font-size:11px;line-height:1;vertical-align:middle;color:#fff}
+th.sort-asc .sort-arrow,th.sort-desc .sort-arrow{opacity:1;color:#fff}
+th.sort-asc,th.sort-desc{background:var(--nav-active);color:#fff}
+th.no-sort{cursor:default}
+th.no-sort:hover{background:var(--nav);color:#fff}
+thead tr:hover th{background:var(--nav)}
+thead tr:hover th:hover{background:var(--nav-hover)}
+thead tr:hover th.sort-asc,thead tr:hover th.sort-desc{background:var(--nav-active)}
+td{padding:5px 14px;border-bottom:1px solid var(--brl);white-space:nowrap;font-size:12px;height:30px;vertical-align:middle;font-weight:400;color:var(--tx);letter-spacing:-.05px}
+td.ct{font-size:12px;color:var(--ts);max-width:240px;overflow:hidden;text-overflow:ellipsis}
+tbody tr:last-child td{border-bottom:none}
+.mt{color:var(--rd);font-weight:500}.nb{font-weight:600;color:var(--tx);letter-spacing:-.15px}.nt{color:var(--tl);font-style:italic}
+tbody td .nb{font-weight:600;color:var(--tx);letter-spacing:-.15px}
 .row-miss{background:var(--rl)}
+.status-badge{display:inline-block;padding:3px 8px;border-radius:4px;font-size:9.5px;font-weight:700;line-height:1.4;letter-spacing:.95px;text-transform:uppercase}
+.status-badge.ok{background:var(--al);color:var(--ac)}
+.status-badge.miss{background:var(--rl);color:var(--rd)}
 /* Tabs */
-.sub-tabs{display:flex;gap:0;width:100%}
-.st-tab{flex:1;text-align:center;padding:12px 18px;font-size:13px;font-weight:500;color:var(--ts);cursor:pointer;border:1px solid var(--brd);border-right:none;background:var(--card);transition:all .12s}
-.st-tab:last-child{border-right:1px solid var(--brd)}
-.st-tab:first-child{border-top-left-radius:8px}.st-tab:last-child{border-top-right-radius:8px}
+/* Sub-tabs: tabs stay container-width, but inactive (card) bg extends full-width */
+.sub-tabs{display:flex;gap:0;width:100%;background:var(--card);border-top-left-radius:10px;border-top-right-radius:10px;overflow:hidden;border:1px solid var(--brd);border-bottom:none}
+.st-tab{flex:1;text-align:center;padding:13px 16px;font-size:13px;font-weight:600;color:var(--ts);cursor:pointer;border:none;background:transparent;transition:all .15s;letter-spacing:-.15px;min-width:0;position:relative;border-right:1px solid var(--brd)}
+.st-tab:last-child{border-right:none}
 .st-tab:hover{color:var(--tx);background:var(--row-hover)}
-.st-tab.a{color:#fff;background:var(--nav);border-color:var(--nav)}
-.st-tab.a+.st-tab{border-left-color:var(--nav)}
-.st-num{display:inline-block;background:rgba(0,0,0,.06);color:var(--ts);padding:2px 9px;border-radius:10px;font-size:11px;font-weight:500;margin-left:8px}
-.st-tab.a .st-num{background:rgba(255,255,255,.18);color:#fff}
-.st-miss{color:var(--rd);font-weight:500;margin-left:6px;font-size:12px}
-.st-tab.a .st-miss{color:#FFB4B0}
+.st-tab.a{color:var(--ac);background:var(--al);box-shadow:inset 0 -2px 0 var(--ac);font-weight:700}
+.st-tab.a:hover{background:var(--al);color:var(--ac)}
+.st-num{display:inline-block;background:rgba(0,0,0,.08);color:var(--ts);padding:2px 8px;border-radius:10px;font-size:10px;font-weight:700;margin-left:7px;letter-spacing:.2px;font-feature-settings:'tnum'1}
+body.dark .st-num{background:rgba(255,255,255,.08)}
+.st-tab.a .st-num{background:var(--ac);color:#fff}
+.st-miss{color:var(--rd);font-weight:700;margin-left:6px;font-size:9.5px;letter-spacing:.95px;text-transform:uppercase}
+.st-tab.a .st-miss{color:var(--rd)}
 /* Stat rows */
-.stat-row{display:flex;justify-content:space-between;align-items:center;padding:8px 14px;background:var(--card);border-left:1px solid var(--brd);border-right:1px solid var(--brd)}
+.stat-row{display:flex;justify-content:space-between;align-items:center;padding:10px 16px;background:var(--card);border-left:1px solid var(--brd);border-right:1px solid var(--brd);border-top:1px solid var(--brd)}
 .stat-row .sl,.stat-row .sr{display:flex;gap:0;align-items:center}
 .istat{display:flex;align-items:baseline;gap:5px;padding:0 12px;border-left:1px solid var(--brl);white-space:nowrap}
 .istat:first-child{border-left:none;padding-left:0}
-.istat .iv{font-size:14px;font-weight:600;letter-spacing:-.2px}
+.istat .iv{font-size:16px;font-weight:700;letter-spacing:-.4px;color:var(--tx);font-feature-settings:'tnum'1}
 .istat .iv.sg{color:var(--ac)}.istat .iv.sr{color:var(--rd)}
-.istat .il{font-size:10px;font-weight:500;text-transform:uppercase;letter-spacing:.5px;color:var(--ts)}
+.istat .il{font-size:9.5px;font-weight:700;color:var(--ts);text-transform:uppercase;letter-spacing:.95px}
+/* Custom tooltips — modern, clean, no jitter */
+/* Custom tooltips — floating element controlled via JS so it never gets clipped */
+[data-tip]{cursor:default}
+#tooltip{position:fixed;z-index:10000;background:var(--nav);color:#fff;padding:8px 12px;border-radius:8px;font-size:11.5px;font-weight:500;letter-spacing:-.05px;max-width:320px;white-space:pre-line;line-height:1.5;pointer-events:none;opacity:0;transform:translateY(2px);transition:opacity .12s ease-out,transform .12s ease-out;box-shadow:0 8px 24px rgba(0,0,0,.18),0 2px 4px rgba(0,0,0,.08)}
+#tooltip.visible{opacity:1;transform:translateY(0)}
+#tooltip::after{content:'';position:absolute;left:50%;transform:translateX(-50%);border:5px solid transparent}
+#tooltip.tip-above::after{top:100%;border-top-color:var(--nav)}
+#tooltip.tip-below::after{bottom:100%;border-bottom-color:var(--nav)}
+body.dark #tooltip{background:var(--nav-active)}
+body.dark #tooltip.tip-above::after{border-top-color:var(--nav-active)}
+body.dark #tooltip.tip-below::after{border-bottom-color:var(--nav-active)}
+/* Tooltip lines: first line as a header, rest as body */
+#tooltip .tip-head{font-weight:700;letter-spacing:.4px;text-transform:uppercase;font-size:10px;margin-bottom:4px;color:rgba(255,255,255,.95)}
+#tooltip .tip-head.ok{color:#7BD193}
+#tooltip .tip-head.miss{color:#F88B87}
+#tooltip .tip-head.dim{color:rgba(255,255,255,.6)}
+#tooltip .tip-meta{color:rgba(255,255,255,.78);font-size:11px;margin-top:2px}
+
 /* Dots */
 .dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:6px}
+/* App footer — single line, subtle */
+.app-footer{text-align:center;padding:24px 16px 28px;color:var(--tl);font-size:11px;font-weight:500;letter-spacing:.3px}
 .dg{background:var(--ac)}.dr{background:var(--rd)}.dd{background:var(--tl)}
+.dpink{background:#D89BAE}.dblue{background:#9BB5D8}
 /* Toolbar */
 .tv-toolbar,.au-toolbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;flex-wrap:wrap;gap:12px}
-.tv-select{padding:6px 10px;border:1px solid var(--brd);border-radius:6px;font:inherit;font-size:13px;background:var(--card);font-weight:400}
+/* View toggle (Members / Rounds switcher) */
+.view-toggle{display:inline-flex;background:var(--brl);border:1px solid var(--brd);border-radius:6px;padding:3px;gap:0;height:32px;box-sizing:border-box;align-items:center}
+.view-toggle .vt-opt{padding:0 14px;height:24px;display:inline-flex;align-items:center;font-size:12px;font-weight:600;color:var(--ts);cursor:pointer;border-radius:4px;transition:all .12s;letter-spacing:-.15px;line-height:1}
+.view-toggle .vt-opt:hover{color:var(--tx)}
+.view-toggle .vt-opt.a{background:var(--ac);color:#fff;box-shadow:0 1px 2px var(--shadow)}
+.tv-select{height:32px;padding:0 10px;border:1px solid var(--brd);border-radius:6px;font:inherit;font-size:12px;background:var(--card);font-weight:500;color:var(--tx);transition:border-color .15s,box-shadow .15s;letter-spacing:-.05px;box-sizing:border-box;line-height:1}
+.tv-select:hover{border-color:var(--ts)}
+.tv-select:focus{outline:none;border-color:var(--ac);box-shadow:0 0 0 3px var(--al)}
+/* Custom select — chevron, no native arrow, match picker aesthetic */
+select.tv-select{appearance:none;-webkit-appearance:none;-moz-appearance:none;cursor:pointer;padding-right:30px;background-image:url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%235B6168' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 9px center}
+body.dark select.tv-select{background-image:url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23B5BCC6' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E")}
+select.tv-select::-ms-expand{display:none}
+select.tv-select option{background:var(--card);color:var(--tx);font-weight:500;padding:6px 10px}
+.tv-select:focus{outline:none;border-color:var(--ac);box-shadow:0 0 0 3px var(--al)}
+/* Date input native picker icon spacing */
+input[type="date"].tv-select{padding-right:8px;line-height:30px}
+input[type="date"].tv-select::-webkit-calendar-picker-indicator{cursor:pointer;opacity:.7}
+input[type="date"].tv-select::-webkit-calendar-picker-indicator:hover{opacity:1}
+/* Custom date picker (Mon-first weeks) */
+.dp-wrap{position:relative;display:inline-block;line-height:0}
+.dp-input{min-width:145px}
+.wp-input{min-width:188px}
+.dp-input,.wp-input{cursor:pointer;background-image:url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%235B6168' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='3' y='4' width='18' height='18' rx='2' ry='2'/%3E%3Cline x1='16' y1='2' x2='16' y2='6'/%3E%3Cline x1='8' y1='2' x2='8' y2='6'/%3E%3Cline x1='3' y1='10' x2='21' y2='10'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 9px center;padding-right:30px!important;caret-color:transparent;color:transparent!important;text-shadow:none}
+.dp-input::selection,.wp-input::selection{background:transparent}
+body.dark .dp-input,body.dark .wp-input{background-image:url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%23B5BCC6' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='3' y='4' width='18' height='18' rx='2' ry='2'/%3E%3Cline x1='16' y1='2' x2='16' y2='6'/%3E%3Cline x1='8' y1='2' x2='8' y2='6'/%3E%3Cline x1='3' y1='10' x2='21' y2='10'/%3E%3C/svg%3E")}
+.dp-disp{position:absolute;left:11px;top:50%;transform:translateY(-50%);color:var(--tx);font-size:12px;font-weight:500;letter-spacing:-.1px;pointer-events:none;font-family:var(--font);font-feature-settings:'tnum'1;white-space:nowrap}
+.dp-disp.empty{color:var(--tl);font-weight:400}
+#datepicker{position:absolute;display:none;background:var(--card);border:1px solid var(--brd);border-radius:10px;box-shadow:0 12px 32px rgba(0,0,0,.16),0 2px 6px rgba(0,0,0,.06);padding:10px;z-index:10001;width:252px;font-family:var(--font);user-select:none}
+body.dark #datepicker{box-shadow:0 12px 32px rgba(0,0,0,.5),0 2px 6px rgba(0,0,0,.3)}
+.dp-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;padding:0 2px}
+.dp-month{font-size:13px;font-weight:700;letter-spacing:-.2px;color:var(--tx)}
+.dp-nav{background:transparent;border:none;cursor:pointer;width:26px;height:26px;border-radius:6px;color:var(--ts);font-size:18px;font-weight:600;display:flex;align-items:center;justify-content:center;line-height:1;padding:0;transition:background .12s,color .12s}
+.dp-nav:hover{background:var(--row-hover);color:var(--tx)}
+.dp-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:1px}
+/* Week picker — Wk column has its own tinted background + separator from days */
+#datepicker.wp-mode{width:296px}
+.wp-grid{display:grid;grid-template-columns:38px repeat(7,1fr);gap:1px}
+/* Wk column header — tinted background, accent color */
+.wk-dh{color:var(--ac)!important;font-size:9px!important;background:var(--al);border-radius:6px 0 0 0;margin-right:4px;font-weight:700!important;letter-spacing:.85px!important}
+/* Wk number cells: tinted accent bg, separator from days via margin-right */
+.wp-wknum{background:var(--al);border:none;cursor:pointer;font:inherit;font-size:12px;font-weight:700;height:30px;border-radius:0;color:var(--ac);transition:background .12s,color .12s;padding:0;font-feature-settings:'tnum'1;letter-spacing:.3px;margin-right:4px;position:relative}
+.wp-wknum::after{content:'';position:absolute;right:-2px;top:4px;bottom:4px;width:1px;background:var(--brd)}
+.wp-wknum:hover{background:var(--ac);color:#fff}
+.wp-wknum.wk-sel{background:var(--ac);color:#fff}
+.dp-day-other{color:var(--tl);opacity:.45}
+.dp-dh{font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.85px;color:var(--tl);text-align:center;padding:6px 0}
+.dp-day{background:transparent;border:none;cursor:pointer;font:inherit;font-size:12px;font-weight:500;height:30px;border-radius:6px;color:var(--tx);transition:background .1s,color .1s;padding:0;font-feature-settings:'tnum'1}
+.dp-day:hover{background:var(--row-hover)}
+.dp-day.today{color:var(--ac);font-weight:700}
+.dp-day.sel{background:var(--ac);color:#fff;font-weight:700}
+.dp-day.sel:hover{background:var(--ac-hover)}
+.dp-day.wk-sel{background:var(--al);color:var(--ac);font-weight:700}
+.dp-day.wk-sel:hover{background:var(--ac);color:#fff}
+.dp-day.wk-sel.today{color:var(--ac)}
+.dp-day.disabled{color:var(--tl);opacity:.4;cursor:not-allowed}
+.dp-day.disabled:hover{background:transparent}
+/* Checkbox styled to match: rendered as 32px-tall slot but the box itself is centered */
+.tv-toolbar input[type="checkbox"],.au-toolbar input[type="checkbox"]{appearance:none;-webkit-appearance:none;width:16px;height:16px;border:1.5px solid var(--brd);border-radius:4px;background:var(--card);cursor:pointer;position:relative;margin:0;flex-shrink:0;transition:all .15s;vertical-align:middle}
+.tv-toolbar input[type="checkbox"]:hover,.au-toolbar input[type="checkbox"]:hover{border-color:var(--ac)}
+.tv-toolbar input[type="checkbox"]:checked,.au-toolbar input[type="checkbox"]:checked{background:var(--ac);border-color:var(--ac)}
+.tv-toolbar input[type="checkbox"]:checked::after,.au-toolbar input[type="checkbox"]:checked::after{content:'';position:absolute;left:4px;top:1px;width:5px;height:9px;border:solid #fff;border-width:0 1.8px 1.8px 0;transform:rotate(45deg)}
+/* Checkbox label wrapper pads the checkbox into a 32px-tall control to match selects */
+.cb-control{display:inline-flex;align-items:center;gap:8px;height:32px;cursor:pointer;font-size:13px;font-weight:500;color:var(--ts);letter-spacing:-.1px}
 /* Email btn */
-.email-btn{display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px;border-radius:4px;color:var(--ac);background:transparent;border:1px solid var(--brd);margin-right:8px;vertical-align:middle;cursor:pointer;padding:0;font:inherit;flex-shrink:0}
+.email-btn{display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;border-radius:4px;color:var(--ac);background:transparent;border:1px solid var(--brd);margin-right:6px;vertical-align:middle;cursor:pointer;padding:0;font:inherit;flex-shrink:0;transition:all .12s}
 .email-btn:hover{background:var(--al);border-color:var(--ac)}
+/* Emailed checkbox in audit table */
+.au-emailed-cb{appearance:none;-webkit-appearance:none;width:16px;height:16px;border:1.5px solid var(--brd);border-radius:4px;background:var(--card);cursor:pointer;position:relative;margin:0 0 0 4px;flex-shrink:0;vertical-align:middle;transition:all .12s}
+.au-emailed-cb:hover{border-color:var(--ac)}
+.au-emailed-cb:checked{background:var(--ac);border-color:var(--ac)}
+.au-emailed-cb:checked::after{content:'';position:absolute;left:4px;top:1px;width:5px;height:9px;border:solid #fff;border-width:0 1.8px 1.8px 0;transform:rotate(45deg)}
+/* Email reminder modal */
+.em-overlay{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.55);z-index:1000;align-items:flex-start;justify-content:center;padding:32px 16px;overflow-y:auto}
+.em-modal{background:var(--card);border-radius:10px;max-width:760px;width:100%;box-shadow:0 12px 40px rgba(0,0,0,.4);display:flex;flex-direction:column;max-height:calc(100vh - 64px)}
+.em-head{display:flex;justify-content:space-between;align-items:center;padding:16px 20px;border-bottom:1px solid var(--brl)}
+.em-head .em-title{font-size:14px;font-weight:600;color:var(--tx)}
+.em-close{background:transparent;border:none;color:var(--ts);cursor:pointer;font-size:22px;line-height:1;padding:4px 8px;border-radius:4px}
+.em-close:hover{background:var(--row-hover);color:var(--tx)}
+.em-meta{padding:12px 20px;border-bottom:1px solid var(--brl);font-size:12px;color:var(--ts);display:flex;flex-direction:column;gap:4px;background:var(--bg)}
+.em-meta strong{color:var(--tx);font-weight:500;display:inline-block;min-width:60px}
+.em-body{flex:1;overflow-y:auto;padding:20px;background:#f0eee9}
+body.dark .em-body{background:#0d0e10}
+.em-actions{padding:14px 20px;border-top:1px solid var(--brl);display:flex;gap:10px;align-items:center;flex-wrap:wrap;background:var(--card)}
+.em-actions .em-status{flex:1;font-size:12px;color:var(--ts);min-width:200px}
 .au-warn{padding:10px 14px;border-radius:6px;font-size:13px;font-weight:400;margin-bottom:8px;display:flex;align-items:center;gap:8px}
 .au-warn.warn-miss{background:#FFF3E0;color:#E65100;border:1px solid #FFE0B2}
 body.dark .au-warn.warn-miss{background:rgba(248,113,113,.12);color:#FCA5A5;border-color:rgba(248,113,113,.3)}
 .au-warn.warn-ok{background:var(--al);color:var(--ac);border:1px solid rgba(43,107,63,.2)}
-/* Blocked row colors that respect theme */
-.tee-block-pure{background:#C8C6C2}
-.tee-block-event{background:#EDECEA}
-body.dark .tee-block-pure{background:#2A2E33}
-body.dark .tee-block-event{background:#222529}
+/* Member # editable cell */
+.mn-cell{display:inline-flex;align-items:center;gap:6px}
+.mn-cell .mn-text{display:inline-block;min-width:50px}
+.mn-cell .mn-empty{color:var(--tl)}
+.mn-cell .mn-edit-btn{opacity:0;background:transparent;border:none;padding:2px 4px;border-radius:3px;cursor:pointer;color:var(--tl);display:inline-flex;align-items:center;justify-content:center;transition:opacity .12s,color .12s,background .12s}
+tr:hover .mn-cell .mn-edit-btn{opacity:1}
+.mn-cell .mn-edit-btn:hover{color:var(--ac);background:var(--al)}
+.mn-input{width:80px;padding:2px 6px;border:1px solid var(--ac);border-radius:4px;font:inherit;font-size:12px;background:var(--card);color:var(--tx);outline:none}
 /* Form inputs */
 input[type="email"],input[type="password"],input[type="date"],input[type="text"],select{background:var(--card);color:var(--tx)}
 input::placeholder{color:var(--tl)}
@@ -155,10 +346,6 @@ input::placeholder{color:var(--tl)}
 <!-- LOGIN MODAL -->
 <div id="login-overlay" style="position:fixed;inset:0;background:var(--bg);z-index:1000;display:flex;align-items:center;justify-content:center;flex-direction:column;padding:20px">
   <div style="max-width:380px;width:100%;background:var(--card);border:1px solid var(--brd);border-radius:10px;padding:32px;box-shadow:0 4px 20px rgba(0,0,0,.06)">
-    <div style="text-align:center;margin-bottom:24px">
-      <div style="font-size:11px;font-weight:500;letter-spacing:1.4px;text-transform:uppercase;color:var(--ts);margin-bottom:6px">Treesdale Golf & Country Club</div>
-      <div style="font-size:20px;font-weight:600;letter-spacing:-.2px">Score Posting Audit</div>
-    </div>
     <div id="login-content">
       <label style="display:block;font-size:12px;font-weight:500;color:var(--ts);margin-bottom:6px">Email</label>
       <input type="email" id="login-email" placeholder="you@example.com" style="width:100%;padding:10px 12px;border:1px solid var(--brd);border-radius:6px;font:inherit;font-size:14px;margin-bottom:12px" autocomplete="email">
@@ -166,7 +353,7 @@ input::placeholder{color:var(--tl)}
       <input type="password" id="login-password" placeholder="Enter password" style="width:100%;padding:10px 12px;border:1px solid var(--brd);border-radius:6px;font:inherit;font-size:14px;margin-bottom:16px" autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()">
       <button class="btn btn-primary" style="width:100%;justify-content:center;padding:10px" onclick="doLogin()">Sign In</button>
       <div id="login-msg" style="font-size:13px;margin-top:14px;text-align:center;color:var(--ts)"></div>
-      <div id="login-hint" style="font-size:11px;margin-top:12px;text-align:center;color:var(--tl)">Access by invitation only. Contact the Pro Shop for an account.</div>
+      <div id="login-hint" style="font-size:11px;margin-top:12px;text-align:center;color:var(--tl);text-transform:uppercase;letter-spacing:.85px;font-weight:600">Access by invitation only</div>
     </div>
   </div>
 </div>
@@ -174,11 +361,17 @@ input::placeholder{color:var(--tl)}
 <div id="app-content" style="display:none">
 
 <nav class="nav"><div class="nav-inner">
-<div class="nav-brand"><div class="nb-top">Treesdale Golf & Country Club</div><div class="nb-bot">Score Posting Audit</div></div>
+<div class="nav-brand"><div class="nb-top">Treesdale Golf & Country Club</div><div class="nb-bot">Score Posting Audit Tool</div></div>
 <div class="nav-links">
   <a class="nav-link a" onclick="navTo('dashboard')" id="nav-dashboard">Dashboard</a>
-  <a class="nav-link" onclick="navTo('teeview')" id="nav-teeview">Tee Sheet View</a>
-  <a class="nav-link" onclick="navTo('audit')" id="nav-audit">Audit Results</a>
+  <a class="nav-link" onclick="navTo('roster')" id="nav-roster">Roster</a>
+  <a class="nav-link" onclick="navTo('scoresview')" id="nav-scoresview">Posted Scores</a>
+  <a class="nav-link" onclick="navTo('teeview')" id="nav-teeview">Tee Sheets</a>
+  <a class="nav-link" onclick="navTo('audit')" id="nav-audit">Audit Tool</a>
+  <button class="theme-toggle-btn" id="theme-toggle-btn" onclick="toggleTheme();event.stopPropagation();" aria-label="Toggle theme">
+    <svg id="theme-icon-sun" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:none"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+    <svg id="theme-icon-moon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+  </button>
   <div class="user-menu" id="user-menu" onclick="toggleUserMenu(event)">
     <div class="user-avatar" id="user-avatar"></div>
     <div class="user-name-block">
@@ -188,7 +381,6 @@ input::placeholder{color:var(--tl)}
     <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="opacity:.5"><polyline points="6 9 12 15 18 9"/></svg>
     <div class="user-dropdown" id="user-dropdown">
       <div class="user-dd-header" id="user-dd-header"></div>
-      <div class="user-dd-item" onclick="toggleTheme();closeUserMenu();" id="theme-toggle-item"><span id="theme-toggle-label">Dark Mode</span></div>
       <div class="user-dd-item" id="user-dd-admin" onclick="navTo('admin');closeUserMenu();" style="display:none">User Management</div>
       <div class="user-dd-item" onclick="signOut()">Sign Out</div>
     </div>
@@ -196,41 +388,133 @@ input::placeholder{color:var(--tl)}
 </div>
 </div></nav>
 
+<!-- DASHBOARD with tile navigation -->
 <div class="page active" id="pg-dashboard"><div class="container">
-<div class="section-title">File Management</div>
-<div class="row row-2" style="margin-bottom:24px">
-  <div class="card">
-    <div class="card-header"><div><div class="card-title">GHIN Active Roster</div><div class="card-subtitle">Single file — updates replace previous version</div></div><span class="card-badge badge-empty" id="roster-badge">No File</span></div>
-    <div id="roster-status"><div class="upload-area" onclick="$i('roster-input').click()"><svg class="upload-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg><div class="upload-label">Upload Roster Report (.xlsx)</div><div class="upload-hint">Export from GHIN Admin filtered to Active members</div></div></div>
-    <input type="file" id="roster-input" accept=".xlsx,.xls" style="display:none" onchange="uploadRoster(this)">
+<div class="dash-header">
+  <div class="dash-greeting" id="dash-greeting">Hello</div>
+  <div class="dash-yesterday" id="dash-yesterday"></div>
+</div>
+<div class="dash-grid">
+  <div class="dash-tile">
+    <div class="dash-icon" style="background:rgba(43,107,63,.1);color:var(--ac)"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></div>
+    <div class="dash-tile-title">Roster</div>
+    <div class="dash-tile-sub" id="dash-roster-sub">Active and inactive members</div>
+    <ul class="dash-tile-list">
+      <li>Search by name, GHIN, or email</li>
+      <li>Filter by status or gender</li>
+      <li>Refreshed weekly from GHIN</li>
+    </ul>
+    <button class="btn dash-btn" onclick="navTo('roster')">View Roster →</button>
   </div>
-  <div class="card">
-    <div class="card-header"><div><div class="card-title">Scores Posted Report</div><div class="card-subtitle">Upload fresh from GHIN before running audit</div></div><span class="card-badge badge-empty" id="scores-badge">No File</span></div>
-    <div id="scores-status"><div class="upload-area" onclick="$i('scores-input').click()"><svg class="upload-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg><div class="upload-label">Upload Scores Posted Report (.xlsx)</div><div class="upload-hint">Export from GHIN Admin → Scores Posted Report</div></div></div>
-    <input type="file" id="scores-input" accept=".xlsx,.xls" style="display:none" onchange="uploadScores(this)">
+  <div class="dash-tile">
+    <div class="dash-icon" style="background:rgba(43,107,63,.1);color:var(--ac)"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg></div>
+    <div class="dash-tile-title">Posted Scores</div>
+    <div class="dash-tile-sub" id="dash-scores-sub">Last 30 days of posts</div>
+    <ul class="dash-tile-list">
+      <li>Search by name, GHIN, or course</li>
+      <li>Filter by date or gender</li>
+      <li>Pulled daily from GHIN</li>
+    </ul>
+    <button class="btn dash-btn" onclick="navTo('scoresview')">View Scores →</button>
+  </div>
+  <div class="dash-tile">
+    <div class="dash-icon" style="background:rgba(43,107,63,.1);color:var(--ac)"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div>
+    <div class="dash-tile-title">Tee Sheets</div>
+    <div class="dash-tile-sub" id="dash-teesheets-sub">Daily play history</div>
+    <ul class="dash-tile-list">
+      <li>Browse any past tee sheet by date</li>
+      <li>Color-coded posting status</li>
+      <li>Hide blocked times for a cleaner view</li>
+    </ul>
+    <button class="btn dash-btn" onclick="navTo('teeview')">View Tee Sheets →</button>
+  </div>
+  <div class="dash-tile">
+    <div class="dash-icon" style="background:rgba(179,58,58,.1);color:var(--rd)"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg></div>
+    <div class="dash-tile-title">Audit</div>
+    <div class="dash-tile-sub">Score posting compliance</div>
+    <ul class="dash-tile-list">
+      <li>Find members who didn't post</li>
+      <li>Date range up to a week</li>
+      <li>One-click email reminders</li>
+    </ul>
+    <button class="btn dash-btn" onclick="navTo('audit')">View Audit Tool →</button>
   </div>
 </div>
+
+<div class="section-title" style="margin-top:8px">File Management</div>
+<div class="row row-2" style="margin-bottom:24px">
+  <div class="card">
+    <div class="card-header"><div><div class="card-title">GHIN Active Roster</div><div class="card-subtitle">Auto-imported weekly from GHIN</div></div><span class="card-badge badge-ok" id="roster-badge">Automated</span></div>
+    <div class="card-body">
+      <div id="roster-status"></div>
+      <div class="info-panel info-panel-green">
+        <div class="info-panel-title">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 8l9 6 9-6"/><rect x="3" y="5" width="18" height="14" rx="2"/></svg>
+          How automation works
+        </div>
+        GHIN sends us the latest member roster every week and it loads in here automatically. Always shows who's currently active.
+      </div>
+      <input type="file" id="roster-input" accept=".xlsx,.xls" style="display:none" onchange="uploadRoster(this)">
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-header"><div><div class="card-title">Scores Posted Report</div><div class="card-subtitle">Auto-imported daily from GHIN</div></div><span class="card-badge badge-ok" id="scores-badge">Automated</span></div>
+    <div class="card-body">
+      <div id="scores-status"></div>
+      <div class="info-panel info-panel-green">
+        <div class="info-panel-title">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 8l9 6 9-6"/><rect x="3" y="5" width="18" height="14" rx="2"/></svg>
+          How automation works
+        </div>
+        GHIN sends us yesterday's posted scores every morning and they load in here automatically. Always up to date.
+      </div>
+      <input type="file" id="scores-input" accept=".xlsx,.xls" style="display:none" onchange="uploadScores(this)">
+    </div>
+  </div>
+</div>
+
 <div class="section-title">Tee Sheet Calendar</div>
 <div class="card">
-  <div class="cal-header">
-    <button class="cal-nav-btn" onclick="calNav(-1)">← Prev</button>
-    <div class="cal-month" id="cal-month-label"></div>
-    <button class="cal-nav-btn" onclick="calNav(1)">Next →</button>
+  <div class="card-header"><div><div class="card-title">Tee Sheets</div><div class="card-subtitle">Manual upload from Golf Genius</div></div><span class="card-badge badge-warn">Admin Only · Manual</span></div>
+  <div class="card-body">
+    <div class="info-panel info-panel-amber">
+      <div class="info-panel-title">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+        How tee sheet uploads work (admins only)
+      </div>
+      Admins upload tee sheets from Golf Genius. Click any day on the calendar to see who played and which scores were posted. Tap a course chip to mark a course closed for that day.
+    </div>
+    <div class="cal-header" style="margin-top:18px">
+      <button class="cal-nav-btn" onclick="calNav(-1)">← Prev</button>
+      <div class="cal-month" id="cal-month-label"></div>
+      <button class="cal-nav-btn" onclick="calNav(1)">Next →</button>
+    </div>
+    <div class="cal-grid" id="cal-grid"></div>
   </div>
-  <div class="cal-grid" id="cal-grid"></div>
 </div>
 </div></div>
 
+<!-- FILES (formerly dashboard) -->
 <div class="page" id="pg-teeview"><div class="container">
   <div class="tv-toolbar">
     <div style="display:flex;align-items:center;gap:10px">
       <span class="section-title" style="margin:0">Select Date</span>
-      <select class="tv-select" id="tv-date" onchange="tvLoadDate(this.value)"></select>
+      <span class="dp-wrap"><input type="text" readonly class="tv-select dp-input" id="tv-date" onchange="tvLoadDate(this.value)"><span class="dp-disp" id="tv-date-disp">Select date</span></span>
+      <span class="section-title" style="margin:0 0 0 16px">Gender</span>
+      <select class="tv-select" id="tv-gender" onchange="tvGenderChange()">
+        <option value="all">All</option>
+        <option value="M" selected>Male</option>
+        <option value="F">Female</option>
+      </select>
+      <label class="cb-control" style="margin-left:16px">
+        <input type="checkbox" id="tv-hide-blocked" onchange="tvToggleBlocked()">
+        Hide Blocked Times
+      </label>
     </div>
-    <div style="display:flex;gap:14px;align-items:center;font-size:12px">
-      <span><span class="dot dg"></span> Posted</span>
-      <span><span class="dot dr"></span> Missing</span>
-      <span><span class="dot dd"></span> Non postable</span>
+    <div style="display:flex;gap:14px;align-items:center">
+      <span class="section-title" style="margin:0;display:inline-flex;align-items:center;gap:6px"><span class="dot dg"></span> Posted</span>
+      <span class="section-title" style="margin:0;display:inline-flex;align-items:center;gap:6px"><span class="dot dr"></span> Missing</span>
+      <span class="section-title" style="margin:0;display:inline-flex;align-items:center;gap:6px"><span class="dot dd"></span> Non-Postable</span>
     </div>
   </div>
   <div id="tv-tabs"></div>
@@ -238,18 +522,80 @@ input::placeholder{color:var(--tl)}
   <div class="tw" id="tv-table"></div>
 </div></div>
 
+<!-- ROSTER VIEW -->
+<div class="page" id="pg-roster"><div class="container">
+  <div class="tv-toolbar">
+    <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+      <span class="section-title" style="margin:0">Search</span>
+      <input type="text" class="tv-select" id="rv-search" placeholder="Name, GHIN, member #, email..." style="width:260px" oninput="rvFilter()">
+      <span class="section-title" style="margin:0;margin-left:8px">Status</span>
+      <select class="tv-select" id="rv-status" onchange="rvFilter()">
+        <option value="active">Active</option>
+        <option value="inactive">Inactive</option>
+        <option value="all">All</option>
+      </select>
+      <span class="section-title" style="margin:0;margin-left:8px">Gender</span>
+      <select class="tv-select" id="rv-gender" onchange="rvFilter()">
+        <option value="M" selected>Male</option>
+        <option value="F">Female</option>
+        <option value="all">All</option>
+      </select>
+    </div>
+    <div id="rv-count" class="section-title" style="margin:0;color:var(--ts)"></div>
+  </div>
+  <div class="tw" id="rv-table"></div>
+</div></div>
+
+<!-- POSTED SCORES VIEW -->
+<div class="page" id="pg-scoresview"><div class="container">
+  <div class="tv-toolbar">
+    <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+      <span class="section-title" style="margin:0">Search</span>
+      <input type="text" class="tv-select" id="sv-search" placeholder="Name, GHIN, course..." style="width:240px" oninput="svFilter()">
+      <span class="section-title" style="margin:0;margin-left:8px">Gender</span>
+      <select class="tv-select" id="sv-gender" onchange="svFilter()">
+        <option value="M" selected>Male</option>
+        <option value="F">Female</option>
+        <option value="all">All</option>
+      </select>
+      <span class="section-title" style="margin:0;margin-left:8px">Date</span>
+      <span class="dp-wrap"><input type="text" readonly class="tv-select dp-input" id="sv-date-from" onchange="svFilter()"><span class="dp-disp" id="sv-date-from-disp">From</span></span>
+      <span class="section-title" style="margin:0">to</span>
+      <span class="dp-wrap"><input type="text" readonly class="tv-select dp-input" id="sv-date-to" onchange="svFilter()"><span class="dp-disp" id="sv-date-to-disp">To</span></span>
+    </div>
+    <div id="sv-count" class="section-title" style="margin:0 0 0 auto;color:var(--ts);white-space:nowrap"></div>
+  </div>
+  <div class="tw" id="sv-table"></div>
+</div></div>
+
 <div class="page" id="pg-audit"><div class="container">
   <div class="au-toolbar">
     <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
-      <span class="section-title" style="margin:0">Date Range</span>
-      <input type="date" class="tv-select" id="au-start" onchange="auDateChange('start')">
-      <span style="font-size:13px;color:var(--ts)">to</span>
-      <input type="date" class="tv-select" id="au-end" onchange="auDateChange('end')">
-      <span style="font-size:11px;color:var(--tl);margin-left:4px">Max 7 days</span>
+      <span class="section-title" style="margin:0">Week</span>
+      <span class="dp-wrap"><input type="text" readonly class="tv-select wp-input" id="au-week" onchange="auWeekChange()"><span class="dp-disp" id="au-week-disp">Select week</span></span>
+      <span class="section-title" style="margin:0;margin-left:8px">Gender</span>
+      <select class="tv-select" id="au-gender" onchange="auLoadWeek()">
+        <option value="M" selected>Male</option>
+        <option value="F">Female</option>
+        <option value="all">All</option>
+      </select>
+      <span class="section-title" style="margin:0;margin-left:8px">Search</span>
+      <input type="text" class="tv-select" id="au-search" placeholder="Member name, GHIN..." style="width:220px" oninput="auRender()">
+    </div>
+    <div style="display:flex;gap:8px;align-items:center">
+      <button class="btn btn-outline btn-sm" id="au-export-btn" onclick="auExport()" data-tip="Export results to Excel">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        Export
+      </button>
+      <div class="view-toggle" id="au-view-toggle">
+        <div class="vt-opt a" onclick="auSwitchView('members',this)">By Member</div>
+        <div class="vt-opt" onclick="auSwitchView('rounds',this)">By Round</div>
+      </div>
     </div>
   </div>
+  <input type="hidden" id="au-start"><input type="hidden" id="au-end">
   <div id="au-warnings" style="margin-bottom:12px"></div>
-  <div id="au-summary" style="margin-bottom:16px"></div>
+  <div id="au-summary" style="margin-bottom:0"></div>
   <div id="au-tabs"></div>
   <div id="au-stats"></div>
   <div class="tw" id="au-table"></div>
@@ -292,6 +638,8 @@ input::placeholder{color:var(--tl)}
   </div>
   <div class="tw" id="users-table"></div>
 </div></div>
+
+<footer class="app-footer">Score Posting Audit Tool · Version 1.2 beta</footer>
 
 <input type="file" id="course-input" accept=".htm,.html,.mhtml" style="display:none" onchange="handleChipUpload(this)">
 
@@ -345,6 +693,385 @@ function getInitials(name){if(!name)return'?';const parts=name.trim().split(/\s+
 function toggleUserMenu(e){e?.stopPropagation();$i('user-menu').classList.toggle('open');}
 function closeUserMenu(){$i('user-menu').classList.remove('open');}
 document.addEventListener('click',e=>{if(!e.target.closest('#user-menu'))closeUserMenu();});
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&$i('em-modal')?.style.display==='flex')closeEmailModal();});
+
+// ===== TOOLTIP SYSTEM (floating element, never clipped by overflow) =====
+let _tipEl=null,_tipTarget=null,_tipShowTimer=null;
+function _ensureTipEl(){
+  if(_tipEl&&document.body.contains(_tipEl))return _tipEl;
+  _tipEl=document.createElement('div');
+  _tipEl.id='tooltip';
+  _tipEl.setAttribute('role','tooltip');
+  document.body.appendChild(_tipEl);
+  return _tipEl;
+}
+function _renderTipContent(text){
+  const lines=String(text||'').split('\n').filter(l=>l.length);
+  if(!lines.length)return'';
+  const first=lines[0];
+  const rest=lines.slice(1);
+  let cls='';
+  if(/✓|^POSTED/i.test(first))cls=' ok';
+  else if(/✗|^MISSING/i.test(first))cls=' miss';
+  else if(/^(Solo|Employee|Pre-active|Inactive|Not in roster)/i.test(first))cls=' dim';
+  const headText=first.replace(/^[✓✗]\s*/,'').trim();
+  const body=rest.length?'<div class="tip-meta">'+rest.map(l=>esc(l)).join('<br>')+'</div>':'';
+  return`<div class="tip-head${cls}">${esc(headText)}</div>${body}`;
+}
+function _showTip(target){
+  const text=target.getAttribute('data-tip');
+  if(!text)return;
+  // Sanity check: target must still be in DOM and visible
+  if(!document.body.contains(target))return;
+  const r=target.getBoundingClientRect();
+  if(r.width===0&&r.height===0)return;
+  // Also check: is the target's page actually active?
+  const page=target.closest('.page');
+  if(page&&!page.classList.contains('active'))return;
+  const tip=_ensureTipEl();
+  tip.innerHTML=_renderTipContent(text);
+  tip.style.opacity='0';
+  tip.style.left='0px';tip.style.top='0px';
+  tip.classList.remove('visible','tip-above','tip-below');
+  const tw=tip.offsetWidth,th=tip.offsetHeight;
+  const vw=window.innerWidth,vh=window.innerHeight;
+  const spaceAbove=r.top,spaceBelow=vh-r.bottom;
+  const above=spaceAbove>=th+12||spaceAbove>=spaceBelow;
+  let top,left;
+  if(above){tip.classList.add('tip-above');top=r.top-th-8;}
+  else{tip.classList.add('tip-below');top=r.bottom+8;}
+  left=r.left+r.width/2-tw/2;
+  if(left<8)left=8;
+  if(left+tw>vw-8)left=vw-tw-8;
+  tip.style.top=top+'px';
+  tip.style.left=left+'px';
+  requestAnimationFrame(()=>{tip.classList.add('visible');tip.style.opacity='';});
+  _tipTarget=target;
+}
+function _hideTip(){
+  clearTimeout(_tipShowTimer);
+  if(_tipEl){
+    _tipEl.classList.remove('visible');
+    _tipEl.innerHTML='';
+    _tipEl.style.opacity='0';
+  }
+  _tipTarget=null;
+}
+// Attach listeners after DOM is ready
+function _initTipHandlers(){
+  document.body.addEventListener('mouseover',e=>{
+    const t=e.target.closest('[data-tip]');
+    if(!t||t===_tipTarget)return;
+    clearTimeout(_tipShowTimer);
+    _tipShowTimer=setTimeout(()=>_showTip(t),100);
+  });
+  document.body.addEventListener('mouseout',e=>{
+    const t=e.target.closest('[data-tip]');
+    if(!t)return;
+    if(e.relatedTarget&&t.contains(e.relatedTarget))return;
+    clearTimeout(_tipShowTimer);
+    _hideTip();
+  });
+  // Hide on click, scroll, escape, navigation away from window
+  document.addEventListener('click',()=>_hideTip(),true);
+  window.addEventListener('scroll',()=>_hideTip(),true);
+  window.addEventListener('blur',()=>_hideTip());
+  document.addEventListener('keydown',e=>{if(e.key==='Escape')_hideTip();});
+  // Safety: if the current tip target gets detached from DOM, hide.
+  setInterval(()=>{
+    if(_tipTarget&&!document.body.contains(_tipTarget))_hideTip();
+  },500);
+}
+if(document.readyState==='loading'){
+  document.addEventListener('DOMContentLoaded',_initTipHandlers);
+}else{
+  _initTipHandlers();
+}
+
+// ===== WEEK PICKER (Mon-Sun, custom popover) =====
+let _wpInput=null;
+function _wpFormatDisplay(iso){
+  // iso is YYYY-Www; show the Mon-Sun range
+  const m=/^(\d{4})-W(\d{2})$/.exec(iso);if(!m)return'';
+  const monday=isoWeekToMonday(iso);if(!monday)return'';
+  const sunday=addDays(monday,6);
+  return fmtWeekRange(monday,sunday);
+}
+function _syncWpDisplay(input){
+  if(!input)return;
+  const disp=document.getElementById(input.id+'-disp');
+  if(!disp)return;
+  const v=input.value;
+  if(v&&/^\d{4}-W\d{2}$/.test(v)){
+    disp.textContent=_wpFormatDisplay(v);
+    disp.classList.remove('empty');
+  } else {
+    const ph=disp.getAttribute('data-placeholder')||disp.textContent||'Select week';
+    disp.setAttribute('data-placeholder',ph);
+    disp.textContent=ph;
+    disp.classList.add('empty');
+  }
+}
+function _wpRender(){
+  const dp=_ensureDp();
+  dp.classList.add('wp-mode');
+  const monthName=new Date(_dpYear,_dpMonth,1).toLocaleString('en-US',{month:'long',year:'numeric'});
+  const first=new Date(_dpYear,_dpMonth,1);
+  const last=new Date(_dpYear,_dpMonth+1,0);
+  const lead=(first.getDay()+6)%7;
+  const selWeek=_wpInput?_wpInput.value:'';
+  const today=new Date();
+  const todayStr=today.getFullYear()+'-'+pad0(today.getMonth()+1)+'-'+pad0(today.getDate());
+
+  // Build a list of (day, weekIso) covering the calendar grid (lead empties + days)
+  // Then chunk into rows of 7 (Mon-Sun)
+  const cells=[];
+  for(let i=0;i<lead;i++){
+    // Leading days from previous month — we still want to compute the week of the first row
+    const prev=new Date(_dpYear,_dpMonth,1-(lead-i));
+    cells.push({type:'lead',date:prev});
+  }
+  for(let d=1;d<=last.getDate();d++){
+    cells.push({type:'day',date:new Date(_dpYear,_dpMonth,d),d});
+  }
+  // Pad trailing to make complete weeks
+  while(cells.length%7!==0){
+    const lastDate=cells[cells.length-1].date;
+    const next=new Date(lastDate);next.setDate(lastDate.getDate()+1);
+    cells.push({type:'trail',date:next});
+  }
+
+  let h='<div class="dp-head">';
+  h+='<button class="dp-nav" type="button" onclick="_dpNav(-1);_wpRender();" aria-label="Previous month">&lsaquo;</button>';
+  h+=`<div class="dp-month">${monthName}</div>`;
+  h+='<button class="dp-nav" type="button" onclick="_dpNav(1);_wpRender();" aria-label="Next month">&rsaquo;</button>';
+  h+='</div>';
+  h+='<div class="wp-grid">';
+  // Header row: WK + 7 weekday names
+  h+='<div class="dp-dh wk-dh">Wk</div>';
+  for(const d of ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'])h+=`<div class="dp-dh">${d}</div>`;
+  // Data rows
+  for(let r=0;r<cells.length;r+=7){
+    const row=cells.slice(r,r+7);
+    // Week number = week of the Monday cell (row[0])
+    const wk=dateToIsoWeek(row[0].date);
+    const wkNum=parseInt(wk.slice(-2));
+    const wkSel=wk===selWeek;
+    h+=`<button type="button" class="wp-wknum${wkSel?' wk-sel':''}" onclick="_wpPick('${wk}')" data-tip="Select week ${wkNum}">${wkNum}</button>`;
+    for(const c of row){
+      const ds=fmtDate(c.date);
+      const cls=['dp-day'];
+      if(wkSel)cls.push('wk-sel');
+      if(ds===todayStr)cls.push('today');
+      if(c.type!=='day')cls.push('dp-day-other');
+      h+=`<button type="button" class="${cls.join(' ')}" onclick="_wpPick('${wk}')">${c.date.getDate()}</button>`;
+    }
+  }
+  h+='</div>';
+  dp.innerHTML=h;
+}
+function _wpPick(wk){
+  if(!_wpInput)return;
+  _wpInput.value=wk;
+  _syncWpDisplay(_wpInput);
+  _wpInput.dispatchEvent(new Event('change',{bubbles:true}));
+  _hideDp();
+}
+function _wpOpen(input){
+  _wpInput=input;_dpInput=null; // ensure date-picker mode is off
+  const dp=_ensureDp();
+  const v=input.value;
+  if(v&&/^\d{4}-W\d{2}$/.test(v)){
+    const monday=isoWeekToMonday(v);
+    if(monday){_dpYear=monday.getFullYear();_dpMonth=monday.getMonth();}
+    else{const t=new Date();_dpYear=t.getFullYear();_dpMonth=t.getMonth();}
+  } else {
+    const t=new Date();_dpYear=t.getFullYear();_dpMonth=t.getMonth();
+  }
+  _wpRender();
+  const r=input.getBoundingClientRect();
+  dp.style.display='block';
+  const dh=dp.offsetHeight,dw=dp.offsetWidth;
+  let top=r.bottom+window.scrollY+4;
+  let left=r.left+window.scrollX;
+  if(r.bottom+dh+12>window.innerHeight&&r.top>dh)top=r.top+window.scrollY-dh-4;
+  if(left+dw>window.scrollX+window.innerWidth-8)left=window.scrollX+window.innerWidth-dw-8;
+  if(left<window.scrollX+8)left=window.scrollX+8;
+  dp.style.top=top+'px';
+  dp.style.left=left+'px';
+}
+// Hook week-picker mousedown
+function _initWpHandlers(){
+  document.body.addEventListener('mousedown',e=>{
+    const t=e.target.closest('.wp-input');
+    if(!t)return;
+    e.preventDefault();
+    if(_wpInput===t&&_dpEl&&_dpEl.style.display==='block'){_hideDp();_wpInput=null;return;}
+    setTimeout(()=>_wpOpen(t),0);
+  });
+  document.body.addEventListener('keydown',e=>{
+    const t=e.target.closest&&e.target.closest('.wp-input');
+    if(!t)return;
+    if(e.key===' '||e.key==='Enter'){e.preventDefault();_wpOpen(t);}
+    if(e.key==='Escape'){_hideDp();_wpInput=null;}
+  });
+}
+if(document.readyState==='loading'){
+  document.addEventListener('DOMContentLoaded',_initWpHandlers);
+}else{
+  _initWpHandlers();
+}
+
+// ===== CUSTOM DATE PICKER (Mon-first weeks, popover overlay) =====
+let _dpEl=null,_dpInput=null,_dpYear=null,_dpMonth=null;
+function _ensureDp(){
+  if(_dpEl&&document.body.contains(_dpEl))return _dpEl;
+  _dpEl=document.createElement('div');
+  _dpEl.id='datepicker';
+  _dpEl.innerHTML='';
+  document.body.appendChild(_dpEl);
+  // Close on outside click — works for both date and week picker
+  document.addEventListener('mousedown',e=>{
+    if(!_dpEl||_dpEl.style.display!=='block')return;
+    if(_dpEl.contains(e.target))return;
+    if(e.target===_dpInput||e.target===_wpInput)return;
+    _hideDp();_wpInput=null;
+  });
+  return _dpEl;
+}
+function _hideDp(){if(_dpEl)_dpEl.style.display='none';_dpInput=null;_wpInput=null;}
+function _renderDp(){
+  const dp=_ensureDp();
+  dp.classList.remove('wp-mode');
+  const monthName=new Date(_dpYear,_dpMonth,1).toLocaleString('en-US',{month:'long',year:'numeric'});
+  const first=new Date(_dpYear,_dpMonth,1);
+  const last=new Date(_dpYear,_dpMonth+1,0);
+  // Mon-first leading offset: getDay() 0=Sun..6=Sat → (getDay()+6)%7
+  const lead=(first.getDay()+6)%7;
+  // Selected value comes from input
+  const selStr=_dpInput?_dpInput.value:'';
+  const today=new Date();
+  const todayStr=today.getFullYear()+'-'+pad0(today.getMonth()+1)+'-'+pad0(today.getDate());
+  // Min/max from input
+  const minStr=_dpInput?.getAttribute('min')||'';
+  const maxStr=_dpInput?.getAttribute('max')||'';
+  let h='<div class="dp-head">';
+  h+='<button class="dp-nav" type="button" onclick="_dpNav(-1)" aria-label="Previous month">&lsaquo;</button>';
+  h+=`<div class="dp-month">${monthName}</div>`;
+  h+='<button class="dp-nav" type="button" onclick="_dpNav(1)" aria-label="Next month">&rsaquo;</button>';
+  h+='</div>';
+  h+='<div class="dp-grid">';
+  for(const d of ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'])h+=`<div class="dp-dh">${d}</div>`;
+  for(let i=0;i<lead;i++)h+='<div></div>';
+  for(let d=1;d<=last.getDate();d++){
+    const ds=`${_dpYear}-${pad0(_dpMonth+1)}-${pad0(d)}`;
+    const cls=['dp-day'];
+    if(ds===selStr)cls.push('sel');
+    if(ds===todayStr)cls.push('today');
+    if((minStr&&ds<minStr)||(maxStr&&ds>maxStr))cls.push('disabled');
+    h+=`<button type="button" class="${cls.join(' ')}" onclick="_dpPick('${ds}')">${d}</button>`;
+  }
+  h+='</div>';
+  dp.innerHTML=h;
+}
+function _dpNav(delta){
+  _dpMonth+=delta;
+  if(_dpMonth<0){_dpMonth=11;_dpYear--;}
+  else if(_dpMonth>11){_dpMonth=0;_dpYear++;}
+  _renderDp();
+}
+function _formatDateDisplay(iso){
+  if(!iso||!/^\d{4}-\d{2}-\d{2}$/.test(iso))return'';
+  const y=parseInt(iso.slice(0,4)),m=parseInt(iso.slice(5,7))-1,d=parseInt(iso.slice(8,10));
+  const dt=new Date(y,m,d);
+  const days=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+  return days[dt.getDay()]+', '+pad0(m+1)+'/'+pad0(d)+'/'+y;
+}
+function _syncDpDisplay(input){
+  if(!input)return;
+  const disp=document.getElementById(input.id+'-disp');
+  if(!disp)return;
+  const v=input.value;
+  if(v&&/^\d{4}-\d{2}-\d{2}$/.test(v)){
+    disp.textContent=_formatDateDisplay(v);
+    disp.classList.remove('empty');
+  } else {
+    // Empty — show placeholder text from data-placeholder or input id
+    const ph=disp.getAttribute('data-placeholder')||disp.textContent||'Select date';
+    disp.setAttribute('data-placeholder',ph);
+    disp.textContent=ph;
+    disp.classList.add('empty');
+  }
+}
+function _syncAllDpDisplays(){
+  document.querySelectorAll('.dp-input').forEach(_syncDpDisplay);
+  document.querySelectorAll('.wp-input').forEach(_syncWpDisplay);
+}
+function _dpPick(ds){
+  if(!_dpInput)return;
+  // Respect min/max
+  const min=_dpInput.getAttribute('min'),max=_dpInput.getAttribute('max');
+  if(min&&ds<min)return;
+  if(max&&ds>max)return;
+  _dpInput.value=ds;
+  _syncDpDisplay(_dpInput);
+  // Trigger change so existing handlers fire
+  _dpInput.dispatchEvent(new Event('change',{bubbles:true}));
+  _hideDp();
+}
+function _dpOpen(input){
+  _dpInput=input;
+  const dp=_ensureDp();
+  const v=input.value;
+  if(v&&/^\d{4}-\d{2}-\d{2}$/.test(v)){
+    _dpYear=parseInt(v.slice(0,4));
+    _dpMonth=parseInt(v.slice(5,7))-1;
+  } else {
+    const t=new Date();
+    _dpYear=t.getFullYear();_dpMonth=t.getMonth();
+  }
+  _renderDp();
+  // Position below input
+  const r=input.getBoundingClientRect();
+  dp.style.display='block';
+  // Force layout to measure dp size
+  const dh=dp.offsetHeight,dw=dp.offsetWidth;
+  let top=r.bottom+window.scrollY+4;
+  let left=r.left+window.scrollX;
+  // Flip up if not enough room below
+  if(r.bottom+dh+12>window.innerHeight&&r.top>dh)top=r.top+window.scrollY-dh-4;
+  // Clamp horizontally
+  if(left+dw>window.scrollX+window.innerWidth-8)left=window.scrollX+window.innerWidth-dw-8;
+  if(left<window.scrollX+8)left=window.scrollX+8;
+  dp.style.top=top+'px';
+  dp.style.left=left+'px';
+}
+// Attach to all .dp-input elements (auto-converts native date inputs)
+function _initDpHandlers(){
+  document.body.addEventListener('mousedown',e=>{
+    const t=e.target.closest('.dp-input');
+    if(!t)return;
+    e.preventDefault(); // prevent native picker
+    if(_dpInput===t&&_dpEl&&_dpEl.style.display==='block'){_hideDp();return;}
+    setTimeout(()=>_dpOpen(t),0);
+  });
+  // Block native picker on focus/keydown for these inputs
+  document.body.addEventListener('keydown',e=>{
+    const t=e.target.closest&&e.target.closest('.dp-input');
+    if(!t)return;
+    // Allow tab/escape to bubble; block space/enter that would open native picker
+    if(e.key===' '||e.key==='Enter'){e.preventDefault();_dpOpen(t);}
+    if(e.key==='Escape')_hideDp();
+  });
+  // Periodic sync — catches any programmatic .value setters we didn't hook
+  setInterval(_syncAllDpDisplays,300);
+  _syncAllDpDisplays();
+}
+if(document.readyState==='loading'){
+  document.addEventListener('DOMContentLoaded',_initDpHandlers);
+}else{
+  _initDpHandlers();
+}
 
 // Theme toggle
 function applyTheme(theme){
@@ -352,6 +1079,12 @@ function applyTheme(theme){
   else document.body.classList.remove('dark');
   const lbl=$i('theme-toggle-label');
   if(lbl)lbl.textContent=theme==='dark'?'Light Mode':'Dark Mode';
+  // In light mode show moon (click → dark). In dark mode show sun (click → light).
+  const sun=$i('theme-icon-sun'),moon=$i('theme-icon-moon');
+  if(sun&&moon){
+    if(theme==='dark'){sun.style.display='block';moon.style.display='none';}
+    else{sun.style.display='none';moon.style.display='block';}
+  }
 }
 function toggleTheme(){
   const isDark=document.body.classList.contains('dark');
@@ -392,11 +1125,38 @@ async function checkAuth(){
   $i('user-dd-header').textContent=currentUser.email;
   if(currentRole==='admin')$i('user-dd-admin').style.display='block';
   if(currentRole==='member')document.body.classList.add('member-view');
+  loadDashboardHeader();
   return true;
 }
 
+async function loadDashboardHeader(){
+  // Greeting
+  const firstName=(currentName||'').trim().split(/\s+/)[0];
+  const greetEl=$i('dash-greeting');
+  if(greetEl)greetEl.textContent=`Hello, ${firstName||'there'}`;
+
+  // Rounds posted yesterday at Treesdale
+  const yEl=$i('dash-yesterday');
+  if(!yEl)return;
+  const now=new Date();
+  const yest=new Date(now);yest.setDate(yest.getDate()-1);
+  const m=yest.getMonth()+1,d=yest.getDate(),y=yest.getFullYear();
+  const yestShort=`${m}/${d}/${y%100}`;
+  const yestLong=`${m}/${d}/${y}`;
+  const{count}=await sb
+    .from('scores')
+    .select('*',{count:'exact',head:true})
+    .ilike('course_played','%treesdale%')
+    .or(`date_played.eq.${yestShort},date_played.eq.${yestLong}`);
+  if(count!=null&&count>0){
+    yEl.innerHTML=`<strong>${count}</strong> ${count===1?'round':'rounds'} posted at Treesdale Golf & Country Club yesterday`;
+  } else {
+    yEl.textContent='No rounds posted at Treesdale Golf & Country Club yesterday';
+  }
+}
+
 // Note: onAuthStateChange not needed since doLogin handles init directly
-function navTo(p){document.querySelectorAll('.page').forEach(x=>x.classList.remove('active'));document.querySelectorAll('.nav-link').forEach(x=>x.classList.remove('a'));$i('pg-'+p).classList.add('active');$i('nav-'+p).classList.add('a');}
+function navTo(p){if(typeof _hideTip==='function')_hideTip();document.querySelectorAll('.page').forEach(x=>x.classList.remove('active'));document.querySelectorAll('.nav-link').forEach(x=>x.classList.remove('a'));$i('pg-'+p).classList.add('active');$i('nav-'+p).classList.add('a');}
 
 // HTM PARSER
 function parseHTM(txt){
@@ -420,8 +1180,8 @@ async function uploadRoster(input){
   if(!rows.length||!rows[0]['Golfer Name']){alert('Invalid roster file');return;}
   const today=new Date().toISOString().split('T')[0];
 
-  // Get existing GHINs to track new vs existing and preserve first_seen
-  const{data:existing}=await sb.from('roster').select('ghin_number,first_seen_at,member_number');
+  // Get existing GHINs to track new vs existing and preserve member_number
+  const{data:existing}=await sb.from('roster').select('ghin_number,member_number');
   const existingMap=new Map();
   if(existing)for(const e of existing)existingMap.set(e.ghin_number,e);
 
@@ -438,7 +1198,6 @@ async function uploadRoster(input){
       email:(r['Email Address']||'').trim()||null,
       hi:String(r['H.I.']||''),
       current_hi:String(r['Current H.I.']||r['H.I.']||''),
-      first_seen_at:ex?.first_seen_at||today,
       last_seen_at:today,
       member_number:ex?.member_number||null,
       updated_at:new Date().toISOString()
@@ -461,11 +1220,29 @@ async function uploadRoster(input){
   loadRoster();input.value='';
 }
 async function loadRoster(){
-  const{data}=await sb.from('roster').select('updated_at').order('updated_at',{ascending:false}).limit(1);
-  const{count}=await sb.from('roster').select('*',{count:'exact',head:true});
+  // Pull last upload + counts
+  const{data:upload}=await sb.from('roster_upload').select('*').order('uploaded_at',{ascending:false}).limit(1);
+  const{count:totalCount}=await sb.from('roster').select('*',{count:'exact',head:true});
+  const{count:activeCount}=await sb.from('roster').select('*',{count:'exact',head:true}).eq('status','Active');
   const el=$i('roster-status'),badge=$i('roster-badge');
-  if(count>0){const d=data[0]?.updated_at?new Date(data[0].updated_at).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}):'—';el.innerHTML=`<div class="file-status"><div class="fs-icon ok"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg></div><div class="fs-info"><div class="fs-title">${count} Active Members</div><div class="fs-date">Last updated: ${d}</div></div><button class="btn btn-outline btn-sm" onclick="$i('roster-input').click()">Update</button></div>`;badge.textContent='Active';badge.className='card-badge badge-ok';}
-  else{el.innerHTML=`<div class="upload-area" onclick="$i('roster-input').click()"><svg class="upload-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg><div class="upload-label">Upload Roster Report (.xlsx)</div><div class="upload-hint">Export from GHIN Admin filtered to Active members</div></div>`;badge.textContent='No File';badge.className='card-badge badge-empty';}
+  if(totalCount>0){
+    let last='';
+    if(upload?.length){
+      const d=new Date(upload[0].uploaded_at);
+      last=`Last imported: ${fmtDateOnly(d)} at ${d.toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'})}`;
+    } else {
+      last='Imported manually';
+    }
+    const inactiveCount=(totalCount||0)-(activeCount||0);
+    el.innerHTML=`<div class="file-status"><div class="fs-icon ok"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg></div><div class="fs-info"><div class="fs-title">${(activeCount||0).toLocaleString()} active · ${inactiveCount.toLocaleString()} inactive · ${(totalCount||0).toLocaleString()} total</div><div class="fs-date">${last}</div></div></div>`;
+    badge.textContent='Automated';badge.className='card-badge badge-ok';
+  } else {
+    el.innerHTML=`<div class="file-status"><div class="fs-icon" style="background:var(--brl);color:var(--tl)"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></div><div class="fs-info"><div class="fs-title">Awaiting first import</div><div class="fs-date">Roster will appear here automatically when GHIN sends the first scheduled report</div></div></div>`;
+    badge.textContent='Pending';badge.className='card-badge badge-empty';
+  }
+  // Update dashboard tile subtitle
+  const subEl=$i('dash-roster-sub');
+  if(subEl)subEl.textContent=totalCount>0?`${(activeCount||0).toLocaleString()} active · ${(totalCount||0).toLocaleString()} total`:'Awaiting import';
 }
 
 // SCORES
@@ -485,6 +1262,7 @@ async function uploadScores(input){
         ghin_number:curGhin,
         golfer_name:cur,
         date_played:String(r['Date Played']),
+        posted_date:r['Date Posted']?String(r['Date Posted']):(r['Posted Date']?String(r['Posted Date']):null),
         score_type:r['Score Type']?String(r['Score Type']):null,
         ags:r['AGS']!=null?Number(r['AGS']):null,
         holes_played:r['Holes Played']!=null?Math.floor(Number(r['Holes Played'])):null,
@@ -556,14 +1334,46 @@ async function uploadScores(input){
 async function loadScores(){
   const{data}=await sb.from('scores_upload').select('*').order('uploaded_at',{ascending:false}).limit(1);
   const el=$i('scores-status'),badge=$i('scores-badge');
-  if(data?.length){const u=data[0],d=new Date(u.uploaded_at).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}),s=new Date(u.date_range_start+'T12:00:00').toLocaleDateString('en-US',{month:'short',day:'numeric'}),e=new Date(u.date_range_end+'T12:00:00').toLocaleDateString('en-US',{month:'short',day:'numeric'});el.innerHTML=`<div class="file-status"><div class="fs-icon ok"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg></div><div class="fs-info"><div class="fs-title">${u.score_count} Scores · ${s} – ${e}</div><div class="fs-date">Last updated: ${d}</div></div><button class="btn btn-outline btn-sm" onclick="$i('scores-input').click()">Update</button></div>`;badge.textContent='Active';badge.className='card-badge badge-ok';}
-  else{el.innerHTML=`<div class="upload-area" onclick="$i('scores-input').click()"><svg class="upload-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg><div class="upload-label">Upload Scores Posted Report (.xlsx)</div><div class="upload-hint">Export from GHIN Admin → Scores Posted Report</div></div>`;badge.textContent='No File';badge.className='card-badge badge-empty';}
+  if(data?.length){
+    const u=data[0];
+    const d=new Date(u.uploaded_at);
+    const dStr=fmtDateOnly(d);
+    const tStr=d.toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'});
+    const s=fmtDateOnly(u.date_range_start);
+    const e=fmtDateOnly(u.date_range_end);
+    el.innerHTML=`<div class="file-status"><div class="fs-icon ok"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg></div><div class="fs-info"><div class="fs-title">${u.score_count.toLocaleString()} scores · ${s} – ${e}</div><div class="fs-date">Last imported: ${dStr} at ${tStr}</div></div></div>`;
+    badge.textContent='Automated';badge.className='card-badge badge-ok';
+  }
+  else{
+    el.innerHTML=`<div class="file-status"><div class="fs-icon" style="background:var(--brl);color:var(--tl)"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></div><div class="fs-info"><div class="fs-title">Awaiting first import</div><div class="fs-date">Will appear here automatically when GHIN sends the first scheduled report</div></div></div>`;
+    badge.textContent='Pending';badge.className='card-badge badge-empty';
+  }
+  // Update dashboard tile subtitle
+  const subEl=$i('dash-scores-sub');
+  if(subEl){
+    if(data?.length){
+      const u=data[0],s=fmtDateOnly(u.date_range_start),e=fmtDateOnly(u.date_range_end);
+      subEl.textContent=`${u.score_count.toLocaleString()} scores · ${s} – ${e}`;
+    } else subEl.textContent='Awaiting import';
+  }
+  // Tee sheet count
+  const{count:tsCount}=await sb.from('tee_sheet_days').select('*',{count:'exact',head:true});
+  const{count:tsEntries}=await sb.from('tee_sheet_entries').select('*',{count:'exact',head:true});
+  const tsSub=$i('dash-teesheets-sub');
+  if(tsSub){
+    if(tsCount>0)tsSub.textContent=`${tsCount} day${tsCount===1?'':'s'} · ${tsEntries} entries`;
+    else tsSub.textContent='No tee sheets uploaded';
+  }
 }
 
 // CALENDAR
 let calYear=2026,calMonth=3,calDayMap={};
 let pendingChip={date:null,course:null};
 const pad0=n=>String(n).padStart(2,'0');
+// Unified date format: "Mon 04/27/2026"
+function fmtDayDate(s){const dt=typeof s==='string'?new Date(s+(s.includes('T')?'':'T12:00:00')):s;const wk=dt.toLocaleDateString('en-US',{weekday:'short'});return `${wk} ${pad0(dt.getMonth()+1)}/${pad0(dt.getDate())}/${dt.getFullYear()}`;}
+// Date only: "04/27/2026"
+function fmtDateOnly(s){const dt=typeof s==='string'?new Date(s+(s.includes('T')?'':'T12:00:00')):s;return `${pad0(dt.getMonth()+1)}/${pad0(dt.getDate())}/${dt.getFullYear()}`;}
 
 async function loadCalendar(){
   const first=new Date(calYear,calMonth,1),last=new Date(calYear,calMonth+1,0);
@@ -587,11 +1397,11 @@ async function loadCalendar(){
         byDayCourse[pd][e.course].push({...e,_date:pd});
       }
       // Need roster + scores for status calc
-      const{data:roster}=await sb.from('roster').select('*');
-      const{data:scores}=await sb.from('scores').select('golfer_name,date_played');
+      const roster=await fetchAll('roster','*');
+      const scores=await fetchAll('scores','golfer_name,date_played,posted_date');
       const rLookup={};
-      if(roster)for(const r of roster){const nm=(r.golfer_name||'').toLowerCase();const parts=nm.split(' ');if(parts.length<2)continue;const lk=nlk(parts[parts.length-1]);if(!rLookup[lk])rLookup[lk]=[];rLookup[lk].push({nm,info:{ghin:r.ghin_number,name:r.golfer_name,hi:r.current_hi,email:r.email}});}
-      const sLookup={};if(scores)for(const s of scores){const nm=(s.golfer_name||'').toLowerCase();if(!sLookup[nm])sLookup[nm]=[];sLookup[nm].push(s.date_played);}
+      for(const r of roster){const nm=(r.golfer_name||'').toLowerCase();const parts=nm.split(' ');if(parts.length<2)continue;const lk=nlk(parts[parts.length-1]);if(!rLookup[lk])rLookup[lk]=[];rLookup[lk].push({nm,info:{ghin:r.ghin_number,name:r.golfer_name,hi:r.current_hi,email:r.email}});}
+      const sLookup={};for(const s of scores){const nm=(s.golfer_name||'').toLowerCase();if(!sLookup[nm])sLookup[nm]=[];sLookup[nm].push(s.date_played);}
       // Compute pct per day+course
       for(const pd of Object.keys(byDayCourse)){
         let dayPostable=0,dayPosted=0;
@@ -646,13 +1456,16 @@ async function loadCalendar(){
           dayPostable+=postable.length;dayPosted+=posted;
         }
         calDayMap[pd].dayPct=dayPostable?Math.round(dayPosted/dayPostable*100):null;
+        calDayMap[pd].dayPostable=dayPostable;
+        calDayMap[pd].dayPosted=dayPosted;
       }
     }
   }
   const today=new Date(),todayStr=`${today.getFullYear()}-${pad0(today.getMonth()+1)}-${pad0(today.getDate())}`;
   let h='';
-  for(const d of['Sun','Mon','Tue','Wed','Thu','Fri','Sat'])h+=`<div class="cal-day-header">${d}</div>`;
-  for(let i=0;i<first.getDay();i++)h+='<div class="cal-cell empty"></div>';
+  for(const d of ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'])h+=`<div class="cal-day-header">${d}</div>`;
+  // Mon-first: getDay() returns 0=Sun..6=Sat; convert to 0=Mon..6=Sun via (getDay()+6)%7
+  for(let i=0;i<((first.getDay()+6)%7);i++)h+='<div class="cal-cell empty"></div>';
   for(let d=1;d<=last.getDate();d++){
     const ds=`${calYear}-${pad0(calMonth+1)}-${pad0(d)}`;const info=calDayMap[ds];
     const cls=['cal-cell'];if(ds===todayStr)cls.push('today');if(info?.closed)cls.push('closed');
@@ -662,32 +1475,56 @@ async function loadCalendar(){
     let chips='';
     if(info?.closed){
       chips='<div class="cal-chip closed-chip">Course Closed</div>';
-    } else if(hasUpload){
-      // Show course chips with percentages
+    } else {
+      // Always show all 3 courses, regardless of upload state
       for(const c of COURSES){
-        const short=c.split(' / ').map(w=>w[0]).join('/');
         const has=info?.courses?.has(c);
         const pct=info?.coursePcts?.[c];
-        const pctText=has&&pct!==null&&pct!==undefined?` ${pct}%`:'';
-        chips+=`<div class="cal-chip ${has?'uploaded':'missing'}" onclick="event.stopPropagation();chipClick('${ds}','${c}')" title="${has?c+' · '+(pct!==null&&pct!==undefined?pct+'% posted':'no postable rounds'):'Upload '+c}">${short}${pctText}</div>`;
-      }
-    } else {
-      // No tee sheets uploaded
-      if(isPast){
-        chips='<div class="cal-no-file passed">NO FILE</div>';
-      } else {
-        chips='<div class="cal-no-file">N/A</div>';
+        let rightSide='';
+        if(has){
+          if(pct!==null&&pct!==undefined){
+            const pctClass=pct>=100?'pct-ok':'pct-miss';
+            rightSide=`<span class="cal-chip-pct ${pctClass}">${pct}%</span>`;
+          } else {
+            rightSide=`<span class="cal-chip-pct">—</span>`;
+          }
+        } else {
+          rightSide=`<span class="cal-chip-nofile">No File</span>`;
+        }
+        chips+=`<div class="cal-chip ${has?'uploaded':'missing'}" onclick="event.stopPropagation();chipClick('${ds}','${c}')" data-tip="${has?c+(pct!==null&&pct!==undefined?' · '+pct+'% posted':''):'Upload '+c}"><span class="cal-chip-name">${c}</span>${rightSide}</div>`;
       }
     }
 
     // Date row with optional day-total %
     const dayPct=info?.dayPct;
-    const dayPctHtml=hasUpload&&dayPct!==null&&dayPct!==undefined&&!info?.closed?`<span class="cal-day-total ${dayPct>=80?'ok':'miss'}">${dayPct}%</span>`:'';
-    const closeBtn=`<span class="close-btn" onclick="event.stopPropagation();toggleClosed('${ds}')" title="${info?.closed?'Reopen':'Mark Closed'}">${info?.closed?'✕':'—'}</span>`;
+    const dayPostableTotal=info?.dayPostable;
+    let dayPctHtml='';
+    if(hasUpload&&!info?.closed){
+      if(dayPostableTotal===0){
+        // No postable rounds at all — show N/A in green
+        dayPctHtml=`<span class="cal-day-total ok" data-tip="No postable rounds">Posted: N/A</span>`;
+      } else if(dayPct!==null&&dayPct!==undefined){
+        dayPctHtml=`<span class="cal-day-total ${dayPct>=80?'ok':'miss'}">Posted: ${dayPct}%</span>`;
+      }
+    }
+    const closeBtn=`<span class="close-btn" onclick="event.stopPropagation();toggleClosed('${ds}')" data-tip="${info?.closed?'Reopen course':'Mark course closed'}">${info?.closed?'✕':'—'}</span>`;
+    const viewLink=hasUpload&&!info?.closed?`<div class="cal-view-link" onclick="event.stopPropagation();calViewSheet('${ds}')">View Sheet →</div>`:'';
 
-    h+=`<div class="${cls.join(' ')}"><div class="cal-date"><span>${d}</span><span style="display:flex;align-items:center;gap:4px">${dayPctHtml}${closeBtn}</span></div><div class="cal-courses">${chips}</div></div>`;
+    h+=`<div class="${cls.join(' ')}"><div class="cal-date"><span>${d}</span>${dayPctHtml}</div><div class="cal-courses">${chips}</div><div class="cal-footer">${viewLink}${closeBtn}</div></div>`;
   }
   $i('cal-grid').innerHTML=h;
+}
+
+async function calViewSheet(ds){
+  // Switch to Tee Sheets tab and select this date
+  navTo('teeview');
+  // Wait for tvInit to fully populate the date dropdown
+  await tvInit();
+  const sel=$i('tv-date');
+  if(sel){
+    sel.value=ds;
+    await tvLoadDate(ds);
+  }
 }
 function calNav(dir){calMonth+=dir;if(calMonth>11){calMonth=0;calYear++;}if(calMonth<0){calMonth=11;calYear--;}loadCalendar();}
 async function toggleClosed(ds){
@@ -770,17 +1607,26 @@ async function tvInit(){
   const dayIds=new Set((entDays||[]).map(e=>e.day_id));
   const{data:allDays}=await sb.from('tee_sheet_days').select('id,play_date').eq('is_closed',false);
   const validDates=(allDays||[]).filter(d=>dayIds.has(d.id)).map(d=>d.play_date).sort();
-  if(!validDates.length){$i('tv-date').innerHTML='<option>No tee sheets uploaded</option>';$i('tv-tabs').innerHTML='';$i('tv-stats').innerHTML='';$i('tv-table').innerHTML='';return;}
-  $i('tv-date').innerHTML=validDates.map(d=>{const dt=new Date(d+'T12:00:00');return`<option value="${d}">${dt.toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'})}</option>`;}).join('');
+  if(!validDates.length){$i('tv-date').value='';_syncDpDisplay($i('tv-date'));$i('tv-tabs').innerHTML='';$i('tv-stats').innerHTML='';$i('tv-table').innerHTML='<div class="placeholder">No tee sheets uploaded yet.</div>';return;}
+  // Set min/max so user can only pick dates with tee sheets
+  $i('tv-date').min=validDates[0];
+  $i('tv-date').max=validDates[validDates.length-1];
+  // Default to most recent valid date (preserve current value if valid)
+  const cur=$i('tv-date').value;
+  const target=validDates.includes(cur)?cur:validDates[validDates.length-1];
+  $i('tv-date').value=target;
+  _syncDpDisplay($i('tv-date'));
+  // Save valid dates list so tvLoadDate can validate selection
+  window._tvValidDates=new Set(validDates);
   // Build roster by last name, with .nm and .info structure to use mN()
-  const{data:roster}=await sb.from('roster').select('ghin_number,golfer_name,current_hi,email,first_seen_at,member_number');
+  const roster=await fetchAll('roster','ghin_number,golfer_name,current_hi,email,member_number,status,status_date,gender');
   tvRoster={};
-  if(roster)for(const r of roster){const nm=(r.golfer_name||'').toLowerCase();const parts=nm.split(' ');if(parts.length<2)continue;const lk=nlk(parts[parts.length-1]);if(!tvRoster[lk])tvRoster[lk]=[];tvRoster[lk].push({nm,info:{ghin:r.ghin_number,name:r.golfer_name,hi:r.current_hi,email:r.email,first_seen_at:r.first_seen_at,member_number:r.member_number}});}
-  // Scores by name → array of dates
-  const{data:scores}=await sb.from('scores').select('golfer_name,date_played');
+  for(const r of roster){const nm=(r.golfer_name||'').toLowerCase();const parts=nm.split(' ');if(parts.length<2)continue;const lk=nlk(parts[parts.length-1]);if(!tvRoster[lk])tvRoster[lk]=[];tvRoster[lk].push({nm,info:{ghin:r.ghin_number,name:r.golfer_name,hi:r.current_hi,email:r.email,member_number:r.member_number,status:r.status,status_date:r.status_date,gender:r.gender}});}
+  // Scores by name
+  const scores=await fetchAll('scores','golfer_name,date_played,posted_date,score_type,ags,holes_played,course_played,differential');
   tvScoresByName={};
-  if(scores)for(const s of scores){const nm=(s.golfer_name||'').toLowerCase();if(!tvScoresByName[nm])tvScoresByName[nm]=[];tvScoresByName[nm].push(s.date_played);}
-  tvLoadDate(validDates[0]);
+  for(const s of scores){const nm=(s.golfer_name||'').toLowerCase();if(!tvScoresByName[nm])tvScoresByName[nm]=[];tvScoresByName[nm].push(s);}
+  tvLoadDate(target);
 }
 
 async function tvLoadDate(dateStr){
@@ -797,17 +1643,44 @@ async function tvLoadDate(dateStr){
   // Sort courses
   const courseOrder=['Grove / Lakes','Lakes / Orchard','Orchard / Grove'];
   const courses=[...new Set(entries.map(e=>e.course))].sort((a,b)=>(courseOrder.indexOf(a)===-1?99:courseOrder.indexOf(a))-(courseOrder.indexOf(b)===-1?99:courseOrder.indexOf(b)));
-  // Build tabs
+  // Build tabs (counts respect gender filter)
+  const tabGender=$i('tv-gender')?.value||'all';
+  const tabGenderMatch=(e)=>tabGender==='all'||e.gender===tabGender;
   $i('tv-tabs').innerHTML='<div class="sub-tabs">'+courses.map((c,i)=>{
     const ce=entries.filter(e=>e.course===c&&e.entry_type!=='blocked');
-    const postable=ce.filter(e=>(e.status==='posted'||e.status==='missing')&&!e.solo);
+    const postable=ce.filter(e=>(e.status==='posted'||e.status==='missing')&&!e.solo&&tabGenderMatch(e));
     const posted=postable.filter(e=>e.status==='posted').length;const miss=postable.length-posted;
     return`<div class="st-tab${i===0?' a':''}" onclick="tvPickCourse('${c}',this)">${c}<span class="st-num">${posted}/${postable.length}</span>${miss?'<span class="st-miss">· '+miss+' missing</span>':''}</div>`;
   }).join('')+'</div>';
-  window._tvEntries=entries;tvShowCourse(courses[0],entries);
+  window._tvEntries=entries;window._tvActiveCourse=courses[0];tvShowCourse(courses[0],entries);
 }
 
-function tvPickCourse(c,el){document.querySelectorAll('#tv-tabs .st-tab').forEach(t=>t.classList.remove('a'));el.classList.add('a');tvShowCourse(c,window._tvEntries);}
+function tvPickCourse(c,el){document.querySelectorAll('#tv-tabs .st-tab').forEach(t=>t.classList.remove('a'));el.classList.add('a');window._tvActiveCourse=c;tvShowCourse(c,window._tvEntries);}
+
+function tvToggleBlocked(){
+  if(window._tvEntries&&window._tvActiveCourse){
+    tvShowCourse(window._tvActiveCourse,window._tvEntries);
+  }
+}
+
+function tvGenderChange(){
+  // Re-render course tabs with updated counts AND the active course's stats
+  if(window._tvEntries){
+    const courseOrder=['Grove / Lakes','Lakes / Orchard','Orchard / Grove'];
+    const courses=[...new Set(window._tvEntries.map(e=>e.course))].sort((a,b)=>(courseOrder.indexOf(a)===-1?99:courseOrder.indexOf(a))-(courseOrder.indexOf(b)===-1?99:courseOrder.indexOf(b)));
+    const tabGender=$i('tv-gender')?.value||'all';
+    const tabGenderMatch=(e)=>tabGender==='all'||e.gender===tabGender;
+    const active=window._tvActiveCourse||courses[0];
+    $i('tv-tabs').innerHTML='<div class="sub-tabs">'+courses.map((c)=>{
+      const ce=window._tvEntries.filter(e=>e.course===c&&e.entry_type!=='blocked');
+      const postable=ce.filter(e=>(e.status==='posted'||e.status==='missing')&&!e.solo&&tabGenderMatch(e));
+      const posted=postable.filter(e=>e.status==='posted').length;const miss=postable.length-posted;
+      const isActive=c===active?' a':'';
+      return`<div class="st-tab${isActive}" onclick="tvPickCourse('${c}',this)">${c}<span class="st-num">${posted}/${postable.length}</span>${miss?'<span class="st-miss">· '+miss+' missing</span>':''}</div>`;
+    }).join('')+'</div>';
+    tvShowCourse(active,window._tvEntries);
+  }
+}
 
 function allSlots(){const s=[];for(let h=7;h<=19;h++)for(let m=0;m<60;m+=10){if(h===19&&m>0)break;const h12=h>12?h-12:h===0?12:h;s.push(String(h12).padStart(2,'0')+':'+String(m).padStart(2,'0')+' '+(h>=12?'PM':'AM'))}return s}
 
@@ -818,9 +1691,15 @@ function matchAndStatus(entries){
     if(e.entry_type==='blocked'||e.entry_type==='employee'){e.status=e.entry_type;continue;}
     const rm=mN(e.player_first,e.player_last,tvRoster);
     if(!rm){e.status='no_roster';continue;}
-    e.rosterName=rm.info.name;e.ghin=rm.info.ghin;e.hi=rm.info.hi;e.email=rm.info.email;
-    // Check if member was active as of the play date
-    if(rm.info.first_seen_at&&e._date<rm.info.first_seen_at){
+    e.rosterName=rm.info.name;e.ghin=rm.info.ghin;e.hi=rm.info.hi;e.email=rm.info.email;e.gender=(rm.info.gender||'').toUpperCase().charAt(0);
+    const statusLower=(rm.info.status||'').toLowerCase();
+    // Inactive member who played AFTER going inactive — round doesn't count
+    if(statusLower==='inactive'&&rm.info.status_date&&e._date>=rm.info.status_date){
+      e.status='inactive';continue;
+    }
+    // Active member: use GHIN status_date as "active since" date if available.
+    // Only flag pre_active if they played BEFORE they became a GHIN member.
+    if(statusLower==='active'&&rm.info.status_date&&e._date<rm.info.status_date){
       e.status='pre_active';continue;
     }
     e.status='__pending__';
@@ -847,7 +1726,8 @@ function applyPostCounts(entries){
     const m=memberRounds[key];
     // Find this member's posted scores using mN-like logic
     const lastKey=nlk(m.last);
-    const postedByDate={};
+    const postedByDate={}; // date -> count
+    const postedScoresByDate={}; // date -> [score objects]
     const cleanFirst=firstName(m.first||'').toLowerCase().replace(/['\u2019]/g,'');
     const vs=vr(cleanFirst);
     for(const nm of Object.keys(tvScoresByName)){
@@ -857,7 +1737,7 @@ function applyPostCounts(entries){
       if(cl!==lastKey)continue;
       const cf=parts[0];
       if(vs.has(cf)||(cleanFirst.length>=3&&cf.length>=3&&cleanFirst.substring(0,3)===cf.substring(0,3))){
-        for(const d of tvScoresByName[nm]){const nd=nD(d);postedByDate[nd]=(postedByDate[nd]||0)+1;}
+        for(const s of tvScoresByName[nm]){const nd=nD(s.date_played);postedByDate[nd]=(postedByDate[nd]||0)+1;if(!postedScoresByDate[nd])postedScoresByDate[nd]=[];postedScoresByDate[nd].push(s);}
         break;
       }
     }
@@ -868,7 +1748,12 @@ function applyPostCounts(entries){
       const postable=rounds.filter(r=>!r.solo);
       const solos=rounds.filter(r=>r.solo);
       const postedCount=postedByDate[nd]||0;
-      for(let i=0;i<postable.length;i++){postable[i].status=i<postedCount?'posted':'missing';}
+      const postedScores=postedScoresByDate[nd]||[];
+      for(let i=0;i<postable.length;i++){
+        postable[i].status=i<postedCount?'posted':'missing';
+        // Attach the score details so the table can show them
+        if(i<postedCount&&postedScores[i]){postable[i]._score=postedScores[i];}
+      }
       for(const r of solos)r.status='solo';
     }
   }
@@ -884,44 +1769,87 @@ function tvShowCourse(course,entries){
     if(e.entry_type==='blocked'){grid[t].blocked=true;grid[t].reason=e.reason;continue;}
     grid[t].players.push(e);
   }
-  // Stats: postable excludes solos
-  const pe=ce.filter(e=>e.entry_type==='member'||e.entry_type==='employee');
-  const members=ce.filter(e=>e.entry_type==='member');
-  const postable=ce.filter(e=>(e.status==='posted'||e.status==='missing')&&!e.solo);
+  // Gender filter for stats
+  const genderFilter=$i('tv-gender')?.value||'all';
+  const genderMatch=(e)=>genderFilter==='all'||e.gender===genderFilter;
+  // Stats: postable excludes solos; respects gender filter for matched members
+  const pe=ce.filter(e=>(e.entry_type==='member'||e.entry_type==='employee')&&genderMatch(e));
+  const members=ce.filter(e=>e.entry_type==='member'&&genderMatch(e));
+  const postable=ce.filter(e=>(e.status==='posted'||e.status==='missing')&&!e.solo&&genderMatch(e));
   const posted=postable.filter(e=>e.status==='posted').length;
   const miss=postable.length-posted;
   const pureBlk=slots.filter(t=>grid[t].blocked&&grid[t].players.length===0).length;
   const av=(slots.length-pureBlk)*4;
   const pct=postable.length?(posted/postable.length*100).toFixed(0):'—';
   $i('tv-stats').innerHTML=`<div class="stat-row"><div class="sl"><div class="istat"><span class="iv">${pe.length}</span><span class="il">Booked</span></div><div class="istat"><span class="iv">${av}</span><span class="il">Available</span></div><div class="istat"><span class="iv">${members.length}</span><span class="il">Members</span></div></div><div class="sr"><div class="istat"><span class="iv">${postable.length}</span><span class="il">Postable</span></div><div class="istat"><span class="iv sg">${posted}</span><span class="il">Posted</span></div><div class="istat"><span class="iv sr">${miss}</span><span class="il">Missing</span></div><div class="istat"><span class="iv">${postable.length?pct+'%':'—'}</span><span class="il">Round %</span></div></div></div>`;
-  let h='<table style="table-layout:fixed"><colgroup><col style="width:80px"><col style="width:24px"><col style="width:25%"><col style="width:25%"><col style="width:25%"><col style="width:25%"></colgroup><thead><tr><th>Time</th><th></th><th>Player 1</th><th>Player 2</th><th>Player 3</th><th>Player 4</th></tr></thead><tbody>';
+  let h='<table style="table-layout:fixed"><colgroup><col style="width:80px"><col style="width:24px"><col style="width:25%"><col style="width:25%"><col style="width:25%"><col style="width:25%"></colgroup><thead><tr><th class="no-sort">Time</th><th class="no-sort"></th><th class="no-sort">Player 1</th><th class="no-sort">Player 2</th><th class="no-sort">Player 3</th><th class="no-sort">Player 4</th></tr></thead><tbody>';
+  const hideBlocked=$i('tv-hide-blocked')?.checked;
   for(const t of slots){
     const g=grid[t];
     const hasPlayers=g.players.length>0;
     const isPureBlock=g.blocked&&!hasPlayers;
     const isEvent=g.blocked&&hasPlayers;
+    // Hide pure blocked times when toggle is on (events with players still show)
+    if(hideBlocked&&isPureBlock)continue;
     const rowCls=isPureBlock?' class="tee-block-pure"':(isEvent?' class="tee-block-event"':'');
     h+=`<tr${rowCls}>`;
     if(isEvent){
-      h+=`<td style="font-weight:600;line-height:1.2">${esc(t)}<div style="font-size:10px;color:var(--ts);font-weight:500;margin-top:2px">${esc(g.reason)}</div></td>`;
+      h+=`<td style="line-height:1.2">${esc(t)}<div style="font-size:10px;color:var(--ts);margin-top:2px">${esc(g.reason)}</div></td>`;
     } else {
-      h+=`<td style="font-weight:600">${esc(t)}</td>`;
+      h+=`<td>${esc(t)}</td>`;
     }
     if(isPureBlock){
-      h+=`<td></td><td colspan="4" style="text-align:center;font-size:13px;color:var(--ts);font-weight:500">Blocked: ${esc(g.reason)}</td></tr>`;
+      h+=`<td></td><td colspan="4" style="text-align:center;font-size:12px;color:var(--ts)">Blocked: ${esc(g.reason)}</td></tr>`;
       continue;
     }
     h+=`<td></td>`; // spacer column
+    const gFilter=$i('tv-gender')?.value||'all';
     for(let i=0;i<4;i++){
       const p=g.players[i];
       if(!p){h+='<td></td>';continue;}
       let dot,cls;
-      if(p.entry_type==='employee'||p.status==='no_roster'||p.status==='pre_active'||p.solo){dot='dd';cls='color:var(--tl)';}
+      // Gender filter mismatch: dim with pink (women dimmed when M selected) or blue (men dimmed when F selected)
+      const isFiltered=gFilter!=='all'&&p.gender&&p.gender!==gFilter;
+      if(isFiltered){
+        // Pink-grey for females when male is selected, blue-grey for males when female is selected
+        const dimColor=gFilter==='M'?'#D89BAE':'#9BB5D8';
+        const dimDot=gFilter==='M'?'dpink':'dblue';
+        dot=dimDot;cls=`color:${dimColor};opacity:.65`;
+      }
+      else if(p.entry_type==='employee'||p.status==='no_roster'||p.status==='pre_active'||p.status==='inactive'||p.solo){dot='dd';cls='color:var(--tl)';}
       else if(p.status==='missing'){dot='dr';cls='color:var(--rd)';}
       else if(p.status==='posted'){dot='dg';cls='color:var(--ac)';}
       else{dot='dd';cls='color:var(--tl)';}
       const dn=p.rosterName||p.player_name;
-      h+=`<td style="overflow:hidden;text-overflow:ellipsis"><span class="dot ${dot}"></span><span style="${cls}">${esc(dn)}</span></td>`;
+      // Build tooltip — multi-line for readability
+      let tooltip='';
+      if(p.status==='posted'&&p._score){
+        const s=p._score;
+        const lines=['✓ POSTED'];
+        if(s.posted_date)lines.push(`Posted on ${s.posted_date}`);
+        const stat=[];
+        if(s.score_type)stat.push(s.score_type);
+        if(s.holes_played!=null)stat.push(s.holes_played+'h');
+        if(s.ags!=null)stat.push('AGS '+s.ags);
+        if(s.differential!=null)stat.push('Diff '+s.differential);
+        if(stat.length)lines.push(stat.join(' · '));
+        if(s.course_played)lines.push(s.course_played);
+        tooltip=lines.join('\n');
+      } else if(p.status==='missing'){
+        tooltip='✗ MISSING\nScore not posted to GHIN';
+      } else if(p.solo){
+        tooltip='Solo round\nNot postable per USGA';
+      } else if(p.entry_type==='employee'){
+        tooltip='Employee\nNot a member';
+      } else if(p.status==='pre_active'){
+        tooltip='Pre-active\nMember not yet active on this date';
+      } else if(p.status==='inactive'){
+        tooltip='Inactive\nMember was inactive on this date';
+      } else if(p.status==='no_roster'){
+        tooltip='Not in roster\nGuest or unrecognized name';
+      }
+      const tooltipAttr=tooltip?` data-tip="${esc(tooltip).replace(/\n/g,'&#10;')}"`:'';
+      h+=`<td style="overflow:hidden;text-overflow:ellipsis"${tooltipAttr}><span class="dot ${dot}"></span><span class="nb" style="${cls}">${esc(dn)}</span></td>`;
     }
     h+='</tr>';
   }
@@ -932,36 +1860,65 @@ function tvShowCourse(course,entries){
 let auWeekStart=null; // Date object for Sunday of current audit week
 
 function getWeekStart(d){const dt=new Date(d);dt.setDate(dt.getDate()-dt.getDay());dt.setHours(0,0,0,0);return dt;}
+function getMondayWeekStart(d){const dt=new Date(d);const day=dt.getDay();const diff=day===0?-6:1-day;dt.setDate(dt.getDate()+diff);dt.setHours(0,0,0,0);return dt;}
 function addDays(d,n){const dt=new Date(d);dt.setDate(dt.getDate()+n);return dt;}
 function fmtDate(d){return d.getFullYear()+'-'+pad0(d.getMonth()+1)+'-'+pad0(d.getDate());}
-function fmtLabel(d){return d.toLocaleDateString('en-US',{month:'short',day:'numeric'});}
+function fmtLabel(d){return fmtDateOnly(d);}
+
+// ISO week helpers (Mon-Sun)
+function dateToIsoWeek(d){
+  const dt=new Date(Date.UTC(d.getFullYear(),d.getMonth(),d.getDate()));
+  const dayNum=dt.getUTCDay()||7;
+  dt.setUTCDate(dt.getUTCDate()+4-dayNum);
+  const yearStart=new Date(Date.UTC(dt.getUTCFullYear(),0,1));
+  const weekNum=Math.ceil(((dt-yearStart)/86400000+1)/7);
+  return dt.getUTCFullYear()+'-W'+pad0(weekNum);
+}
+// Convert ISO week "YYYY-Www" to Monday of that week
+function isoWeekToMonday(weekStr){
+  const m=/^(\d{4})-W(\d{2})$/.exec(weekStr);if(!m)return null;
+  const year=parseInt(m[1]),week=parseInt(m[2]);
+  const jan4=new Date(year,0,4);
+  const jan4Day=jan4.getDay()||7;
+  const mondayWeek1=new Date(year,0,4-(jan4Day-1));
+  const targetMon=new Date(mondayWeek1);targetMon.setDate(mondayWeek1.getDate()+(week-1)*7);
+  targetMon.setHours(0,0,0,0);
+  return targetMon;
+}
+// Format a Mon-Sun range as "Apr 21 – 27, 2026" or "Apr 28 – May 4, 2026"
+function fmtWeekRange(mon,sun){
+  const monthShort={month:'short'},dayN={day:'numeric'};
+  const sameMonth=mon.getMonth()===sun.getMonth();
+  const sameYear=mon.getFullYear()===sun.getFullYear();
+  if(sameMonth)return mon.toLocaleDateString('en-US',{month:'short',day:'numeric'})+' – '+sun.getDate()+', '+sun.getFullYear();
+  if(sameYear)return mon.toLocaleDateString('en-US',{month:'short',day:'numeric'})+' – '+sun.toLocaleDateString('en-US',{month:'short',day:'numeric'})+', '+sun.getFullYear();
+  return mon.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'})+' – '+sun.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
+}
 
 function auInitWeek(){
-  // Default to previous completed week (last Sunday through Saturday)
+  // Default to previous completed Mon–Sun week
   const today=new Date();
-  const thisSun=getWeekStart(today);
-  const lastSun=addDays(thisSun,-7);
-  const lastSat=addDays(lastSun,6);
-  $i('au-start').value=fmtDate(lastSun);
-  $i('au-end').value=fmtDate(lastSat);
+  const thisMon=getMondayWeekStart(today);
+  const lastMon=addDays(thisMon,-7);
+  const lastSun=addDays(lastMon,6);
+  $i('au-start').value=fmtDate(lastMon);
+  $i('au-end').value=fmtDate(lastSun);
+  $i('au-week').value=dateToIsoWeek(lastMon);
+  if(typeof _syncWpDisplay==='function')_syncWpDisplay($i('au-week'));
+  if($i('au-week-label'))$i('au-week-label').textContent=fmtWeekRange(lastMon,lastSun);
   auLoadWeek();
 }
 
-function auDateChange(which){
-  const start=new Date($i('au-start').value+'T12:00:00');
-  const end=new Date($i('au-end').value+'T12:00:00');
-  if(isNaN(start)||isNaN(end))return;
-  const diff=Math.round((end-start)/(1000*60*60*24));
-  if(diff<0){
-    if(which==='start')$i('au-end').value=$i('au-start').value;
-    else $i('au-start').value=$i('au-end').value;
-  } else if(diff>6){
-    if(which==='start'){
-      $i('au-end').value=fmtDate(addDays(start,6));
-    } else {
-      $i('au-start').value=fmtDate(addDays(end,-6));
-    }
-  }
+function auWeekChange(){
+  const wk=$i('au-week').value;
+  if(!wk)return;
+  const monday=isoWeekToMonday(wk);
+  if(!monday)return;
+  const sunday=addDays(monday,6);
+  $i('au-start').value=fmtDate(monday);
+  $i('au-end').value=fmtDate(sunday);
+  if(typeof _syncWpDisplay==='function')_syncWpDisplay($i('au-week'));
+  if($i('au-week-label'))$i('au-week-label').textContent=fmtWeekRange(monday,sunday);
   auLoadWeek();
 }
 
@@ -997,7 +1954,7 @@ async function auLoadWeek(){
     const hasEntries=dayRec&&entryDayIds.has(dayRec.id);
     const isClosed=info?.is_closed;
     if(!isClosed&&!hasEntries){
-      missingDays.push(new Date(d+'T12:00:00').toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'}));
+      missingDays.push(fmtDayDate(d));
     }
   }
   if(missingDays.length){
@@ -1033,15 +1990,15 @@ async function auLoadWeek(){
     return;
   }
 
-  const{data:roster}=await sb.from('roster').select('*');
+  const roster=await fetchAll('roster','*');
   if(!roster?.length){$i('au-summary').textContent='No roster. Upload roster first.';return;}
-  const{data:scores}=await sb.from('scores').select('golfer_name,date_played');
+  const scores=await fetchAll('scores','golfer_name,date_played,posted_date');
 
   // Build roster keyed by last name with .nm/.info structure
   const rLookup={};
-  for(const r of roster){const nm=(r.golfer_name||'').toLowerCase();const parts=nm.split(' ');if(parts.length<2)continue;const lk=nlk(parts[parts.length-1]);if(!rLookup[lk])rLookup[lk]=[];rLookup[lk].push({nm,info:{ghin:r.ghin_number,name:r.golfer_name,hi:r.current_hi,email:r.email,first_seen_at:r.first_seen_at,member_number:r.member_number}});}
-  // Scores grouped by golfer_name
-  const sLookup={};if(scores)for(const s of scores){const nm=(s.golfer_name||'').toLowerCase();if(!sLookup[nm])sLookup[nm]=[];sLookup[nm].push(s.date_played);}
+  for(const r of roster){const nm=(r.golfer_name||'').toLowerCase();const parts=nm.split(' ');if(parts.length<2)continue;const lk=nlk(parts[parts.length-1]);if(!rLookup[lk])rLookup[lk]=[];rLookup[lk].push({nm,info:{ghin:r.ghin_number,name:r.golfer_name,hi:r.current_hi,email:r.email,member_number:r.member_number,status:r.status,status_date:r.status_date}});}
+  // Scores grouped by golfer_name (with posted_date for rounds view)
+  const sLookup={};if(scores)for(const s of scores){const nm=(s.golfer_name||'').toLowerCase();if(!sLookup[nm])sLookup[nm]=[];sLookup[nm].push({date_played:s.date_played,posted_date:s.posted_date});}
 
   // Step 1: match each entry to roster, mark as __pending__
   for(const e of entries){
@@ -1050,8 +2007,14 @@ async function auLoadWeek(){
     const rm=mN(e.player_first,e.player_last,rLookup);
     if(!rm){e.status='no_roster';continue;}
     e.rosterName=rm.info.name;e.ghin=rm.info.ghin;e.hi=rm.info.hi;e.email=rm.info.email;
-    // Check if member was active as of the play date
-    if(rm.info.first_seen_at&&e._date<rm.info.first_seen_at){
+    const statusLower=(rm.info.status||'').toLowerCase();
+    // Inactive member who played AFTER going inactive — round doesn't count as postable
+    if(statusLower==='inactive'&&rm.info.status_date&&e._date>=rm.info.status_date){
+      e.status='inactive';continue;
+    }
+    // Active member: use GHIN status_date as "active since" date.
+    // Only flag pre_active if play date is BEFORE they became active in GHIN.
+    if(statusLower==='active'&&rm.info.status_date&&e._date<rm.info.status_date){
       e.status='pre_active';continue;
     }
     e.status='__pending__';
@@ -1073,9 +2036,9 @@ async function auLoadWeek(){
 
   for(const key of Object.keys(memberMap)){
     const m=memberMap[key];
-    // Find this member's posted scores
+    // Find this member's posted scores (with dates)
     const lastKey=nlk(m.last);
-    const postedByDate={};
+    const postedByDate={};const postedDateByPlayDate={};
     const cleanFirst=firstName(m.first||'').toLowerCase().replace(/['\u2019]/g,'');
     const vs=vr(cleanFirst);
     for(const nm of Object.keys(sLookup)){
@@ -1084,75 +2047,784 @@ async function auLoadWeek(){
       const cl=nlk(parts[parts.length-1]);if(cl!==lastKey)continue;
       const cf=parts[0];
       if(vs.has(cf)||(cleanFirst.length>=3&&cf.length>=3&&cleanFirst.substring(0,3)===cf.substring(0,3))){
-        for(const d of sLookup[nm]){const nd=nD(d);postedByDate[nd]=(postedByDate[nd]||0)+1;}
+        for(const s of sLookup[nm]){const nd=nD(s.date_played);postedByDate[nd]=(postedByDate[nd]||0)+1;if(s.posted_date&&!postedDateByPlayDate[nd])postedDateByPlayDate[nd]=s.posted_date;}
         break;
       }
     }
+    // Member number lookup
+    const rosterEntry=roster.find(r=>String(r.ghin_number)===key);
+    m.member_number=rosterEntry?.member_number||'';
     // Get this member's rounds (only the ones in __pending__)
     const myRounds=entries.filter(e=>e.status==='__pending__'&&String(e.ghin)===key);
     // Group by date, separate solos
     const roundsByDate={};
     for(const r of myRounds){const nd=nD(r._date);if(!roundsByDate[nd])roundsByDate[nd]=[];roundsByDate[nd].push(r);}
     m.played=[];m.posted=[];m.missing=[];m.solos=[];
+    m.dateCourses={};m.dateTimes={};m.postedDates={};
     for(const[nd,rounds] of Object.entries(roundsByDate)){
       const postable=rounds.filter(r=>!r.solo);
       const solos=rounds.filter(r=>r.solo);
       const pc=postedByDate[nd]||0;
       for(let i=0;i<postable.length;i++){
+        const r=postable[i];
         m.played.push(nd);
-        if(i<pc){m.posted.push(nd);postable[i].status='posted';}
-        else{m.missing.push(nd);postable[i].status='missing';}
+        // Store course/time for rounds view (use first round of date)
+        if(!m.dateCourses[nd])m.dateCourses[nd]=r.course;
+        if(!m.dateTimes[nd])m.dateTimes[nd]=r.tee_time;
+        if(i<pc){m.posted.push(nd);r.status='posted';m.postedDates[nd]=postedDateByPlayDate[nd]||'';}
+        else{m.missing.push(nd);r.status='missing';}
       }
       for(const r of solos){m.solos.push(nd);r.status='solo';}
     }
   }
 
   // Filter to members who actually have postable (non-solo) rounds
-  const res=Object.values(memberMap).filter(m=>m.played.length>0).map(m=>({...m,ok:m.missing.length===0}));
-  const nonPost=entries.filter(e=>e.status==='no_roster'||e.status==='pre_active'||e.entry_type==='employee'||e.solo);
+  let res=Object.values(memberMap).filter(m=>m.played.length>0).map(m=>({...m,ok:m.missing.length===0}));
+  let nonPost=entries.filter(e=>e.status==='no_roster'||e.status==='pre_active'||e.status==='inactive'||e.entry_type==='employee'||e.solo);
+
+  // Apply gender filter
+  const gender=$i('au-gender').value;
+  if(gender!=='all'){
+    // Build GHIN -> gender map from roster
+    const gMap={};for(const r of roster){if(r.ghin_number)gMap[r.ghin_number]=(r.gender||'').toUpperCase().charAt(0);}
+    res=res.filter(m=>gMap[m.ghin]===gender);
+    nonPost=nonPost.filter(e=>{
+      // For no_roster/employee we have no gender info — exclude when filtering
+      if(!e.ghin)return false;
+      return gMap[e.ghin]===gender;
+    });
+  }
+
   const postable=res.reduce((s,m)=>s+m.played.length,0);
   const posted=res.reduce((s,m)=>s+m.posted.length,0);
   const missing=res.reduce((s,m)=>s+m.missing.length,0);
   const roundPct=postable?(posted/postable*100).toFixed(1):'0.0';
 
-  $i('au-summary').innerHTML=`<div style="text-align:center;font-size:13px;color:var(--ts)"><strong>${postable} postable</strong> · <span style="color:var(--ac)">${posted} posted</span> · <span style="color:var(--rd)">${missing} missing</span> · ${roundPct}% compliance</div>`;
+  $i('au-summary').innerHTML='';
 
-  $i('au-tabs').innerHTML='<div class="sub-tabs"><div class="st-tab a" onclick="auTab(\'post\',this)">Postable Rounds<span class="st-num">'+posted+'/'+postable+'</span>'+(missing?' <span class="st-miss">· '+missing+' missing</span>':'')+'</div><div class="st-tab" onclick="auTab(\'nonpost\',this)">Non-Postable Rounds<span class="st-num">'+nonPost.length+'</span></div></div>';
-  window._auRes=res;window._auNP=nonPost;auTab('post',null);
+  // Save raw data for both views
+  window._auRes=res;window._auNP=nonPost;
+  // Build flat round list for the "Rounds" view (only postable rounds, both posted and missing)
+  const allRounds=[];
+  for(const m of res){
+    for(const r of m.played){
+      const isPosted=m.posted.includes(r);
+      allRounds.push({
+        name:m.name,ghin:m.ghin,member_number:m.member_number,
+        date:r,course:m.dateCourses?.[r]||'',time:m.dateTimes?.[r]||'',
+        posted:isPosted,
+        posted_date:isPosted?(m.postedDates?.[r]||''):''
+      });
+    }
+  }
+  // Sort by posted_date desc when available (or date_played desc as fallback)
+  allRounds.sort((a,b)=>{
+    const ap=parseScoreDate(a.posted_date),bp=parseScoreDate(b.posted_date);
+    if(ap&&bp&&ap!==bp)return bp-ap;
+    if(ap&&!bp)return -1;
+    if(!ap&&bp)return 1;
+    const ad=parseScoreDate(a.date),bd=parseScoreDate(b.date);
+    if(bd!==ad)return bd-ad;
+    return a.name.localeCompare(b.name);
+  });
+  window._auRounds=allRounds;
+
+  auRender();
+  // Load which members have been marked emailed for this date range
+  loadEmailedSet().then(()=>{ if($i('au-table')?.innerHTML) auRender(); });
 }
-function auTab(tab,el){
-  if(el){document.querySelectorAll('#au-tabs .st-tab').forEach(t=>t.classList.remove('a'));el.classList.add('a');}
-  if(tab==='post'){
-    const res=window._auRes||[];const sorted=[...res].sort((a,b)=>a.ok===b.ok?a.name.localeCompare(b.name):a.ok?1:-1);
-    const postable=res.reduce((s,m)=>s+m.played.length,0),posted=res.reduce((s,m)=>s+m.posted.length,0),missing=res.reduce((s,m)=>s+m.missing.length,0);
-    const pct=postable?(posted/postable*100).toFixed(1):'0.0';
+function auSwitchView(view,el){
+  if(el){document.querySelectorAll('#au-view-toggle .vt-opt').forEach(x=>x.classList.remove('a'));el.classList.add('a');}
+  window._auView=view;
+  auRender();
+}
+
+function auRender(){
+  const view=window._auView||'members';
+  const allRes=window._auRes||[];
+  const allNP=window._auNP||[];
+  const allRounds=window._auRounds||[];
+  // Apply member search filter
+  const q=($i('au-search')?.value||'').toLowerCase().trim();
+  const res=q?allRes.filter(m=>(m.name||'').toLowerCase().includes(q)||String(m.ghin||'').includes(q)||(m.member_number||'').toLowerCase().includes(q)):allRes;
+  const np=q?allNP.filter(e=>{const n=(e.rosterName||e.player_name||'').toLowerCase();return n.includes(q)||String(e.ghin||'').includes(q);}):allNP;
+  const rounds=q?allRounds.filter(r=>(r.name||'').toLowerCase().includes(q)||String(r.ghin||'').includes(q)||(r.member_number||'').toLowerCase().includes(q)):allRounds;
+  window._auFilteredRes=res;window._auFilteredNP=np;window._auFilteredRounds=rounds;
+
+  const postable=res.reduce((s,m)=>s+m.played.length,0);
+  const posted=res.reduce((s,m)=>s+m.posted.length,0);
+  const missing=res.reduce((s,m)=>s+m.missing.length,0);
+  const pct=postable?(posted/postable*100).toFixed(1):'0.0';
+
+  if(view==='members'){
+    // Split members into compliant (all postable rounds posted) and non-compliant
+    const compliant=res.filter(m=>m.ok);
+    const nonCompliant=res.filter(m=>!m.ok);
+    const activeMembTab=window._auMembTab||'noncomp';
+    $i('au-tabs').innerHTML='<div class="sub-tabs">'
+      +'<div class="st-tab '+(activeMembTab==='noncomp'?'a':'')+'" onclick="auMembTab(\'noncomp\',this)">Non-Compliant<span class="st-num">'+nonCompliant.length+'</span>'+(missing?' <span class="st-miss">· '+missing+' missing</span>':'')+'</div>'
+      +'<div class="st-tab '+(activeMembTab==='comp'?'a':'')+'" onclick="auMembTab(\'comp\',this)">Compliant<span class="st-num">'+compliant.length+'</span></div>'
+      +'</div>';
     $i('au-stats').innerHTML=`<div class="stat-row"><div class="sl"><div class="istat"><span class="iv">${postable}</span><span class="il">Postable</span></div><div class="istat"><span class="iv">${res.length}</span><span class="il">Members</span></div></div><div class="sr"><div class="istat"><span class="iv sg">${posted}</span><span class="il">Posted</span></div><div class="istat"><span class="iv sr">${missing}</span><span class="il">Missing</span></div><div class="istat"><span class="iv">${pct}%</span><span class="il">Round %</span></div></div></div>`;
-    window._auSorted=sorted;
-    let h='<table><thead><tr><th>Name</th><th>GHIN</th><th>H.I.</th><th>Rounds Played</th><th>Rounds Posted</th><th>Missing Dates</th></tr></thead><tbody>';
-    for(const r of sorted){
-      const missText=r.missing.length?r.missing.join(', '):'—';
-      const emailBtn=(!r.ok&&r.email)?`<button class="email-btn" title="Send reminder" onclick="event.preventDefault();window.open(buildMailto(window._auSorted[${sorted.indexOf(r)}]),'_self')"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M22 4l-10 8L2 4"/></svg></button>`:'';
-      h+=`<tr${r.ok?'':' class="row-miss"'}><td>${emailBtn}<span class="nb">${esc(r.name)}</span></td><td>${r.ghin}</td><td>${esc(r.hi)}</td><td>${r.played.length}</td><td>${r.posted.length}</td><td>${r.ok?'—':'<span class="mt">'+esc(missText)+'</span>'}</td></tr>`;
+    auMembTab(activeMembTab,null);
+  } else {
+    // Rounds view — show sub-tabs for Postable / Non-Postable
+    const activeRoundTab=window._auRoundTab||'post';
+    $i('au-tabs').innerHTML='<div class="sub-tabs"><div class="st-tab '+(activeRoundTab==='post'?'a':'')+'" onclick="auRoundTab(\'post\',this)">Postable Rounds<span class="st-num">'+posted+'/'+postable+'</span>'+(missing?' <span class="st-miss">· '+missing+' missing</span>':'')+'</div><div class="st-tab '+(activeRoundTab==='nonpost'?'a':'')+'" onclick="auRoundTab(\'nonpost\',this)">Non-Postable Rounds<span class="st-num">'+np.length+'</span></div></div>';
+    auRoundTab(activeRoundTab,null);
+  }
+}
+
+function auRoundTab(tab,el){
+  if(el){document.querySelectorAll('#au-tabs .st-tab').forEach(t=>t.classList.remove('a'));el.classList.add('a');}
+  window._auRoundTab=tab;
+  const res=window._auFilteredRes||window._auRes||[];
+  const np=window._auFilteredNP||window._auNP||[];
+  const postable=res.reduce((s,m)=>s+m.played.length,0);
+  const posted=res.reduce((s,m)=>s+m.posted.length,0);
+  const missing=res.reduce((s,m)=>s+m.missing.length,0);
+  const pct=postable?(posted/postable*100).toFixed(1):'0.0';
+
+  if(tab==='post'){
+    $i('au-stats').innerHTML=`<div class="stat-row"><div class="sl"><div class="istat"><span class="iv">${postable}</span><span class="il">Postable</span></div></div><div class="sr"><div class="istat"><span class="iv sg">${posted}</span><span class="il">Posted</span></div><div class="istat"><span class="iv sr">${missing}</span><span class="il">Missing</span></div><div class="istat"><span class="iv">${pct}%</span><span class="il">Round %</span></div></div></div>`;
+    const rounds=window._auFilteredRounds||window._auRounds||[];
+    const isAdmin=currentRole==='admin';
+    const memberHeader=isAdmin?'<th>Member #</th>':'';
+    let h='<table><thead><tr><th>Date Played</th><th>Member</th>'+memberHeader+'<th>GHIN</th><th>Course</th><th>Time</th><th>Status</th><th>Date Posted</th></tr></thead><tbody>';
+    for(const r of rounds){
+      const cls=r.posted?'':' class="row-miss"';
+      const statusBadge=r.posted
+        ?'<span class="status-badge ok">Posted</span>'
+        :'<span class="status-badge miss">Missing</span>';
+      const memberCell=isAdmin?`<td>${esc(r.member_number||'')}</td>`:'';
+      h+=`<tr${cls}><td>${esc(r.date)}</td><td><span class="${r.posted?'':'mt'}"><span class="nb">${esc(r.name)}</span></span></td>${memberCell}<td>${r.ghin}</td><td class="ct" data-tip="${esc(r.course)}">${esc(r.course)}</td><td>${esc(r.time)}</td><td>${statusBadge}</td><td style="color:var(--tl);font-size:12px">${esc(r.posted_date||'')}</td></tr>`;
     }
     h+='</tbody></table>';$i('au-table').innerHTML=h;$i('au-table').className='tw tw-conn';
   } else {
-    const np=window._auNP||[];
     $i('au-stats').innerHTML=`<div class="stat-row"><div class="sl"><div class="istat"><span class="iv">${np.length}</span><span class="il">Non-Postable</span></div></div></div>`;
     let h='<table><thead><tr><th>Name</th><th>Course</th><th>Date</th><th>Time</th><th>Reason</th></tr></thead><tbody>';
     for(const e of np){const d=e._date;const dl=d?nD(d):'';
-      const reason=e.entry_type==='employee'?'Employee':e.solo?'Solo Round':e.status==='pre_active'?'Not Yet Active':'No Active GHIN';
+      const reason=e.entry_type==='employee'?'Employee':e.solo?'Solo Round':e.status==='pre_active'?'Not Yet Active':e.status==='inactive'?'Inactive Member':'No Active GHIN';
       const name=e.rosterName||e.player_name||'';
-      h+=`<tr><td>${esc(name)}</td><td>${esc(e.course||'')}</td><td>${dl}</td><td>${esc(e.tee_time||'')}</td><td><span style="background:var(--rl);color:var(--rd);padding:2px 8px;border-radius:4px;font-size:11px;font-weight:600">${reason}</span></td></tr>`;}
+      h+=`<tr><td>${esc(name)}</td><td class="ct" data-tip="${esc(e.course||'')}">${esc(e.course||'')}</td><td>${dl}</td><td>${esc(e.tee_time||'')}</td><td><span class="status-badge miss">${reason}</span></td></tr>`;}
     h+='</tbody></table>';$i('au-table').innerHTML=h;$i('au-table').className='tw tw-conn';
   }
 }
+
+// Backward compat: keep auTab as alias to auRender (in case anything calls it)
+function auTab(){auRender();}
+
+function auMembTab(tab,el){
+  if(el){document.querySelectorAll('#au-tabs .st-tab').forEach(t=>t.classList.remove('a'));el.classList.add('a');}
+  window._auMembTab=tab;
+  const res=window._auFilteredRes||window._auRes||[];
+  const compliant=res.filter(m=>m.ok);
+  const nonCompliant=res.filter(m=>!m.ok);
+  const list=tab==='comp'?compliant:nonCompliant;
+  const sorted=[...list].sort((a,b)=>a.name.localeCompare(b.name));
+  window._auSorted=sorted;
+  const emailedSet=window._auEmailedSet||new Set();
+  const showActionCol=tab!=='comp';
+
+  const headAction=showActionCol?'<th class="no-sort">Action</th>':'';
+  let h='<table><thead><tr>'+headAction+'<th>Name</th><th>GHIN</th><th>Email</th><th>H.I.</th><th>Rounds Played</th><th>Rounds Posted</th><th>Missing Dates</th></tr></thead><tbody>';
+  for(const r of sorted){
+    const missText=r.missing.length?r.missing.join(', '):'—';
+    const idx=sorted.indexOf(r);
+    let actionCell='';
+    if(showActionCol){
+      if(r.email){
+        const isChecked=emailedSet.has(String(r.ghin));
+        const btn=`<button class="email-btn" data-tip="Send reminder email" onclick="event.preventDefault();event.stopPropagation();showEmailModal(${idx})"><svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M22 4l-10 8L2 4"/></svg></button>`;
+        const cb=`<input type="checkbox" class="au-emailed-cb" data-tip="Mark as emailed" ${isChecked?'checked':''} onclick="event.stopPropagation()" onchange="toggleEmailed('${r.ghin}',this.checked,this)">`;
+        actionCell=`<td style="white-space:nowrap;width:1%">${btn}${cb}</td>`;
+      } else {
+        actionCell='<td style="color:var(--tl);font-size:11px;width:1%">—</td>';
+      }
+    }
+    const emailCell=r.email?`<td class="ct" data-tip="${esc(r.email)}" style="color:var(--ts);font-size:12px">${esc(r.email)}</td>`:'<td style="color:var(--tl);font-size:11px">—</td>';
+    h+=`<tr${r.ok?'':' class="row-miss"'}>${actionCell}<td><span class="nb">${esc(r.name)}</span></td><td>${r.ghin}</td>${emailCell}<td>${esc(r.hi)}</td><td>${r.played.length}</td><td>${r.posted.length}</td><td>${r.ok?'—':'<span class="mt">'+esc(missText)+'</span>'}</td></tr>`;
+  }
+  if(!sorted.length){
+    const colspan=showActionCol?8:7;
+    h+='<tr><td colspan="'+colspan+'" style="text-align:center;color:var(--tl);padding:24px">'+(tab==='comp'?'No fully compliant members in this range.':'All members are compliant — no missing posts.')+'</td></tr>';
+  }
+  h+='</tbody></table>';$i('au-table').innerHTML=h;$i('au-table').className='tw tw-conn';
+}
+
+// ===== AUDIT EXPORT TO XLSX =====
+function auExport(){
+  const res=window._auFilteredRes||window._auRes;
+  const np=window._auFilteredNP||window._auNP||[];
+  if(!res||!res.length){alert('No audit results to export. Run an audit first.');return;}
+  const start=$i('au-start')?.value||'';const end=$i('au-end')?.value||'';
+  const gender=$i('au-gender')?.value||'M';
+  const view=window._auView||'members';
+  const wb=XLSX.utils.book_new();
+
+  // ---- Sheet 1: Summary ----
+  const sumRows=[
+    ['Treesdale G&CC — Score Posting Audit'],
+    [],
+    ['Date Range',start+' to '+end],
+    ['Gender Filter',gender==='M'?'Male':gender==='F'?'Female':'All'],
+    ['Generated',new Date().toLocaleString()],
+    ['Members Audited',res.length],
+    [],
+  ];
+  const totalPostable=res.reduce((s,m)=>s+m.played.length,0);
+  const totalPosted=res.reduce((s,m)=>s+m.posted.length,0);
+  const totalMissing=totalPostable-totalPosted;
+  const compliantCount=res.filter(m=>m.ok).length;
+  const nonCompCount=res.length-compliantCount;
+  const overallPct=totalPostable?Math.round(totalPosted/totalPostable*100):0;
+  sumRows.push(['Postable Rounds',totalPostable]);
+  sumRows.push(['Posted',totalPosted]);
+  sumRows.push(['Missing',totalMissing]);
+  sumRows.push(['Compliance %',overallPct+'%']);
+  sumRows.push([]);
+  sumRows.push(['Compliant Members',compliantCount]);
+  sumRows.push(['Non-Compliant Members',nonCompCount]);
+  const sumWs=XLSX.utils.aoa_to_sheet(sumRows);
+  sumWs['!cols']=[{wch:24},{wch:32}];
+  XLSX.utils.book_append_sheet(wb,sumWs,'Summary');
+
+  // ---- Sheet 2: Non-Compliant Members (most useful for follow-up) ----
+  const ncRows=[['Name','GHIN','Email','Member #','Status','H.I.','Rounds Played','Rounds Posted','Missing Dates']];
+  const sortedNC=res.filter(m=>!m.ok).sort((a,b)=>a.name.localeCompare(b.name));
+  for(const m of sortedNC){
+    ncRows.push([
+      m.name||'',
+      m.ghin||'',
+      m.email||'',
+      m.member_number||'',
+      m.status||'',
+      m.hi||'',
+      m.played.length,
+      m.posted.length,
+      (m.missing||[]).join(', ')
+    ]);
+  }
+  const ncWs=XLSX.utils.aoa_to_sheet(ncRows);
+  ncWs['!cols']=[{wch:26},{wch:11},{wch:30},{wch:12},{wch:10},{wch:8},{wch:14},{wch:14},{wch:32}];
+  XLSX.utils.book_append_sheet(wb,ncWs,'Non-Compliant');
+
+  // ---- Sheet 3: Compliant Members ----
+  const cRows=[['Name','GHIN','Email','Member #','Status','H.I.','Rounds Played','Rounds Posted']];
+  const sortedC=res.filter(m=>m.ok).sort((a,b)=>a.name.localeCompare(b.name));
+  for(const m of sortedC){
+    cRows.push([
+      m.name||'',
+      m.ghin||'',
+      m.email||'',
+      m.member_number||'',
+      m.status||'',
+      m.hi||'',
+      m.played.length,
+      m.posted.length
+    ]);
+  }
+  const cWs=XLSX.utils.aoa_to_sheet(cRows);
+  cWs['!cols']=[{wch:26},{wch:11},{wch:30},{wch:12},{wch:10},{wch:8},{wch:14},{wch:14}];
+  XLSX.utils.book_append_sheet(wb,cWs,'Compliant');
+
+  // ---- Sheet 4: All Postable Rounds (round-level detail) ----
+  const allRoundsRows=[['Date','Member','GHIN','Email','Course','Tee Time','Status','Date Posted']];
+  for(const m of res){
+    // Combined unique dates: played includes both posted + missing
+    const dates=Array.from(new Set([...(m.played||[])])).sort();
+    for(const d of dates){
+      const isPosted=(m.posted||[]).includes(d);
+      allRoundsRows.push([
+        d||'',
+        m.name||'',
+        m.ghin||'',
+        m.email||'',
+        (m.dateCourses&&m.dateCourses[d])||'',
+        (m.dateTimes&&m.dateTimes[d])||'',
+        isPosted?'Posted':'Missing',
+        (isPosted&&m.postedDates&&m.postedDates[d])||''
+      ]);
+    }
+  }
+  if(allRoundsRows.length>1){
+    const arWs=XLSX.utils.aoa_to_sheet(allRoundsRows);
+    arWs['!cols']=[{wch:11},{wch:26},{wch:11},{wch:30},{wch:18},{wch:10},{wch:10},{wch:11}];
+    XLSX.utils.book_append_sheet(wb,arWs,'All Rounds');
+  }
+
+  // ---- Sheet 5: Non-Postable Rounds (solo, employees, inactive, etc.) ----
+  if(np.length){
+    const npRows=[['Date','Player','Course','Tee Time','Reason']];
+    const sortedNP=[...np].sort((a,b)=>(a.date||'').localeCompare(b.date||'')||(a.player_name||'').localeCompare(b.player_name||''));
+    for(const e of sortedNP){
+      let reason='Non-Postable';
+      if(e.solo)reason='Solo';
+      else if(e.entry_type==='employee')reason='Employee';
+      else if(e.status==='no_roster')reason='Not in roster';
+      else if(e.status==='pre_active')reason='Pre-active';
+      else if(e.status==='inactive')reason='Inactive';
+      npRows.push([e.date||'',e.player_name||'',e.course||'',e.tee_time||'',reason]);
+    }
+    const npWs=XLSX.utils.aoa_to_sheet(npRows);
+    npWs['!cols']=[{wch:11},{wch:26},{wch:18},{wch:10},{wch:14}];
+    XLSX.utils.book_append_sheet(wb,npWs,'Non-Postable');
+  }
+
+  // Filename: Treesdale_Audit_2026-04-25_to_2026-04-28.xlsx
+  const fname=`Treesdale_Audit_${start}_to_${end}.xlsx`;
+  XLSX.writeFile(wb,fname);
+}
+
+// ===== EMAIL REMINDER PERSISTENCE =====
+async function loadEmailedSet(){
+  const start=$i('au-start')?.value;const end=$i('au-end')?.value;
+  if(!start||!end){window._auEmailedSet=new Set();return;}
+  try{
+    const{data,error}=await sb.from('email_reminders').select('ghin_number').eq('date_from',start).eq('date_to',end);
+    if(error){window._auEmailedSet=new Set();return;}
+    window._auEmailedSet=new Set((data||[]).map(r=>String(r.ghin_number)));
+  } catch(e){window._auEmailedSet=new Set();}
+}
+
+async function toggleEmailed(ghin,checked,el){
+  const start=$i('au-start')?.value;const end=$i('au-end')?.value;
+  if(!start||!end)return;
+  const set=window._auEmailedSet||new Set();
+  // Optimistic UI
+  if(checked)set.add(String(ghin));else set.delete(String(ghin));
+  window._auEmailedSet=set;
+  try{
+    if(checked){
+      await sb.from('email_reminders').upsert({ghin_number:String(ghin),date_from:start,date_to:end,emailed_by:currentUser?.email||null},{onConflict:'ghin_number,date_from,date_to'});
+    } else {
+      await sb.from('email_reminders').delete().eq('ghin_number',String(ghin)).eq('date_from',start).eq('date_to',end);
+    }
+  } catch(e){
+    // Revert UI on failure
+    if(checked)set.delete(String(ghin));else set.add(String(ghin));
+    window._auEmailedSet=set;
+    if(el)el.checked=!checked;
+  }
+}
+// ===== EMAIL REMINDER MODAL =====
+function _fmtMissingDate(d){
+  // Input could be MM/DD/YYYY or YYYY-MM-DD or M/D/YYYY
+  if(!d)return d;
+  const parts=String(d).split(/[-/]/);
+  let y,m,day;
+  if(parts.length===3){
+    if(parts[0].length===4){y=parseInt(parts[0]);m=parseInt(parts[1]);day=parseInt(parts[2]);}
+    else{m=parseInt(parts[0]);day=parseInt(parts[1]);y=parseInt(parts[2]);if(y<100)y+=2000;}
+    const months=['January','February','March','April','May','June','July','August','September','October','November','December'];
+    if(!isNaN(y)&&!isNaN(m)&&!isNaN(day)&&m>=1&&m<=12)return `${months[m-1]} ${day}, ${y}`;
+  }
+  return String(d);
+}
+
+function buildEmailHTML(r){
+  const dates=(r.missing||[]).map(_fmtMissingDate);
+  const dateBullets=dates.map(d=>`<li style="margin:4px 0">${esc(d)}</li>`).join('');
+  const isMulti=dates.length>1;
+  const greenAccent='#2B6B3F';
+  return `
+<div style="font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;color:#1A1A1A;line-height:1.6;font-size:14px;max-width:640px;margin:0 auto;background:#ffffff">
+  <!-- MESSAGE -->
+  <div style="padding:0">
+    <p style="margin:0 0 14px">${esc(r.name)},</p>
+    <p style="margin:0 0 14px">We hope you're doing well. The Handicap Committee is reaching out to follow up on ${isMulti?'several rounds that appear':'a round that appears'} to be missing from your scoring record. We have specific dates where scores were not posted, and we want to ensure your Handicap Index remains accurate and fully compliant with the USGA Rules of Handicapping.</p>
+    <p style="margin:0 0 14px">As a reminder, the USGA requires that all acceptable scores be posted on the day of play whenever possible. Accurate and timely posting helps maintain fairness for all members and ensures that your Handicap Index reflects your current level of play.</p>
+    <p style="margin:0 0 8px"><strong>Date${isMulti?'s':''} of round${isMulti?'s':''} played with no GHIN score recorded:</strong></p>
+    <ul style="margin:0 0 14px;padding-left:22px">${dateBullets}</ul>
+    <p style="margin:0 0 14px">When you have a moment, please review and post the outstanding score${isMulti?'s':''}. If ${isMulti?'any of these rounds were posted':'this round was posted'} under an incorrect date or ${isMulti?'were':'was'} non-conforming&mdash;for example, if ${isMulti?'they were':'it was'} played under conditions where scores should not be posted&mdash;please let us know so we can update our records accordingly.</p>
+    <p style="margin:0 0 14px">If you have any questions about which rounds are acceptable for posting or need assistance with the process, we are happy to help. You may reach out to the Committee or contact Jimmy Brahm in the Golf Shop. We have also included the USGA Player Responsibilities regarding acceptable score posting for your reference.</p>
+    <p style="margin:0 0 14px">Thank you for your attention to this matter and for supporting a fair and consistent handicapping environment.</p>
+    <p style="margin:0 0 4px">Best regards,</p>
+    <p style="margin:0 0 14px"><strong>Treesdale Handicap Committee</strong></p>
+    <p style="margin:0 0 4px;color:#5B6168;font-size:13px">CC: Jimmy Brahm</p>
+  </div>
+
+  <!-- DIVIDER -->
+  <div style="border-top:2px solid ${greenAccent};margin:32px 0 24px"></div>
+
+  <!-- RULES SECTION -->
+  <div style="background:#F5F5F3;padding:24px;border-radius:6px;font-size:13px;line-height:1.55">
+    <h2 style="margin:0 0 16px;font-size:16px;font-weight:700;color:${greenAccent};letter-spacing:-.2px">USGA Score Posting &mdash; Player Responsibility</h2>
+
+    <h3 style="margin:14px 0 6px;font-size:13px;font-weight:700;color:#1A1A1A">1. Post Every Acceptable Score</h3>
+    <p style="margin:0 0 8px">If the round counts under the Rules of Handicapping, you must post it. This includes:</p>
+    <ul style="margin:0 0 8px;padding-left:22px">
+      <li>Post full 9-hole rounds and 18-hole rounds</li>
+      <li>If you play 10 &ndash; 17 holes you must post those scores by hole</li>
+      <li>Home or away rounds</li>
+      <li>General play or competition</li>
+      <li>Match play, stroke play, better ball, or Stableford</li>
+    </ul>
+    <p style="margin:0 0 8px">If you played your own ball under the Rules of Golf, it's almost always a postable score.</p>
+
+    <h3 style="margin:14px 0 6px;font-size:13px;font-weight:700;color:#1A1A1A">2. Use the Correct Playing Conditions</h3>
+    <p style="margin:0 0 8px">Post the score for the course and tees actually played, using:</p>
+    <ul style="margin:0 0 8px;padding-left:22px"><li>Course Rating</li><li>Slope Rating</li><li>Par</li></ul>
+
+    <h3 style="margin:14px 0 6px;font-size:13px;font-weight:700;color:#1A1A1A">3. Apply Net Double Bogey (Max Hole Score)</h3>
+    <p style="margin:0 0 8px">Your maximum score on any hole is: Par + 2 + any handicap strokes you receive on that hole.</p>
+    <p style="margin:0 0 8px">If you are getting a stroke on a hole, your max score on a stroke hole is triple bogey, which is a NET double bogey.</p>
+    <p style="margin:0 0 8px">Post the adjusted score, not the blow-up number.</p>
+
+    <h3 style="margin:14px 0 6px;font-size:13px;font-weight:700;color:#1A1A1A">4. Post the Score the Same Day</h3>
+    <p style="margin:0 0 8px">The USGA expects scores to be posted on the day of play so PCC (Playing Conditions Calculation) can be accurate, and your index will update that night for the following day.</p>
+
+    <h3 style="margin:14px 0 6px;font-size:13px;font-weight:700;color:#1A1A1A">5. Post When You Play All 9 Holes (9-hole) or 18 Holes (18-hole)</h3>
+    <ul style="margin:0 0 8px;padding-left:22px">
+      <li>9 holes: post as a 9-hole score</li>
+      <li>If you play less than 9 holes, do not post</li>
+      <li>18 holes: post as an 18-hole score</li>
+      <li>If you play 10 &ndash; 17 holes you still must post a score even if you skip a hole. Preferably hole by hole or ask the pro shop to help you post your score.</li>
+    </ul>
+
+    <h3 style="margin:14px 0 6px;font-size:13px;font-weight:700;color:#1A1A1A">6. Post Scores from Anywhere in the World</h3>
+    <p style="margin:0 0 8px">If the course has a valid Course Rating and Slope, you post it.</p>
+
+    <h3 style="margin:14px 0 6px;font-size:13px;font-weight:700;color:#1A1A1A">7. Don't Post When the Round Doesn't Count</h3>
+    <p style="margin:0 0 8px">Do NOT post when:</p>
+    <ul style="margin:0 0 8px;padding-left:22px">
+      <li>You played fewer than 9 holes</li>
+      <li>You didn't play under the Rules of Golf</li>
+      <li>The course was not rated</li>
+      <li>The round was non-traditional team-only (e.g., scramble, shamble, alternate shot)</li>
+    </ul>
+
+    <h3 style="margin:14px 0 6px;font-size:13px;font-weight:700;color:#1A1A1A">8. Weather Doesn't Matter &mdash; PCC Handles It</h3>
+    <p style="margin:0 0 8px">You still post even if it rained, was windy, or conditions were tough. The PCC adjusts automatically.</p>
+
+    <h3 style="margin:14px 0 6px;font-size:13px;font-weight:700;color:#1A1A1A">9. Post Your Most Likely Score (MLS) When You Don't Finish a Hole</h3>
+    <p style="margin:0 0 8px">If you pick up on a hole, you estimate the most likely score you would have made. Follow this procedure:</p>
+    <table cellspacing="0" cellpadding="8" style="width:100%;border-collapse:collapse;font-size:12px;margin:0 0 8px">
+      <tr style="background:#E8E5DE">
+        <th align="left" style="border:1px solid #D4CFC2;padding:8px;font-weight:700">Position of the Ball</th>
+        <th align="left" style="border:1px solid #D4CFC2;padding:8px;font-weight:700">Strokes to be Added</th>
+      </tr>
+      <tr><td style="border:1px solid #D4CFC2;padding:8px">Ball lies on the putting green and is no more than 5 feet from the hole</td><td style="border:1px solid #D4CFC2;padding:8px">Add 1 additional stroke</td></tr>
+      <tr><td style="border:1px solid #D4CFC2;padding:8px">Ball lies between 5 feet and 20 yards from the hole</td><td style="border:1px solid #D4CFC2;padding:8px">Add 2 or 3 additional strokes, depending on position, difficulty, and ability</td></tr>
+      <tr><td style="border:1px solid #D4CFC2;padding:8px">Ball lies more than 20 yards from the hole</td><td style="border:1px solid #D4CFC2;padding:8px">Add 3 or 4 additional strokes, depending on position, difficulty, and ability</td></tr>
+    </table>
+
+    <h3 style="margin:14px 0 6px;font-size:13px;font-weight:700;color:#1A1A1A">10. Integrity Matters</h3>
+    <p style="margin:0 0 8px">The system assumes:</p>
+    <ul style="margin:0 0 8px;padding-left:22px">
+      <li>Every score is posted</li>
+      <li>Scores are accurate</li>
+      <li>No selective posting</li>
+    </ul>
+    <p style="margin:0">The Handicap Committee is responsible for monitoring compliance and will be checking to ensure scores are posted properly.</p>
+  </div>
+</div>`.trim();
+}
+
+function buildEmailPlain(r){
+  const dates=(r.missing||[]).map(_fmtMissingDate);
+  const isMulti=dates.length>1;
+  return `${r.name},
+
+We hope you're doing well. The Handicap Committee is reaching out to follow up on ${isMulti?'several rounds that appear':'a round that appears'} to be missing from your scoring record. We have specific dates where scores were not posted, and we want to ensure your Handicap Index remains accurate and fully compliant with the USGA Rules of Handicapping.
+
+As a reminder, the USGA requires that all acceptable scores be posted on the day of play whenever possible. Accurate and timely posting helps maintain fairness for all members and ensures that your Handicap Index reflects your current level of play.
+
+Date${isMulti?'s':''} of round${isMulti?'s':''} played with no GHIN score recorded:
+
+${dates.map(d=>'  • '+d).join('\n')}
+
+When you have a moment, please review and post the outstanding score${isMulti?'s':''}. If ${isMulti?'any of these rounds were posted':'this round was posted'} under an incorrect date or ${isMulti?'were':'was'} non-conforming—for example, if ${isMulti?'they were':'it was'} played under conditions where scores should not be posted—please let us know so we can update our records accordingly.
+
+If you have any questions about which rounds are acceptable for posting or need assistance with the process, we are happy to help. You may reach out to the Committee or contact Jimmy Brahm in the Golf Shop. We have also included the USGA Player Responsibilities regarding acceptable score posting for your reference.
+
+Thank you for your attention to this matter and for supporting a fair and consistent handicapping environment.
+
+Best regards,
+Treesdale Handicap Committee
+
+CC: Jimmy Brahm
+
+────────────────────────────────────────────
+
+USGA Score Posting — Player Responsibility
+
+1. Post Every Acceptable Score
+If the round counts under the Rules of Handicapping, you must post it. This includes:
+  • Post full 9-hole rounds and 18-hole rounds
+  • If you play 10–17 holes you must post those scores by hole
+  • Home or away rounds
+  • General play or competition
+  • Match play, stroke play, better ball, or Stableford
+If you played your own ball under the Rules of Golf, it's almost always a postable score.
+
+2. Use the Correct Playing Conditions
+Post the score for the course and tees actually played, using Course Rating, Slope Rating, and Par.
+
+3. Apply Net Double Bogey (Max Hole Score)
+Your maximum score on any hole is: Par + 2 + any handicap strokes you receive on that hole.
+If you are getting a stroke on a hole, your max score on a stroke hole is triple bogey, which is a NET double bogey.
+Post the adjusted score, not the blow-up number.
+
+4. Post the Score the Same Day
+The USGA expects scores to be posted on the day of play so PCC (Playing Conditions Calculation) can be accurate, and your index will update that night for the following day.
+
+5. Post When You Play All 9 Holes or 18 Holes
+  • 9 holes: post as a 9-hole score
+  • If you play less than 9 holes, do not post
+  • 18 holes: post as an 18-hole score
+  • If you play 10–17 holes you still must post a score even if you skip a hole
+
+6. Post Scores from Anywhere in the World
+If the course has a valid Course Rating and Slope, you post it.
+
+7. Don't Post When the Round Doesn't Count
+Do NOT post when:
+  • You played fewer than 9 holes
+  • You didn't play under the Rules of Golf
+  • The course was not rated
+  • The round was non-traditional team-only (scramble, shamble, alternate shot)
+
+8. Weather Doesn't Matter — PCC Handles It
+You still post even if it rained, was windy, or conditions were tough.
+
+9. Post Your Most Likely Score (MLS) When You Don't Finish a Hole
+  • Ball on green, within 5 ft: add 1 stroke
+  • Ball 5 ft to 20 yd from hole: add 2–3 strokes
+  • Ball more than 20 yd from hole: add 3–4 strokes
+
+10. Integrity Matters
+The system assumes every score is posted, scores are accurate, and there is no selective posting. The Handicap Committee monitors compliance.`;
+}
+
+function showEmailModal(idx){
+  const r=window._auSorted[idx];if(!r)return;
+  const html=buildEmailHTML(r);
+  const plain=buildEmailPlain(r);
+  const subject='Reminder to Post Missing Scores';
+
+  // Save state for action buttons
+  window._emailState={html,plain,subject,to:r.email,name:r.name,ghin:r.ghin};
+
+  $i('em-to').textContent=r.email;
+  $i('em-subject').textContent=subject;
+  $i('em-preview').innerHTML=html;
+  $i('em-status').textContent='';
+  $i('em-modal').style.display='flex';
+}
+
+function closeEmailModal(){
+  $i('em-modal').style.display='none';
+  window._emailState=null;
+}
+
+async function copyEmailHTML(){
+  const s=window._emailState;if(!s)return;
+  try{
+    // Use the modern Clipboard API with both HTML + plain fallback
+    if(navigator.clipboard&&window.ClipboardItem){
+      const blobHtml=new Blob([s.html],{type:'text/html'});
+      const blobText=new Blob([s.plain],{type:'text/plain'});
+      await navigator.clipboard.write([new ClipboardItem({'text/html':blobHtml,'text/plain':blobText})]);
+      $i('em-status').innerHTML='<span style="color:var(--ac)">✓ Email copied to clipboard with formatting — paste it into your email client.</span>';
+    } else {
+      // Fallback: copy plain text
+      await navigator.clipboard.writeText(s.plain);
+      $i('em-status').innerHTML='<span style="color:var(--ac)">✓ Email copied as plain text. (Browser doesn\'t support rich-text clipboard.)</span>';
+    }
+    if(s.ghin)await _markEmailedFromModal(s.ghin);
+  }catch(err){
+    $i('em-status').innerHTML='<span style="color:var(--rd)">Copy failed: '+esc(String(err))+'</span>';
+  }
+}
+
+async function openInGmail(){
+  const s=window._emailState;if(!s)return;
+  // Step 1: copy the rich HTML to clipboard so user can paste with formatting
+  let copied=false;
+  try{
+    if(navigator.clipboard&&window.ClipboardItem){
+      const blobHtml=new Blob([s.html],{type:'text/html'});
+      const blobText=new Blob([s.plain],{type:'text/plain'});
+      await navigator.clipboard.write([new ClipboardItem({'text/html':blobHtml,'text/plain':blobText})]);
+      copied=true;
+    } else if(navigator.clipboard){
+      await navigator.clipboard.writeText(s.plain);
+      copied=true;
+    }
+  }catch(_){copied=false;}
+  // Step 2: open Gmail compose with to + subject only (Gmail URL spec doesn't support HTML body)
+  const url='https://mail.google.com/mail/?view=cm&fs=1&tf=1'+
+    '&to='+encodeURIComponent(s.to)+
+    '&su='+encodeURIComponent(s.subject);
+  window.open(url,'_blank','noopener');
+  if(copied){
+    const isMac=/Mac|iPhone|iPad/.test(navigator.platform);
+    const shortcut=isMac?'⌘V':'Ctrl+V';
+    $i('em-status').innerHTML=`<span style="color:var(--ac)">✓ Email copied with formatting. Click in the Gmail body and press <strong>${shortcut}</strong> to paste.</span>`;
+  } else {
+    $i('em-status').innerHTML='<span style="color:var(--ts)">Gmail opened. Use the Copy button to copy the formatted email, then paste into the body.</span>';
+  }
+  if(s.ghin)_markEmailedFromModal(s.ghin);
+}
+
+function openInDefault(){
+  const s=window._emailState;if(!s)return;
+  const url='mailto:'+encodeURIComponent(s.to)+'?subject='+encodeURIComponent(s.subject)+'&body='+encodeURIComponent(s.plain);
+  window.location.href=url;
+  $i('em-status').innerHTML='<span style="color:var(--ts)">Default mail app opened. Tip: use "Copy" first, then paste into the body for full formatting.</span>';
+  if(s.ghin)_markEmailedFromModal(s.ghin);
+}
+
+async function _markEmailedFromModal(ghin){
+  const set=window._auEmailedSet||new Set();
+  if(set.has(String(ghin)))return; // Already marked
+  await toggleEmailed(ghin,true,null);
+  // Re-render the audit table to reflect the checked state
+  if(typeof auMembTab==='function')auMembTab(window._auMembTab||'noncomp',null);
+}
+
+// Backward compat — still callable
 function buildMailto(r){
-  const subject='Score Posting Reminder — Treesdale Golf & Country Club';
-  const dates=r.missing.join(', ');
-  const body='Hi '+r.name+',\n\nOur records show that you played at Treesdale on '+dates+' but have not yet posted '+(r.missing.length===1?'a score':'scores')+' for '+(r.missing.length===1?'that round':'those rounds')+'.\n\nPlease log in to the GHIN app or ghin.com and post your '+(r.missing.length===1?'score':'scores')+' at your earliest convenience.\n\nThank you,\nTreesdale Golf Shop';
-  return'mailto:'+r.email+'?subject='+encodeURIComponent(subject)+'&body='+encodeURIComponent(body);
+  const subject='Reminder to Post Missing Scores';
+  return'mailto:'+r.email+'?subject='+encodeURIComponent(subject)+'&body='+encodeURIComponent(buildEmailPlain(r));
 }
 function esc(s){const d=document.createElement('div');d.textContent=String(s||'');return d.innerHTML}
+
+// ===== GENERIC TABLE SORTING =====
+// Make every column header sortable across all tables (.tw).
+// Adds arrow indicators, sorts numerically when possible, alphabetically otherwise.
+function sortTable(table,colIdx,dir){
+  const tbody=table.tBodies[0];if(!tbody)return;
+  const rows=Array.from(tbody.rows).filter(r=>r.cells.length>colIdx);
+  if(!rows.length)return;
+  // Determine if column is numeric (most non-empty values are numbers)
+  const sample=rows.slice(0,10).map(r=>r.cells[colIdx].textContent.trim()).filter(t=>t&&t!=='—');
+  const numCount=sample.filter(t=>!isNaN(parseFloat(t.replace(/[%,$,]/g,'')))).length;
+  const isNum=sample.length>0&&numCount>=sample.length*0.7;
+  // Determine if column is a date (M/D/YY or M/D/YYYY format)
+  const dateRe=/^\d{1,2}\/\d{1,2}\/\d{2,4}$/;
+  const dateCount=sample.filter(t=>dateRe.test(t)).length;
+  const isDate=sample.length>0&&dateCount===sample.length;
+  rows.sort((a,b)=>{
+    const av=a.cells[colIdx].textContent.trim();
+    const bv=b.cells[colIdx].textContent.trim();
+    // Empty cells always sort to the bottom
+    if(!av&&!bv)return 0;if(!av)return 1;if(!bv)return -1;
+    if(av==='—'&&bv==='—')return 0;if(av==='—')return 1;if(bv==='—')return -1;
+    let cmp;
+    if(isDate){
+      const ad=parseDateStr(av),bd=parseDateStr(bv);
+      cmp=ad-bd;
+    } else if(isNum){
+      const an=parseFloat(av.replace(/[%,$,]/g,'')),bn=parseFloat(bv.replace(/[%,$,]/g,''));
+      cmp=an-bn;
+    } else {
+      cmp=av.localeCompare(bv,undefined,{numeric:true,sensitivity:'base'});
+    }
+    return dir==='asc'?cmp:-cmp;
+  });
+  for(const r of rows)tbody.appendChild(r);
+}
+function parseDateStr(s){const p=s.split('/');if(p.length!==3)return 0;const y=parseInt(p[2]);return new Date(y<100?2000+y:y,parseInt(p[0])-1,parseInt(p[1])).getTime();}
+// Add sort arrows + click handlers to a table's headers
+function makeTableSortable(table){
+  const ths=table.tHead?.rows[0]?.cells;if(!ths)return;
+  for(let i=0;i<ths.length;i++){
+    const th=ths[i];
+    if(th.classList.contains('no-sort'))continue;
+    if(!th.querySelector('.sort-arrow')){
+      const arrow=document.createElement('span');arrow.className='sort-arrow';arrow.textContent='↕';th.appendChild(arrow);
+    }
+    th.onclick=()=>{
+      const wasAsc=th.classList.contains('sort-asc');
+      const dir=wasAsc?'desc':'asc';
+      // Reset all headers
+      for(const h of ths){h.classList.remove('sort-asc','sort-desc');const a=h.querySelector('.sort-arrow');if(a)a.textContent='↕';}
+      th.classList.add(dir==='asc'?'sort-asc':'sort-desc');
+      const a=th.querySelector('.sort-arrow');if(a)a.textContent=dir==='asc'?'↑':'↓';
+      sortTable(table,i,dir);
+    };
+  }
+}
+// Activate sorting on every visible table (call after rendering)
+function activateSorting(){
+  document.querySelectorAll('.tw table').forEach(t=>makeTableSortable(t));
+}
+// Hook into render via MutationObserver — when .tw contents change, re-activate
+const _sortObserver=new MutationObserver(muts=>{
+  for(const m of muts){
+    if(m.target&&m.target.querySelectorAll){
+      m.target.querySelectorAll('table').forEach(t=>makeTableSortable(t));
+    }
+  }
+});
+function startSortObserver(){
+  document.querySelectorAll('.tw').forEach(c=>{
+    if(!c._observed){c._observed=true;_sortObserver.observe(c,{childList:true,subtree:true});}
+  });
+  activateSorting();
+}
+// Run on load + whenever new .tw containers appear
+document.addEventListener('DOMContentLoaded',startSortObserver);
+
+// ===== CUSTOM TOOLTIPS =====
+// Hijack all elements with title attribute to use a styled tooltip
+(function(){
+  let tt=null;let hideTimer=null;
+  function ensureTip(){
+    if(!tt){tt=document.createElement('div');tt.className='tt-tip';document.body.appendChild(tt);}
+    return tt;
+  }
+  function formatTip(raw){
+    // Support structured tooltips with format: "LABEL — Key: Val · Key: Val · ..."
+    // Or plain text. Auto-detect.
+    const m=raw.match(/^(POSTED|MISSING|MEMBER|ROUND)\s*[—-]\s*(.+)$/);
+    if(m){
+      const label=m[1];const rest=m[2];
+      const lblCls=label==='POSTED'?'ok':label==='MISSING'?'miss':'info';
+      const parts=rest.split(' · ').map(p=>{
+        const kv=p.split(': ');
+        if(kv.length===2)return `<div class="tt-tip-row"><span class="tt-tip-key">${escTip(kv[0])}</span><span class="tt-tip-val">${escTip(kv[1])}</span></div>`;
+        return `<div class="tt-tip-row"><span class="tt-tip-val">${escTip(p)}</span></div>`;
+      }).join('');
+      return `<span class="tt-tip-label ${lblCls}">${escTip(label)}</span>${parts}`;
+    }
+    return escTip(raw);
+  }
+  function escTip(s){const d=document.createElement('div');d.textContent=String(s||'');return d.innerHTML.replace(/\n/g,'<br>');}
+  function position(el){
+    const r=el.getBoundingClientRect();const tipR=tt.getBoundingClientRect();
+    let x=r.left+r.width/2-tipR.width/2;
+    let y=r.top-tipR.height-8;
+    if(y<8){y=r.bottom+8;}
+    if(x<8)x=8;
+    if(x+tipR.width>window.innerWidth-8)x=window.innerWidth-tipR.width-8;
+    tt.style.left=x+'px';tt.style.top=y+'px';
+  }
+  function show(el){
+    const raw=el.getAttribute('data-tt')||el.getAttribute('title');
+    if(!raw)return;
+    if(el.hasAttribute('title')){el.setAttribute('data-tt',raw);el.removeAttribute('title');}
+    ensureTip();tt.innerHTML=formatTip(raw);
+    requestAnimationFrame(()=>{position(el);tt.classList.add('show');});
+  }
+  function hide(){
+    if(tt)tt.classList.remove('show');
+  }
+  document.addEventListener('mouseover',e=>{
+    const el=e.target.closest('[title], [data-tt]');
+    if(!el)return;
+    clearTimeout(hideTimer);
+    show(el);
+  },true);
+  document.addEventListener('mouseout',e=>{
+    const el=e.target.closest('[title], [data-tt]');
+    if(!el)return;
+    hideTimer=setTimeout(hide,80);
+  },true);
+  document.addEventListener('scroll',hide,true);
+})();
 
 // Nickname dictionary for matching
 const NK={bob:'robert',robert:'bob',tom:'thomas',thomas:'tom',mike:'michael',michael:'mike',ed:'edwin',edwin:'ed',edward:'ed',tony:'anthony',anthony:'tony',bill:'william',william:'bill',jim:'james',james:'jim',jeff:'jeffrey',jeffrey:'jeff',joe:'joseph',joseph:'joe',greg:'gregory',gregory:'greg',tim:'timothy',timothy:'tim',pat:'patrick',patrick:'pat',dan:'daniel',daniel:'dan',don:'donald',donald:'don',matt:'matthew',matthew:'matt',chris:'christopher',christopher:'chris',steve:'stephen',stephen:'steve',steven:'steve',rob:'robert',nick:'nicholas',nicholas:'nick',jerry:'gerald',gerald:'jerry',chuck:'charles',charles:'chuck',doug:'douglas',douglas:'doug',brad:'bradley',bradley:'brad',dave:'david',david:'dave',drew:'andrew',andrew:'drew',lenny:'leonard',leonard:'lenny',ron:'ronald',ronald:'ron',ray:'raymond',raymond:'ray',sue:'susan',susan:'sue',suzy:'susan',ned:'edward',skip:'james',chip:'charles',dick:'richard',richard:'dick',rick:'richard',marge:'margaret',vicki:'vickie',vickie:'vicki',bobby:'robert',liz:'elizabeth',beth:'elizabeth',barb:'barbara',barbara:'barb',toni:'antonia',antonia:'toni',pete:'peter',peter:'pete',kate:'katherine',katherine:'kate',kathy:'katherine',katie:'katherine',josh:'joshua',joshua:'josh',ben:'benjamin',benjamin:'ben',zack:'zachary',zachary:'zack',zach:'zachary',alex:'alexander',alexander:'alex',sam:'samuel',samuel:'sam',sammy:'samuel',max:'maxwell',maxwell:'max',cassie:'cassandra',cassandra:'cassie',kim:'kimberly',kimberly:'kim',kenny:'kenneth',kenneth:'kenny',ken:'kenneth',larry:'lawrence',lawrence:'larry',randy:'randall',randall:'randy',fred:'frederick',frederick:'fred',jen:'jennifer',jennifer:'jen',jenny:'jennifer',abby:'abigail',abigail:'abby',meg:'megan',megan:'meg',becky:'rebecca',rebecca:'becky',rusty:'russell',russell:'rusty',russ:'russell',vicky:'victoria',victoria:'vicky',hal:'harold',harold:'hal',hank:'henry',henry:'hank',gus:'augustus',augustus:'gus',artie:'arthur',arthur:'artie',art:'arthur',herb:'herbert',herbert:'herb',phil:'philip',philip:'phil',phillip:'phil',stan:'stanley',stanley:'stan',mort:'morton',morton:'mort',sal:'salvatore',salvatore:'sal',vince:'vincent',vincent:'vince',gerry:'gerard',gerard:'gerry',marty:'martin',martin:'marty',allie:'alison',alison:'allie',patty:'patricia',patricia:'patty',pam:'pamela',pamela:'pam',cathy:'catherine',catherine:'cathy',terry:'terrence',terrence:'terry',lou:'louis',louis:'lou',lawrence:'larry'};
@@ -1184,7 +2856,207 @@ function nD(d){if(!d)return'';if(d.includes('-')){const p=d.split('-');return pa
 
 // Nav handler to load tee sheet data when switching tabs
 const _origNavTo=navTo;
-navTo=function(p){_origNavTo(p);if(p==='teeview')tvInit().catch(e=>console.error(e));if(p==='audit'){if(!$i('au-start').value)auInitWeek();else auLoadWeek();}if(p==='admin'&&currentRole==='admin')loadUsers();};
+navTo=function(p){_origNavTo(p);if(p==='teeview')tvInit().catch(e=>console.error(e));if(p==='audit'){if(!$i('au-start').value)auInitWeek();else auLoadWeek();}if(p==='admin'&&currentRole==='admin')loadUsers();if(p==='roster')rvLoad();if(p==='scoresview')svLoad();if(p==='dashboard')loadCalendar();};
+
+// ===== ROSTER VIEW =====
+let _rvRows=[];
+// Helper to fetch all rows from a Supabase table, paginating past the 1000-row API cap
+async function fetchAll(table,select='*',orderBy=null){
+  const all=[];const pageSize=1000;let from=0;
+  while(true){
+    let q=sb.from(table).select(select).range(from,from+pageSize-1);
+    if(orderBy)q=q.order(orderBy.col,{ascending:orderBy.asc!==false});
+    const{data,error}=await q;
+    if(error){console.error('fetchAll error:',error);break;}
+    if(!data||!data.length)break;
+    all.push(...data);
+    if(data.length<pageSize)break;
+    from+=pageSize;
+    if(from>50000)break; // safety cap
+  }
+  return all;
+}
+
+async function rvLoad(){
+  _rvRows=await fetchAll('roster','*',{col:'golfer_name',asc:true});
+  rvFilter();
+}
+function rvFilter(){
+  const q=($i('rv-search').value||'').toLowerCase().trim();
+  const statusFilter=$i('rv-status').value;
+  const gender=$i('rv-gender').value;
+  const filtered=_rvRows.filter(r=>{
+    // Status filter — uses real GHIN status column
+    const isActive=(r.status||'').toLowerCase()==='active';
+    if(statusFilter==='active'&&!isActive)return false;
+    if(statusFilter==='inactive'&&isActive)return false;
+    // Gender filter
+    if(gender!=='all'){
+      const g=(r.gender||'').toUpperCase().charAt(0);
+      if(g!==gender)return false;
+    }
+    // Search filter
+    if(!q)return true;
+    return(r.golfer_name||'').toLowerCase().includes(q)||
+      String(r.ghin_number||'').includes(q)||
+      (r.member_number||'').toLowerCase().includes(q)||
+      (r.email||'').toLowerCase().includes(q)||
+      (r.membership_code||'').toLowerCase().includes(q);
+  });
+  $i('rv-count').textContent=`${filtered.length} of ${_rvRows.length}`;
+  window._rvFiltered=filtered;
+  window._rvRendered=Math.min(100,filtered.length);
+  rvRenderTable();
+}
+function rvRenderTable(){
+  const filtered=window._rvFiltered||[];
+  const limit=window._rvRendered||100;
+  const isAdmin=currentRole==='admin';
+  const memberHeader=isAdmin?'<th>Member #</th>':'';
+  let h='<table><thead><tr><th>Name</th><th>GHIN</th>'+memberHeader+'<th>Code</th><th>Gender</th><th>HI</th><th>Status</th><th>Status Date</th><th>Email</th></tr></thead><tbody>';
+  for(let i=0;i<limit&&i<filtered.length;i++){
+    const r=filtered[i];
+    const memberNum=r.member_number||'';
+    const memberCell=isAdmin
+      ?`<td><div class="mn-cell" data-ghin="${r.ghin_number}"><span class="mn-text">${esc(memberNum)||'<span class="mn-empty">—</span>'}</span><button class="mn-edit-btn" onclick="rvEditMember(this)" data-tip="Edit member number"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 1 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg></button></div></td>`
+      :'';
+    const statusBadge=r.status?(r.status.toLowerCase()==='active'?`<span class="status-badge ok">${esc(r.status)}</span>`:`<span class="status-badge miss">${esc(r.status)}</span>`):'';
+    const sd=r.status_date?fmtDateOnly(r.status_date):'';
+    h+=`<tr><td><span class="nb">${esc(r.golfer_name||'')}</span></td><td>${r.ghin_number||''}</td>${memberCell}<td>${esc(r.membership_code||'')}</td><td>${esc(r.gender||'')}</td><td>${esc(r.current_hi||r.hi||'')}</td><td>${statusBadge}</td><td style="color:var(--tl);font-size:12px">${sd}</td><td style="color:var(--ts);font-size:12px">${esc(r.email||'')}</td></tr>`;
+  }
+  h+='</tbody></table>';
+  if(filtered.length>limit){
+    h+=`<div style="padding:14px;text-align:center;background:var(--card);border-top:1px solid var(--brl)"><button class="btn btn-outline btn-sm" onclick="rvLoadMore()">Show ${Math.min(100,filtered.length-limit)} more (${filtered.length-limit} remaining)</button></div>`;
+  }
+  $i('rv-table').innerHTML=h;
+}
+function rvLoadMore(){
+  window._rvRendered=Math.min((window._rvRendered||0)+100,(window._rvFiltered||[]).length);
+  rvRenderTable();
+}
+
+function rvEditMember(btn){
+  const cell=btn.closest('.mn-cell');
+  const ghin=parseInt(cell.dataset.ghin);
+  const r=_rvRows.find(x=>x.ghin_number===ghin);
+  const current=r?.member_number||'';
+  cell.innerHTML=`<input type="text" class="mn-input" value="${esc(current)}" data-ghin="${ghin}" data-orig="${esc(current)}" onblur="rvSaveMemberNum(this)" onkeydown="if(event.key==='Enter')this.blur();else if(event.key==='Escape'){this.value=this.dataset.orig;this.blur();}">`;
+  const inp=cell.querySelector('input');
+  inp.focus();
+  inp.select();
+}
+
+async function rvSaveMemberNum(input){
+  const ghin=parseInt(input.dataset.ghin);
+  const newVal=input.value.trim()||null;
+  const orig=input.dataset.orig||'';
+  const r=_rvRows.find(x=>x.ghin_number===ghin);
+  if(!r)return;
+  // If unchanged, just restore the read view
+  if((r.member_number||'')===(newVal||'')){
+    rvRestoreMemberCell(input.closest('.mn-cell'),r);
+    return;
+  }
+  const{error}=await sb.from('roster').update({member_number:newVal}).eq('ghin_number',ghin);
+  if(error){
+    alert('Error saving: '+error.message);
+    input.value=orig;
+    rvRestoreMemberCell(input.closest('.mn-cell'),r);
+    return;
+  }
+  r.member_number=newVal;
+  rvRestoreMemberCell(input.closest('.mn-cell'),r);
+}
+
+function rvRestoreMemberCell(cell,r){
+  const memberNum=r.member_number||'';
+  cell.innerHTML=`<span class="mn-text">${esc(memberNum)||'<span class="mn-empty">—</span>'}</span><button class="mn-edit-btn" onclick="rvEditMember(this)" data-tip="Edit member number"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 1 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg></button>`;
+}
+
+// ===== POSTED SCORES VIEW =====
+let _svRows=[],_svGenderMap={};
+async function svLoad(){
+  // Build GHIN -> gender map from roster
+  const roster=await fetchAll('roster','ghin_number,gender');
+  _svGenderMap={};
+  for(const r of roster){if(r.ghin_number)_svGenderMap[r.ghin_number]=(r.gender||'').toUpperCase().charAt(0);}
+  // Fetch ALL scores via pagination, then restrict scope to last 30 days from latest date
+  const allScores=await fetchAll('scores','*');
+  allScores.sort((a,b)=>{
+    const ap=parseScoreDate(a.posted_date),bp=parseScoreDate(b.posted_date);
+    if(bp!==ap)return bp-ap; // most recently posted first
+    const ad=parseScoreDate(a.date_played),bd=parseScoreDate(b.date_played);
+    return bd-ad;
+  });
+  if(allScores.length){
+    const maxTs=allScores.reduce((m,r)=>{const d=parseScoreDate(r.date_played);return d>m?d:m;},-Infinity);
+    const minTs=new Date(maxTs);minTs.setDate(minTs.getDate()-30);minTs.setHours(0,0,0,0);
+    // Scope = last 30 days only — these become the dataset and the "out of" denominator
+    _svRows=allScores.filter(r=>{const d=parseScoreDate(r.date_played);return d>=minTs.getTime()&&d<=maxTs;});
+    // Lock date pickers so only this range is selectable; greys out earlier dates
+    const fromIso=new Date(minTs).toISOString().split('T')[0];
+    const toIso=new Date(maxTs).toISOString().split('T')[0];
+    const fromEl=$i('sv-date-from'),toEl=$i('sv-date-to');
+    fromEl.setAttribute('min',fromIso);fromEl.setAttribute('max',toIso);
+    toEl.setAttribute('min',fromIso);toEl.setAttribute('max',toIso);
+    if(!fromEl.value||fromEl.value<fromIso||fromEl.value>toIso)fromEl.value=fromIso;
+    if(!toEl.value||toEl.value<fromIso||toEl.value>toIso)toEl.value=toIso;
+    _syncDpDisplay(fromEl);_syncDpDisplay(toEl);
+  } else {
+    _svRows=[];
+  }
+  svFilter();
+}
+function parseScoreDate(s){if(!s)return 0;const p=String(s).split('/');if(p.length!==3)return 0;const y=parseInt(p[2]);return new Date(y<100?2000+y:y,parseInt(p[0])-1,parseInt(p[1])).getTime();}
+function svFilter(){
+  const q=($i('sv-search').value||'').toLowerCase().trim();
+  const gender=$i('sv-gender').value;
+  const fromStr=$i('sv-date-from').value;const toStr=$i('sv-date-to').value;
+  const fromD=fromStr?new Date(fromStr+'T00:00:00').getTime():0;
+  const toD=toStr?new Date(toStr+'T23:59:59').getTime():Infinity;
+  const filtered=_svRows.filter(r=>{
+    const d=parseScoreDate(r.date_played);
+    if(d<fromD||d>toD)return false;
+    if(gender!=='all'){
+      const g=_svGenderMap[r.ghin_number];
+      if(g!==gender)return false;
+    }
+    if(!q)return true;
+    return(r.golfer_name||'').toLowerCase().includes(q)||
+      String(r.ghin_number||'').includes(q)||
+      (r.course_played||'').toLowerCase().includes(q);
+  });
+  // Default sort: Date Posted descending (most recent posts first)
+  filtered.sort((a,b)=>{
+    const ad=parseScoreDate(a.posted_date||a.date_played);
+    const bd=parseScoreDate(b.posted_date||b.date_played);
+    return bd-ad;
+  });
+  // _svRows is already scoped to last 30 days, so this denominator is correct
+  $i('sv-count').innerHTML=`<span style="color:var(--tl);font-weight:600">Shows last 30 days</span> <span style="color:var(--tx);font-weight:700;margin-left:6px;letter-spacing:.4px">${filtered.length} OUT OF ${_svRows.length}</span>`;
+  window._svFiltered=filtered;
+  window._svRendered=Math.min(100,filtered.length);
+  svRenderTable();
+}
+function svRenderTable(){
+  const filtered=window._svFiltered||[];
+  const limit=window._svRendered||100;
+  let h='<table><thead><tr><th>Date Played</th><th>Date Posted</th><th>Golfer</th><th>GHIN</th><th>Type</th><th>AGS</th><th>Holes</th><th>Diff</th><th>Course</th></tr></thead><tbody>';
+  for(let i=0;i<limit&&i<filtered.length;i++){
+    const r=filtered[i];
+    const postedCell=r.posted_date?esc(r.posted_date):'<span style="color:var(--tl)">—</span>';
+    h+=`<tr><td>${esc(r.date_played||'')}</td><td>${postedCell}</td><td><span class="nb">${esc(r.golfer_name||'')}</span></td><td>${r.ghin_number||''}</td><td style="font-size:12px;color:var(--ts)">${esc(r.score_type||'')}</td><td>${r.ags!=null?r.ags:''}</td><td>${r.holes_played!=null?r.holes_played:''}</td><td>${r.differential!=null?r.differential:''}</td><td class="ct" data-tip="${esc(r.course_played||'')}">${esc(r.course_played||'')}</td></tr>`;
+  }
+  h+='</tbody></table>';
+  if(filtered.length>limit){
+    h+=`<div style="padding:14px;text-align:center;background:var(--card);border-top:1px solid var(--brl)"><button class="btn btn-outline btn-sm" onclick="svLoadMore()">Show ${Math.min(100,filtered.length-limit)} more (${filtered.length-limit} remaining)</button></div>`;
+  }
+  $i('sv-table').innerHTML=h;
+}
+function svLoadMore(){
+  window._svRendered=Math.min((window._svRendered||0)+100,(window._svFiltered||[]).length);
+  svRenderTable();
+}
 
 // ===== USER MANAGEMENT =====
 async function loadUsers(){
@@ -1256,22 +3128,43 @@ function renderEmptyCalendar(){
   const first=new Date(calYear,calMonth,1),last=new Date(calYear,calMonth+1,0);
   $i('cal-month-label').textContent=first.toLocaleDateString('en-US',{month:'long',year:'numeric'});
   let h='';
-  for(const d of['Sun','Mon','Tue','Wed','Thu','Fri','Sat'])h+=`<div class="cal-day-header">${d}</div>`;
-  for(let i=0;i<first.getDay();i++)h+='<div class="cal-cell empty"></div>';
+  for(const d of ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'])h+=`<div class="cal-day-header">${d}</div>`;
+  // Mon-first: getDay() returns 0=Sun..6=Sat; convert to 0=Mon..6=Sun via (getDay()+6)%7
+  for(let i=0;i<((first.getDay()+6)%7);i++)h+='<div class="cal-cell empty"></div>';
   for(let d=1;d<=last.getDate();d++){
     const ds=`${calYear}-${pad0(calMonth+1)}-${pad0(d)}`;
     let chips='';
-    for(const c of COURSES){const short=c.split(' / ').map(w=>w[0]).join('/');chips+=`<div class="cal-chip missing" onclick="event.stopPropagation();chipClick('${ds}','${c}')" title="Upload ${c}">${short}</div>`;}
-    h+=`<div class="cal-cell"><div class="cal-date"><span>${d}</span><span class="close-btn" onclick="event.stopPropagation();toggleClosed('${ds}')" title="Mark Closed">—</span></div><div class="cal-courses">${chips}</div></div>`;
+    for(const c of COURSES){const short=c.split(' / ').map(w=>w[0]).join('/');chips+=`<div class="cal-chip missing" onclick="event.stopPropagation();chipClick('${ds}','${c}')" data-tip="Upload ${c}">${short}</div>`;}
+    h+=`<div class="cal-cell"><div class="cal-date"><span>${d}</span></div><div class="cal-courses">${chips}</div><div class="cal-footer"><span class="close-btn" onclick="event.stopPropagation();toggleClosed('${ds}')" data-tip="Mark Closed">—</span></div></div>`;
   }
   $i('cal-grid').innerHTML=h;
 }
 // Run auth check first; if logged in, init the app
 (async()=>{
   const ok=await checkAuth();
-  if(ok)init();
+  if(ok){await init();startSortObserver();}
 })();
 </script>
 </div><!-- /app-content -->
+<!-- EMAIL REMINDER MODAL -->
+<div class="em-overlay" id="em-modal" onclick="if(event.target===this)closeEmailModal()">
+  <div class="em-modal">
+    <div class="em-head">
+      <div class="em-title">Score Posting Reminder</div>
+      <button class="em-close" onclick="closeEmailModal()" data-tip="Close">×</button>
+    </div>
+    <div class="em-meta">
+      <div><strong>To:</strong> <span id="em-to"></span></div>
+      <div><strong>Subject:</strong> <span id="em-subject"></span></div>
+    </div>
+    <div class="em-body" id="em-preview"></div>
+    <div class="em-actions">
+      <button class="btn btn-primary btn-sm" onclick="openInGmail()">📧 Copy & Open in Gmail</button>
+      <button class="btn btn-outline btn-sm" onclick="copyEmailHTML()">📋 Copy Only</button>
+      <button class="btn btn-outline btn-sm" onclick="openInDefault()">Default Mail App</button>
+      <span class="em-status" id="em-status"></span>
+    </div>
+  </div>
+</div>
 </body>
 </html>
