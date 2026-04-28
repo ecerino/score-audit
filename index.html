@@ -1401,67 +1401,74 @@ async function loadCalendar(){
         byDayCourse[pd][e.course].push({...e,_date:pd});
       }
       // Need roster + scores for status calc
-      const roster=await fetchAll('roster','*');
-      const scores=await fetchAll('scores','golfer_name,date_played,posted_date');
-      const rLookup={};
-      for(const r of roster){const nm=(r.golfer_name||'').toLowerCase();const parts=nm.split(' ');if(parts.length<2)continue;const lk=nlk(parts[parts.length-1]);if(!rLookup[lk])rLookup[lk]=[];rLookup[lk].push({nm,info:{ghin:r.ghin_number,name:r.golfer_name,hi:r.current_hi,email:r.email}});}
-      const sLookup={};for(const s of scores){const nm=(s.golfer_name||'').toLowerCase();if(!sLookup[nm])sLookup[nm]=[];sLookup[nm].push(s.date_played);}
-      // Compute pct per day+course
-      for(const pd of Object.keys(byDayCourse)){
-        let dayPostable=0,dayPosted=0;
-        for(const c of Object.keys(byDayCourse[pd])){
-          const dayEntries=Object.values(byDayCourse[pd]).flat(); // all entries for that day across courses
-          // Match entries to roster
-          for(const e of dayEntries){
-            e.solo=false;e.ghin='';e.status='';e.rosterName='';
-            if(e.entry_type==='blocked'||e.entry_type==='employee'){e.status=e.entry_type;continue;}
-            const rm=mN(e.player_first,e.player_last,rLookup);
-            if(!rm){e.status='no_roster';continue;}
-            e.ghin=rm.info.ghin;e.rosterName=rm.info.name;e.status='__pending__';
-          }
-          // Solo detection within this day across all courses
-          const counts={};
-          for(const e of dayEntries){if(e.entry_type==='blocked')continue;const k=e._date+'|'+e.course+'|'+e.tee_time;counts[k]=(counts[k]||0)+1;}
-          for(const e of dayEntries){if(e.entry_type==='blocked')continue;const k=e._date+'|'+e.course+'|'+e.tee_time;if(counts[k]===1)e.solo=true;}
-          // Group by member, compute posted/missing
-          const memberRounds={};
-          for(const e of dayEntries){if(e.status!=='__pending__')continue;const key=String(e.ghin);if(!memberRounds[key])memberRounds[key]={first:e.player_first,last:e.player_last,rounds:[]};memberRounds[key].rounds.push(e);}
-          for(const key of Object.keys(memberRounds)){
-            const m=memberRounds[key];
-            const lastKey=nlk(m.last);
-            const postedByDate={};
-            const cleanFirst=firstName(m.first||'').toLowerCase().replace(/['\u2019]/g,'');
-            const vs=vr(cleanFirst);
-            for(const nm of Object.keys(sLookup)){
-              const cleaned=stripHonor(nm);const parts=cleaned.split(/\s+/);if(parts.length<2)continue;
-              const cl=nlk(parts[parts.length-1]);if(cl!==lastKey)continue;
-              const cf=parts[0];
-              if(vs.has(cf)||(cleanFirst.length>=3&&cf.length>=3&&cleanFirst.substring(0,3)===cf.substring(0,3))){
-                for(const d of sLookup[nm]){const nd=nD(d);postedByDate[nd]=(postedByDate[nd]||0)+1;}
-                break;
+      try {
+        const roster=await fetchAll('roster','*');
+        const scores=await fetchAll('scores','golfer_name,date_played,posted_date');
+        const rLookup={};
+        for(const r of roster){const nm=(r.golfer_name||'').toLowerCase();const parts=nm.split(' ');if(parts.length<2)continue;const lk=nlk(parts[parts.length-1]);if(!rLookup[lk])rLookup[lk]=[];rLookup[lk].push({nm,info:{ghin:r.ghin_number,name:r.golfer_name,hi:r.current_hi,email:r.email}});}
+        const sLookup={};for(const s of scores){const nm=(s.golfer_name||'').toLowerCase();if(!sLookup[nm])sLookup[nm]=[];sLookup[nm].push(s.date_played);}
+        // Compute pct per day+course
+        for(const pd of Object.keys(byDayCourse)){
+          let dayPostable=0,dayPosted=0;
+          for(const c of Object.keys(byDayCourse[pd])){
+            const dayEntries=Object.values(byDayCourse[pd]).flat(); // all entries for that day across courses
+            // Match entries to roster
+            for(const e of dayEntries){
+              e.solo=false;e.ghin='';e.status='';e.rosterName='';
+              if(e.entry_type==='blocked'||e.entry_type==='employee'){e.status=e.entry_type;continue;}
+              if(!e.player_first||!e.player_last){e.status='no_roster';continue;}
+              const rm=mN(e.player_first,e.player_last,rLookup);
+              if(!rm){e.status='no_roster';continue;}
+              e.ghin=rm.info.ghin;e.rosterName=rm.info.name;e.status='__pending__';
+            }
+            // Solo detection within this day across all courses
+            const counts={};
+            for(const e of dayEntries){if(e.entry_type==='blocked')continue;const k=e._date+'|'+e.course+'|'+e.tee_time;counts[k]=(counts[k]||0)+1;}
+            for(const e of dayEntries){if(e.entry_type==='blocked')continue;const k=e._date+'|'+e.course+'|'+e.tee_time;if(counts[k]===1)e.solo=true;}
+            // Group by member, compute posted/missing
+            const memberRounds={};
+            for(const e of dayEntries){if(e.status!=='__pending__')continue;const key=String(e.ghin);if(!memberRounds[key])memberRounds[key]={first:e.player_first,last:e.player_last,rounds:[]};memberRounds[key].rounds.push(e);}
+            for(const key of Object.keys(memberRounds)){
+              const m=memberRounds[key];
+              if(!m.last)continue;
+              const lastKey=nlk(m.last);
+              const postedByDate={};
+              const cleanFirst=firstName(m.first||'').toLowerCase().replace(/['\u2019]/g,'');
+              const vs=vr(cleanFirst);
+              for(const nm of Object.keys(sLookup)){
+                const cleaned=stripHonor(nm);const parts=cleaned.split(/\s+/);if(parts.length<2)continue;
+                const cl=nlk(parts[parts.length-1]);if(cl!==lastKey)continue;
+                const cf=parts[0];
+                if(vs.has(cf)||(cleanFirst.length>=3&&cf.length>=3&&cleanFirst.substring(0,3)===cf.substring(0,3))){
+                  for(const d of sLookup[nm]){const nd=nD(d);postedByDate[nd]=(postedByDate[nd]||0)+1;}
+                  break;
+                }
+              }
+              const roundsByDate={};
+              for(const r of m.rounds){const nd=nD(r._date);if(!roundsByDate[nd])roundsByDate[nd]=[];roundsByDate[nd].push(r);}
+              for(const[nd,rounds] of Object.entries(roundsByDate)){
+                const postable=rounds.filter(r=>!r.solo);const solos=rounds.filter(r=>r.solo);
+                const pc=postedByDate[nd]||0;
+                for(let i=0;i<postable.length;i++)postable[i].status=i<pc?'posted':'missing';
+                for(const r of solos)r.status='solo';
               }
             }
-            const roundsByDate={};
-            for(const r of m.rounds){const nd=nD(r._date);if(!roundsByDate[nd])roundsByDate[nd]=[];roundsByDate[nd].push(r);}
-            for(const[nd,rounds] of Object.entries(roundsByDate)){
-              const postable=rounds.filter(r=>!r.solo);const solos=rounds.filter(r=>r.solo);
-              const pc=postedByDate[nd]||0;
-              for(let i=0;i<postable.length;i++)postable[i].status=i<pc?'posted':'missing';
-              for(const r of solos)r.status='solo';
-            }
           }
+          // Now compute per-course pcts
+          for(const c of Object.keys(byDayCourse[pd])){
+            const ce=byDayCourse[pd][c];
+            const postable=ce.filter(e=>(e.status==='posted'||e.status==='missing')&&!e.solo);
+            const posted=postable.filter(e=>e.status==='posted').length;
+            calDayMap[pd].coursePcts[c]=postable.length?Math.round(posted/postable.length*100):null;
+            dayPostable+=postable.length;dayPosted+=posted;
+          }
+          calDayMap[pd].dayPct=dayPostable?Math.round(dayPosted/dayPostable*100):null;
+          calDayMap[pd].dayPostable=dayPostable;
+          calDayMap[pd].dayPosted=dayPosted;
         }
-        // Now compute per-course pcts
-        for(const c of Object.keys(byDayCourse[pd])){
-          const ce=byDayCourse[pd][c];
-          const postable=ce.filter(e=>(e.status==='posted'||e.status==='missing')&&!e.solo);
-          const posted=postable.filter(e=>e.status==='posted').length;
-          calDayMap[pd].coursePcts[c]=postable.length?Math.round(posted/postable.length*100):null;
-          dayPostable+=postable.length;dayPosted+=posted;
-        }
-        calDayMap[pd].dayPct=dayPostable?Math.round(dayPosted/dayPostable*100):null;
-        calDayMap[pd].dayPostable=dayPostable;
-        calDayMap[pd].dayPosted=dayPosted;
+      } catch(err) {
+        console.warn('Calendar status calculation failed (chips will show without %):',err);
+        // Continue with chips showing — coursePcts will be null, but courses Set is already populated
       }
     }
   }
@@ -1557,21 +1564,55 @@ function chipClick(dateStr,course){
 async function handleChipUpload(input){
   const f=input.files[0];if(!f){input.value='';return;}
   const{date,course}=pendingChip;if(!date||!course){input.value='';return;}
-  const parsed=parseHTM(await f.text());
-  if(!parsed.entries.length){alert('Could not parse tee sheet.');input.value='';return;}
-  if(parsed.course!==course){alert(`Wrong course!\n\nExpected: ${course}\nFile contains: ${parsed.course}`);input.value='';return;}
-  const dp=parsed.date.split('/');const fileDate=`${dp[2]}-${dp[0].padStart(2,'0')}-${dp[1].padStart(2,'0')}`;
+  let parsed;
+  try{parsed=parseHTM(await f.text());}
+  catch(err){alert('Could not read file: '+err.message);input.value='';return;}
+  if(!parsed.entries.length){alert('Could not parse tee sheet — no entries found.');input.value='';return;}
+  if(parsed.course!==course){alert(`Wrong course!\n\nExpected: ${course}\nFile contains: ${parsed.course||'(unknown)'}`);input.value='';return;}
+  const dp=parsed.date.split('/');
+  if(dp.length!==3){alert('Could not parse date from file. Filename or title may be malformed.');input.value='';return;}
+  const fileDate=`${dp[2]}-${dp[0].padStart(2,'0')}-${dp[1].padStart(2,'0')}`;
   if(fileDate!==date){const lbl=new Date(date+'T12:00:00').toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'});alert(`Wrong date!\n\nExpected: ${lbl}\nFile contains: ${parsed.date}`);input.value='';return;}
-  const{data:day}=await sb.from('tee_sheet_days').upsert({play_date:date,is_closed:false},{onConflict:'play_date'}).select().single();
-  if(!day){alert('Error saving');input.value='';return;}
-  await sb.from('tee_sheet_entries').delete().eq('day_id',day.id).eq('course',course);
+  // Show progress
+  showToast(`Uploading ${course} for ${parsed.date}…`,'info');
+  let dayResp;
+  try{
+    dayResp=await sb.from('tee_sheet_days').upsert({play_date:date,is_closed:false},{onConflict:'play_date'}).select().single();
+  }catch(err){alert('Error saving day: '+err.message);input.value='';return;}
+  if(!dayResp?.data){alert('Error saving day record');input.value='';return;}
+  const day=dayResp.data;
+  const{error:delErr}=await sb.from('tee_sheet_entries').delete().eq('day_id',day.id).eq('course',course);
+  if(delErr){alert('Error clearing previous entries: '+delErr.message);input.value='';return;}
   const rows=parsed.entries.map(e=>({day_id:day.id,course,tee_time:e.time,entry_type:e.type,player_name:e.name,player_first:e.first,player_last:e.last,member_code:e.code,holes:e.holes||null,reason:e.reason||null,is_solo:e.solo||false}));
-  for(let i=0;i<rows.length;i+=500){const{error}=await sb.from('tee_sheet_entries').insert(rows.slice(i,i+500));if(error){alert('Error: '+error.message);input.value='';return;}}
+  for(let i=0;i<rows.length;i+=500){
+    const{error}=await sb.from('tee_sheet_entries').insert(rows.slice(i,i+500));
+    if(error){alert('Error inserting entries: '+error.message);input.value='';return;}
+  }
+  // Refresh calendar IMMEDIATELY so user sees the result
+  input.value='';
+  pendingChip=null;
+  showToast(`✓ Uploaded ${course} (${rows.length} entries)`,'success');
+  await loadCalendar();
+  // Member-number capture runs in background — don't block UI on it
+  captureMemberNumbers(parsed.entries).catch(err=>console.warn('Member capture failed:',err));
+}
 
-  // Capture member numbers: match each member entry to roster, save their code as member_number
-  await captureMemberNumbers(parsed.entries);
-
-  input.value='';loadCalendar();
+// Lightweight toast notifications
+function showToast(msg,kind){
+  let t=document.getElementById('_toast');
+  if(!t){
+    t=document.createElement('div');
+    t.id='_toast';
+    t.style.cssText='position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:var(--card);border:1px solid var(--brd);border-radius:8px;padding:10px 16px;font-size:13px;font-weight:500;box-shadow:0 4px 16px rgba(0,0,0,.12);z-index:10001;max-width:90vw;transition:opacity .2s';
+    document.body.appendChild(t);
+  }
+  if(kind==='success'){t.style.borderColor='var(--ac)';t.style.color='var(--ac)';t.style.background='var(--al)';}
+  else if(kind==='error'){t.style.borderColor='#dc2626';t.style.color='#dc2626';t.style.background='var(--card)';}
+  else{t.style.borderColor='var(--brd)';t.style.color='var(--tx)';t.style.background='var(--card)';}
+  t.textContent=msg;
+  t.style.opacity='1';
+  clearTimeout(window._toastTimer);
+  window._toastTimer=setTimeout(()=>{t.style.opacity='0';},3000);
 }
 
 // Match tee sheet entries to roster and populate member_number for any unset ones
