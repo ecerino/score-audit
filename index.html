@@ -1633,7 +1633,10 @@ function showToast(msg,kind){
   window._toastTimer=setTimeout(()=>{t.style.opacity='0';},3000);
 }
 
-// Match tee sheet entries to roster and populate member_number for any unset ones
+// Match tee sheet entries to roster and populate member_number for any unset ones.
+// Only accepts member codes in the canonical L#### format (1 letter + 4 digits)
+// to prevent stray codes (raw GHINs, club codes, etc.) from corrupting the roster.
+const MEMBER_NUMBER_RE=/^[A-Z]\d{4}$/;
 async function captureMemberNumbers(entries){
   const{data:roster}=await sb.from('roster').select('ghin_number,golfer_name,member_number');
   if(!roster?.length)return;
@@ -1644,14 +1647,17 @@ async function captureMemberNumbers(entries){
     if(!rLookup[lk])rLookup[lk]=[];
     rLookup[lk].push({nm,info:{ghin:r.ghin_number,member_number:r.member_number}});
   }
-  // For each member entry with a code, match to roster and update if member_number not set
+  // For each member entry with a code, match to roster and update if member_number not set.
+  // Code must match L#### format — anything else is ignored.
   const updates=new Map(); // ghin -> code
   for(const e of entries){
     if(e.type!=='member'||!e.code||!e.first||!e.last)continue;
+    const code=String(e.code).trim().toUpperCase();
+    if(!MEMBER_NUMBER_RE.test(code))continue;
     const rm=mN(e.first,e.last,rLookup);
     if(!rm)continue;
     if(!rm.info.member_number&&!updates.has(rm.info.ghin)){
-      updates.set(rm.info.ghin,e.code);
+      updates.set(rm.info.ghin,code);
     }
   }
   if(updates.size===0)return;
