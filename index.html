@@ -976,7 +976,7 @@ function settingsInit(){
     const _connected=currentGmailToken&&_gmailTokenExpiry>Date.now();
     _sStatusEl.innerHTML=_connected
       ?`<span style="color:var(--ac)">✓ Connected as ${esc(currentGmailAccount)}</span>`
-      :'<span style="color:var(--ts)">Not connected — token loading...</span>';
+      :'<span style="color:var(--am)">Not connected — click Connect Gmail below</span>';
   }
   $i('settings-email').textContent=currentUser.email;
   if($i('settings-phone'))$i('settings-phone').value=currentPhone||'';
@@ -1547,12 +1547,18 @@ async function checkAuth(){
           currentGmailToken=t.access_token;
           _gmailTokenExpiry=Date.now()+(t.expires_in||3600)*1000-60000;
           try{sessionStorage.setItem('gmail_token',JSON.stringify({token:currentGmailToken,expiry:_gmailTokenExpiry}));}catch(_){}
-          // Update connect UI and status display
           _updateGmailConnectUI();
           const statusEl=$i('gmail-connect-status');
           if(statusEl)statusEl.innerHTML=`<span style="color:var(--ac)">✓ Connected as ${esc(currentGmailAccount)}</span>`;
+        } else {
+          // No refresh token stored yet — need one-time connect
+          const statusEl=$i('gmail-connect-status');
+          if(statusEl)statusEl.innerHTML='<span style="color:var(--am)">One-time setup required — go to Settings → Gmail Integration → Connect Gmail</span>';
         }
-      }).catch(()=>{});
+      }).catch(()=>{
+        const statusEl=$i('gmail-connect-status');
+        if(statusEl)statusEl.innerHTML='<span style="color:var(--am)">One-time setup required — go to Settings → Gmail Integration → Connect Gmail</span>';
+      });
   } else {
     // Token already valid — just update the UI display
     _updateGmailConnectUI();
