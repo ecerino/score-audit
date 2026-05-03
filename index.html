@@ -853,6 +853,11 @@ input::placeholder{color:var(--tl)}
             <label class="settings-label" for="settings-gmail-client">OAuth Client ID</label>
             <div class="settings-help" style="margin-top:0;margin-bottom:8px">From Google Cloud Console → Credentials → OAuth 2.0 Client ID. Required to send reminder emails directly from the app.</div>
             <input type="text" id="settings-gmail-client" class="settings-input" placeholder="123456789-abc.apps.googleusercontent.com">
+        </div>
+        <div class="settings-row">
+          <label class="settings-label" for="settings-gmail-secret">OAuth Client Secret</label>
+          <div class="settings-help" style="margin-top:0;margin-bottom:8px">From the same OAuth 2.0 credential. Click "Show Secret" in Google Cloud Console.</div>
+          <input type="password" id="settings-gmail-secret" class="settings-input" placeholder="GOCSPX-...">
           </div>
 
           <div class="settings-row">
@@ -964,6 +969,7 @@ function settingsInit(){
   if(!currentUser)return;
   $i('settings-name').value=currentName||'';
   if($i('settings-gmail-client'))$i('settings-gmail-client').value=currentGmailClientId||'';
+  if($i('settings-gmail-secret'))$i('settings-gmail-secret').value=currentGmailClientSecret?'••••••••••••••••':'';
   _updateGmailConnectUI();
   $i('settings-email').textContent=currentUser.email;
   if($i('settings-phone'))$i('settings-phone').value=currentPhone||'';
@@ -999,6 +1005,8 @@ async function settingsSave(){
   const newGender=_settingsPendingGender||currentGenderFilter;
   const newTheme=_settingsPendingTheme||currentThemeMode||'system';
   const newClientId=($i('settings-gmail-client')?.value||'').trim();
+  const rawSecret=($i('settings-gmail-secret')?.value||'').trim();
+  const newClientSecret=rawSecret==='••••••••••••••••'?currentGmailClientSecret:rawSecret;
   const msg=$i('settings-msg');
   if(!newName){msg.textContent='Name cannot be empty.';msg.className='settings-msg err';return;}
   msg.textContent='Saving…';msg.className='settings-msg';
@@ -1012,6 +1020,10 @@ async function settingsSave(){
     try{
       await sb.from('app_settings').upsert({key:'gmail_client_id',value:newClientId},{onConflict:'key'});
       currentGmailClientId=newClientId;
+      if(newClientSecret&&newClientSecret!==currentGmailClientSecret){
+        await sb.from('app_settings').upsert({key:'gmail_client_secret',value:newClientSecret},{onConflict:'key'});
+        currentGmailClientSecret=newClientSecret;
+      }
       currentGmailToken=null;_gmailTokenExpiry=0;
       sessionStorage.removeItem('gmail_token');
       _updateGmailConnectUI();
@@ -1025,9 +1037,12 @@ async function settingsSave(){
 
 let currentUser=null,currentRole='member',currentName='',currentPhone='',currentThemeMode='system';
 let currentGmailAccount=''; // club-wide Gmail address used for compose
-let currentGmailToken=null;  // OAuth access token from GIS
+let currentGmailToken=null;  // OAuth access token (short-lived)
 let currentGmailClientId=''; // OAuth client ID from app_settings
+let currentGmailClientSecret=''; // OAuth client secret from app_settings
 let _gmailTokenExpiry=0;     // epoch ms when token expires
+const GMAIL_EDGE_FN='https://tovurtavuhvorxdumzcb.supabase.co/functions/v1/gmail-token-exchange';
+const GMAIL_REDIRECT_URI='https://erino.github.io/score-audit/';
 
 // ===== AUTH =====
 async function doLogin(){
@@ -1163,6 +1178,7 @@ function _initTipHandlers(){
 }
 if(document.readyState==='loading'){
   document.addEventListener('DOMContentLoaded',_initTipHandlers);
+document.addEventListener('DOMContentLoaded',()=>{_handleGmailOAuthCallback().catch(e=>console.error('gmail cb:',e));});
 }else{
   _initTipHandlers();
 }
@@ -1503,10 +1519,11 @@ async function checkAuth(){
   setTimeout(_updateGmailConnectUI,500); // update settings UI once GIS loads
   // Load club-wide Gmail settings
   try{
-    const{data:gs}=await sb.from('app_settings').select('key,value').in('key',['gmail_account','gmail_client_id']);
+    const{data:gs}=await sb.from('app_settings').select('key,value').in('key',['gmail_account','gmail_client_id','gmail_client_secret']);
     for(const row of(gs||[])){
       if(row.key==='gmail_account')currentGmailAccount=row.value||'';
       if(row.key==='gmail_client_id')currentGmailClientId=row.value||'';
+      if(row.key==='gmail_client_secret')currentGmailClientSecret=row.value||'';
     }
   }catch(_){}
   // Restore token from sessionStorage if still valid
@@ -4225,32 +4242,55 @@ function _updateGmailConnectUI(){
 
 function gmailConnect(){
   const clientId=currentGmailClientId||$i('settings-gmail-client')?.value?.trim();
-  if(!clientId){alert('Enter your OAuth Client ID in Settings → Gmail Integration first.');navTo('settings');return;}
-  if(typeof google==='undefined'||!google.accounts){alert('Google Identity Services not loaded yet. Please wait a moment and try again.');return;}
-  const client=google.accounts.oauth2.initTokenClient({
+  const clientSecret=currentGmailClientSecret||$i('settings-gmail-secret')?.value?.trim();
+  if(!clientId||!clientSecret){alert('Enter your OAuth Client ID and Client Secret in Settings → Gmail Integration first.');navTo('settings');return;}
+  // Auth code flow — requests offline access so we get a refresh token
+  const params=new URLSearchParams({
     client_id:clientId,
-    scope:'https://www.googleapis.com/auth/gmail.send',
-    callback:(resp)=>{
-      if(resp.error){console.error('Gmail OAuth error:',resp);alert('Gmail connection failed: '+resp.error);return;}
-      currentGmailToken=resp.access_token;
-      _gmailTokenExpiry=Date.now()+(resp.expires_in||3600)*1000-60000;
-      // Get the email address from token info
-      fetch('https://www.googleapis.com/oauth2/v3/userinfo',{headers:{Authorization:'Bearer '+currentGmailToken}})
-        .then(r=>r.json()).then(u=>{
-          if(u.email){
-            currentGmailAccount=u.email;
-            sb.from('app_settings').upsert({key:'gmail_account',value:u.email},{onConflict:'key'}).then(()=>{});
-          }
-          try{sessionStorage.setItem('gmail_token',JSON.stringify({token:currentGmailToken,expiry:_gmailTokenExpiry}));}catch(_){}
-          _updateGmailConnectUI();
-          if($i('gmail-connect-status'))$i('gmail-connect-status').innerHTML=`<span style="color:var(--ac)">✓ Connected as ${currentGmailAccount}</span>`;
-        }).catch(()=>{
-          try{sessionStorage.setItem('gmail_token',JSON.stringify({token:currentGmailToken,expiry:_gmailTokenExpiry}));}catch(_){}
-          _updateGmailConnectUI();
-        });
-    }
+    redirect_uri:GMAIL_REDIRECT_URI,
+    response_type:'code',
+    scope:'https://www.googleapis.com/auth/gmail.send https://www.googleapis.com/auth/userinfo.email',
+    access_type:'offline',
+    prompt:'consent',// force consent to always get refresh token
+    state:'gmail_connect'
   });
-  client.requestAccessToken();
+  // Store client secret temporarily so the redirect handler can use it
+  try{sessionStorage.setItem('gmail_pending_secret',clientSecret);sessionStorage.setItem('gmail_pending_client_id',clientId);}catch(_){}
+  window.location.href='https://accounts.google.com/o/oauth2/v2/auth?'+params.toString();
+}
+
+// Called on page load if URL has ?code= and state=gmail_connect
+async function _handleGmailOAuthCallback(){
+  const url=new URL(window.location.href);
+  const code=url.searchParams.get('code');
+  const state=url.searchParams.get('state');
+  if(!code||state!=='gmail_connect')return;
+  // Clean URL immediately
+  window.history.replaceState({},'',window.location.pathname);
+  const clientId=sessionStorage.getItem('gmail_pending_client_id')||currentGmailClientId;
+  const clientSecret=sessionStorage.getItem('gmail_pending_secret')||currentGmailClientSecret;
+  sessionStorage.removeItem('gmail_pending_secret');
+  sessionStorage.removeItem('gmail_pending_client_id');
+  if(!clientId||!clientSecret){alert('OAuth callback error: missing credentials. Please try connecting again.');return;}
+  try{
+    const resp=await fetch(GMAIL_EDGE_FN,{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({code,client_id:clientId,client_secret:clientSecret,redirect_uri:GMAIL_REDIRECT_URI})
+    });
+    const data=await resp.json();
+    if(data.error){alert('Gmail connection failed: '+data.error+(data.detail?' — '+data.detail:''));return;}
+    currentGmailToken=data.access_token;
+    _gmailTokenExpiry=Date.now()+(data.expires_in||3600)*1000-60000;
+    currentGmailAccount=data.email||'';
+    currentGmailClientSecret=clientSecret;
+    currentGmailClientId=clientId;
+    try{sessionStorage.setItem('gmail_token',JSON.stringify({token:currentGmailToken,expiry:_gmailTokenExpiry}));}catch(_){}
+    _updateGmailConnectUI();
+    // Show success on settings page
+    if($i('gmail-connect-status'))$i('gmail-connect-status').innerHTML=`<span style="color:var(--ac)">✓ Connected as ${esc(currentGmailAccount)}</span>`;
+    alert('✓ Gmail connected as '+currentGmailAccount+'. All users will now send emails from this account.');
+  }catch(e){alert('Gmail connection error: '+e);}
 }
 
 function gmailDisconnect(){
@@ -4285,24 +4325,16 @@ function _buildMimeMessage(to,subject,htmlBody){
 
 async function gmailSendDirect(){
   const s=window._emailState;if(!s)return;
-  // Check token still valid
+  // Check token still valid — refresh via edge function if expired
   if(!currentGmailToken||_gmailTokenExpiry<=Date.now()){
-    // Token expired — re-auth then retry
-    const clientId=currentGmailClientId;
-    if(!clientId){gmailComposeURL();return;}
-    const client=google.accounts.oauth2.initTokenClient({
-      client_id:clientId,
-      scope:'https://www.googleapis.com/auth/gmail.send',
-      callback:async(resp)=>{
-        if(resp.error){gmailComposeURL();return;}
-        currentGmailToken=resp.access_token;
-        _gmailTokenExpiry=Date.now()+(resp.expires_in||3600)*1000-60000;
-        try{sessionStorage.setItem('gmail_token',JSON.stringify({token:currentGmailToken,expiry:_gmailTokenExpiry}));}catch(_){}
-        await gmailSendDirect();
-      }
-    });
-    client.requestAccessToken();
-    return;
+    try{
+      const r=await fetch(GMAIL_EDGE_FN,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'refresh'})});
+      const t=await r.json();
+      if(t.error||!t.access_token){gmailComposeURL();return;}
+      currentGmailToken=t.access_token;
+      _gmailTokenExpiry=Date.now()+(t.expires_in||3600)*1000-60000;
+      try{sessionStorage.setItem('gmail_token',JSON.stringify({token:currentGmailToken,expiry:_gmailTokenExpiry}));}catch(_){}
+    }catch(e){gmailComposeURL();return;}
   }
   const btn=$i('em-send-btn');
   const origText=btn?.textContent||'Send Email';
