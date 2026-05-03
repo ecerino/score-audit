@@ -881,7 +881,7 @@ input::placeholder{color:var(--tl)}
                 <li>New project → enable <strong>Gmail API</strong></li>
                 <li>OAuth consent screen → External → save</li>
                 <li>Credentials → OAuth 2.0 Client ID → Web app</li>
-                <li>Authorized origin: <code style="background:var(--card-2);padding:1px 5px;border-radius:3px;font-size:11px">https://erino.github.io</code></li>
+                <li>Authorized origin: <code style="background:var(--card-2);padding:1px 5px;border-radius:3px;font-size:11px">https://ecerino.github.io</code></li>
                 <li>Copy the Client ID → paste above → Save</li>
                 <li>Click <strong>Connect Gmail</strong> above</li>
               </ol>
@@ -1049,7 +1049,7 @@ let currentGmailClientId=''; // OAuth client ID from app_settings
 let currentGmailClientSecret=''; // OAuth client secret from app_settings
 let _gmailTokenExpiry=0;     // epoch ms when token expires
 const GMAIL_EDGE_FN='https://tovurtavuhvorxdumzcb.supabase.co/functions/v1/gmail-token-exchange';
-const GMAIL_REDIRECT_URI='https://erino.github.io/score-audit/';
+const GMAIL_REDIRECT_URI='https://ecerino.github.io/score-audit/';
 
 // ===== AUTH =====
 async function doLogin(){
