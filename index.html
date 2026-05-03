@@ -971,6 +971,13 @@ function settingsInit(){
   if($i('settings-gmail-client'))$i('settings-gmail-client').value=currentGmailClientId||'';
   if($i('settings-gmail-secret'))$i('settings-gmail-secret').value=currentGmailClientSecret?'••••••••••••••••':'';
   _updateGmailConnectUI();
+  const _sStatusEl=$i('gmail-connect-status');
+  if(_sStatusEl){
+    const _connected=currentGmailToken&&_gmailTokenExpiry>Date.now();
+    _sStatusEl.innerHTML=_connected
+      ?`<span style="color:var(--ac)">✓ Connected as ${esc(currentGmailAccount)}</span>`
+      :'<span style="color:var(--ts)">Not connected — token loading...</span>';
+  }
   $i('settings-email').textContent=currentUser.email;
   if($i('settings-phone'))$i('settings-phone').value=currentPhone||'';
   // Gender radio
@@ -1526,11 +1533,32 @@ async function checkAuth(){
       if(row.key==='gmail_client_secret')currentGmailClientSecret=row.value||'';
     }
   }catch(_){}
-  // Restore token from sessionStorage if still valid
+  // Always fetch a fresh Gmail access token on login using the stored refresh token
+  // This ensures all users are automatically connected without any manual setup
   try{
     const stored=sessionStorage.getItem('gmail_token');
     if(stored){const t=JSON.parse(stored);if(t.expiry>Date.now()){currentGmailToken=t.token;_gmailTokenExpiry=t.expiry;}}
   }catch(_){}
+  // If no valid token in session, fetch fresh one from edge function (uses stored refresh token)
+  if(!currentGmailToken||_gmailTokenExpiry<=Date.now()){
+    fetch(GMAIL_EDGE_FN,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'refresh'})})
+      .then(r=>r.json()).then(t=>{
+        if(t.access_token){
+          currentGmailToken=t.access_token;
+          _gmailTokenExpiry=Date.now()+(t.expires_in||3600)*1000-60000;
+          try{sessionStorage.setItem('gmail_token',JSON.stringify({token:currentGmailToken,expiry:_gmailTokenExpiry}));}catch(_){}
+          // Update connect UI and status display
+          _updateGmailConnectUI();
+          const statusEl=$i('gmail-connect-status');
+          if(statusEl)statusEl.innerHTML=`<span style="color:var(--ac)">✓ Connected as ${esc(currentGmailAccount)}</span>`;
+        }
+      }).catch(()=>{});
+  } else {
+    // Token already valid — just update the UI display
+    _updateGmailConnectUI();
+    const statusEl=$i('gmail-connect-status');
+    if(statusEl)statusEl.innerHTML=`<span style="color:var(--ac)">✓ Connected as ${esc(currentGmailAccount)}</span>`;
+  }
   currentGenderFilter=roleRow.gender_filter||'M';
   currentPhone=roleRow.phone_number||'';
   currentThemeMode=roleRow.theme_mode||localStorage.getItem('themeMode')||'system';
